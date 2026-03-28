@@ -14,14 +14,10 @@ const reminderService = require('./services/reminderService');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5600;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Initialize database
-initDatabase().catch(console.error);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -38,10 +34,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Start reminder service
-reminderService.start();
-
-// --- robust listen block (replace existing app.listen(...) block) ---
+// Robust listen block
 const startServer = (port) => {
   console.log('Attempting to listen on', port);
   const server = app.listen(port, '127.0.0.1', () => {
@@ -52,26 +45,32 @@ const startServer = (port) => {
     console.error('Server listen error:', err && err.code ? err.code : err);
     if (err && err.code === 'EADDRINUSE') {
       console.warn(`Port ${port} in use — trying ${port + 1}...`);
-      // small delay then try next port to avoid fast loop
       setTimeout(() => startServer(port + 1), 200);
     } else {
       console.error('Fatal server error:', err);
       process.exit(1);
     }
   });
-
-  // optional: log active handles count to detect duplicate servers
-  setTimeout(() => {
-    try {
-      // non-standard but helpful in dev
-      const handles = process._getActiveHandles ? process._getActiveHandles().length : 'n/a';
-      console.log('Active handles count (approx):', handles);
-    } catch (e) { /* ignore */ }
-  }, 500);
 };
 
-// start trying from env PORT or 5600
-const initialPort = process.env.PORT ? Number(process.env.PORT) : 5600;
-startServer(initialPort);
+// Initialize database and start server
+const startApp = async () => {
+  try {
+    // Start reminder service
+    reminderService.start();
+    
+    await initDatabase();
+    console.log('Database initialized, starting server...');
+    
+    const initialPort = process.env.PORT ? Number(process.env.PORT) : 5600;
+    startServer(initialPort);
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    // On Vercel, we don't want to exit(1) during cold start if possible, 
+    // but a database failure is fatal for the API.
+  }
+};
+
+startApp();
 
 module.exports = app;
