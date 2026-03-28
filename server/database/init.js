@@ -14,14 +14,17 @@ const pool = process.env.DATABASE_URL
     });
 
 async function initDatabase() {
+  console.log('Starting database initialization...');
   try {
     const schemaPath = path.join(__dirname, 'schema.sql');
+    console.log('Reading schema from:', schemaPath);
     const schema = fs.readFileSync(schemaPath, 'utf8');
     
     await pool.query(schema);
     console.log('Database schema initialized successfully');
   } catch (error) {
-    console.error('Error initializing database:', error);
+    console.error('CRITICAL: Database initialization failed:', error.message);
+    console.error('Error stack:', error.stack);
     throw error;
   }
 }
