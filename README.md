@@ -223,10 +223,6 @@ Notes:
 - The Vite dev server proxies `/api` to `http://localhost:5600`.
 - The backend can auto-increment to another port if `5600` is busy, but the frontend proxy is hardcoded to `5600`, so local development is simplest when the backend stays on `5600`.
 
-Relevant files:
-- [server/index.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/index.js)
-- [server/database/init.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/init.js)
-- [client/vite.config.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/vite.config.js)
 
 ## Installation
 
@@ -326,10 +322,6 @@ Default local URLs:
 - theme state is handled through React context
 - the UI is designed to support both light and dark themes
 
-Relevant files:
-- [client/src/services/api.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/services/api.js)
-- [client/src/contexts/AuthContext.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/contexts/AuthContext.jsx)
-- [client/src/contexts/ThemeContext.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/contexts/ThemeContext.jsx)
 
 ## Reminder And Notification Behavior
 
@@ -339,9 +331,6 @@ The server starts the reminder service at boot. It is responsible for checking h
 - goal-window follow-ups
 - milestone-related prompts
 
-Relevant files:
-- [server/services/reminderService.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/services/reminderService.js)
-- [client/src/components/NotificationBell.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/components/NotificationBell.jsx)
 
 ## Visual System
 
@@ -352,13 +341,6 @@ The current app uses:
 - premium glass/tinted surfaces
 - dark and light mode
 - consistent plant visuals across selection, growth, garden, and arboretum
-
-Primary UI entry points:
-- [client/src/pages/Landing.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Landing.jsx)
-- [client/src/pages/Dashboard.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Dashboard.jsx)
-- [client/src/pages/Habits.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Habits.jsx)
-- [client/src/pages/Reports.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Reports.jsx)
-- [client/src/pages/Garden.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Garden.jsx)
 
 ## Troubleshooting
 
