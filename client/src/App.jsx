@@ -93,7 +93,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-        <Route path="/" element={!user ? <Landing /> : <Navigate to="/dashboard" />} />
       </Routes>
     </Router>
   );
