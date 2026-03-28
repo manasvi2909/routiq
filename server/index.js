@@ -73,3 +73,5 @@ const startServer = (port) => {
 // start trying from env PORT or 5600
 const initialPort = process.env.PORT ? Number(process.env.PORT) : 5600;
 startServer(initialPort);
+
+module.exports = app;
