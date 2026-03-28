@@ -57,8 +57,8 @@ function Landing() {
             </h1>
 
             <p className="hero-subline">
-              RoutiQ turns habit tracking into a living studio: mood-aware, visually responsive,
-              and built to make consistency feel expressive instead of clinical.
+              A ritual-driven system for those who find traditional checklists cold, but still need
+              a clear structure to grow.
             </p>
 
             <div className="hero-actions-premium">
@@ -130,6 +130,54 @@ function Landing() {
         </div>
       </section>
 
+      <section className="problem-section">
+        <div className="container">
+          <div className="problem-grid">
+            <div className="problem-copy">
+              <span className="section-label">The Friction</span>
+              <h2 className="serif-title">The Boxy Prison</h2>
+              <p>
+                Most habit trackers feel like a second job. They are clinical, cold, and prioritize 
+                digits over depth. They treat your life like a spreadsheet to be managed, 
+                ignoring the atmospheric context of why we actually grow.
+              </p>
+              <ul className="problem-list">
+                <li>
+                  <strong>Clinical Coldness:</strong> Numbers don't capture the ritual of growth.
+                </li>
+                <li>
+                  <strong>Data Without Context:</strong> Tracking "completion" ignores how you actually felt.
+                </li>
+                <li>
+                  <strong>Admin Fatigue:</strong> Most apps feel like admin work, not a sanctuary.
+                </li>
+              </ul>
+            </div>
+            <div className="problem-visual">
+              <div className="binary-comparison">
+                <div className="comparison-side comparison-them">
+                  <span>Their approach</span>
+                  <div className="boxy-mockup">
+                    <div className="boxy-item" />
+                    <div className="boxy-item" />
+                    <div className="boxy-item" />
+                  </div>
+                  <p>Cold, transactional, boxy.</p>
+                </div>
+                <div className="comparison-side comparison-us">
+                  <span>The RoutiQ way</span>
+                  <div className="organic-mockup">
+                    <div className="organic-blob" />
+                    <div className="organic-seed" />
+                  </div>
+                  <p>Atmospheric, organic, alive.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="philosophy-section">
         <div className="philosophy-container">
           <div className="philosophy-grid">
@@ -172,9 +220,10 @@ function Landing() {
                 </div>
               </div>
               <h3>Living growth</h3>
-              <p>
-                Your routine evolves visually over time, so momentum feels grown and earned instead
-                of merely counted.
+              <p className="feature-poetic">Evolutionary Visualization</p>
+              <p className="feature-functional">
+                Your habits bloom into unique 3D botanical models that grow only when you do,
+                turning data into a digital garden.
               </p>
             </div>
 
@@ -188,9 +237,10 @@ function Landing() {
                 </div>
               </div>
               <h3>Mood resonance</h3>
-              <p>
-                Tie consistency to emotional context and notice what conditions actually sustain the
-                habits you want.
+              <p className="feature-poetic">Emotional Pattern Mapping</p>
+              <p className="feature-functional">
+                Stop tracking just "completion" and start seeing which moods actually drive your
+                consistency through deep-integrated reflection.
               </p>
             </div>
 
@@ -205,9 +255,10 @@ function Landing() {
                 </div>
               </div>
               <h3>Quiet analytics</h3>
-              <p>
-                Reports surface the shape of your progress without pushing you back into dashboard
-                fatigue.
+              <p className="feature-poetic">Stress-Free Insights</p>
+              <p className="feature-functional">
+                Get the clarity you need without the "dashboard fatigue." We translate numbers into
+                soft, high-fidelity signals that are easy to digest.
               </p>
             </div>
 
@@ -221,9 +272,10 @@ function Landing() {
                 </div>
               </div>
               <h3>Ambient flow</h3>
-              <p>
-                Motion, texture, and lighting keep the product feeling active, warm, and worth
-                returning to.
+              <p className="feature-poetic">Ritualized Interface</p>
+              <p className="feature-functional">
+                A glassmorphic design system with motion and grain that transforms daily administration
+                into an atmospheric ritual.
               </p>
             </div>
           </div>
