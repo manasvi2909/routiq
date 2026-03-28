@@ -159,6 +159,13 @@ body[data-theme='dark'] .landing-premium {
   background: rgba(255, 249, 235, 0.46);
   backdrop-filter: blur(16px);
   box-shadow: 0 16px 40px rgba(72, 104, 84, 0.08);
+  transition: background 0.4s ease, border 0.4s ease;
+}
+
+body[data-theme='dark'] .nav-container {
+  background: rgba(20, 51, 35, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
 }
 
 .brand-serif {
@@ -1380,6 +1387,48 @@ body[data-theme='dark'] .footer-container-minimal {
 @keyframes blobMorph {
   0% { border-radius: 50% 30% 70% 40%; }
   100% { border-radius: 30% 60% 40% 70%; }
+}
+
+/* Dark Mode Overrides for Problem Section */
+body[data-theme='dark'] .problem-section {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+body[data-theme='dark'] .problem-list li {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+body[data-theme='dark'] .binary-comparison {
+  background: rgba(10, 51, 35, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body[data-theme='dark'] .comparison-side span {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body[data-theme='dark'] .boxy-mockup {
+  background: #1a1a1a;
+}
+
+body[data-theme='dark'] .boxy-item {
+  background: #333;
+}
+
+body[data-theme='dark'] .feature-poetic {
+  color: #72b2a1;
+}
+
+body[data-theme='dark'] .feature-functional {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body[data-theme='dark'] .serif-title {
+  color: #fdfcf0;
+}
+
+body[data-theme='dark'] .problem-section p {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Feature Updates */
