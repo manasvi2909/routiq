@@ -84,10 +84,6 @@ Routiq includes a progression-based plant system.
 - the rendered plant builds incrementally instead of showing the final silhouette from the beginning
 - completing a plant triggers a celebration flow and allows the user to choose the next plant
 
-Current plant tiers are defined in:
-- [client/src/constants/plants.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/constants/plants.js)
-- [server/services/plantCatalog.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/services/plantCatalog.js)
-
 ## Tech Stack
 
 ### Frontend
@@ -195,9 +191,6 @@ The PostgreSQL schema includes:
 - `notifications`
 - `garden_plants`
 
-Schema file:
-- [server/database/schema.sql](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/schema.sql)
-
 ## Prerequisites
 
 - Node.js 18+ recommended
@@ -260,9 +253,6 @@ From the repo root:
 cd server
 node -e "require('./database/init').initDatabase().then(() => process.exit(0)).catch(() => process.exit(1))"
 ```
-
-This reads and executes:
-- [server/database/schema.sql](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/schema.sql)
 
 ## Running The App
 
