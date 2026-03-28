@@ -320,7 +320,6 @@ body[data-theme='dark'] ::-webkit-scrollbar-track {
 }
 
 body[data-theme='dark'] .navbar-container,
-body[data-theme='dark'] .nav-container,
 body[data-theme='dark'] .auth-card,
 body[data-theme='dark'] .add-habit-container,
 body[data-theme='dark'] .log-container,
@@ -359,8 +358,8 @@ body[data-theme='dark'] .registry-summary-card,
 body[data-theme='dark'] .garden-card,
 body[data-theme='dark'] .garden-empty,
 body[data-theme='dark'] .notification-item.unread {
-  background: var(--surface-panel) !important;
-  border-color: var(--color-border) !important;
+  background: var(--surface-panel);
+  border-color: var(--color-border);
   box-shadow: var(--shadow-soft);
 }
 

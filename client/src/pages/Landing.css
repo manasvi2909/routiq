@@ -1468,6 +1468,12 @@ body[data-theme='dark'] .problem-section p {
     filter 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.landing-nav-minimal {
+  padding: 1.5rem 5% 0;
+  z-index: 100;
+  position: relative;
+}
+
 .reveal.is-revealed {
   opacity: 1;
   transform: translateY(0) scale(1) translateZ(0);
