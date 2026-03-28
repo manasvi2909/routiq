@@ -1,23 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import TreeModel from '../components/TreeModel';
-import { Plus, Target, TrendingUp, Flame, Calendar, Award, Zap, BarChart3, CheckCircle } from 'lucide-react';
+import PlantPreview from '../components/PlantPreview';
+import { getPlantById } from '../constants/plants';
+import { Plus } from 'lucide-react';
 import './Dashboard.css';
 
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 function Dashboard() {
+  const { user } = useAuth();
   const [habits, setHabits] = useState([]);
   const [stats, setStats] = useState({
     totalHabits: 0,
     activeHabits: 0,
+    todayLogged: 0,
     todayCompletions: 0,
     streak: 0,
     completionRate: 0,
     daysCompleted: 0,
+    totalCompletions: 0,
     allHabitsCompletedToday: false
   });
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [gardenSummary, setGardenSummary] = useState(null);
+  const [featuredHabit, setFeaturedHabit] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -27,15 +42,25 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [habitsRes, logsRes] = await Promise.all([
+      const [habitsRes, logsRes, gardenRes] = await Promise.all([
         api.get('/habits'),
-        api.get('/logs')
+        api.get('/logs'),
+        api.get('/garden')
       ]);
 
       const allHabits = habitsRes.data;
       const activeHabits = allHabits.filter(h => h.is_active);
-      const today = new Date().toISOString().split('T')[0];
+      const spotlightHabit = [...activeHabits].sort((a, b) => {
+        const aTarget = getPlantById(a.selected_plant_type || 'fern').growthTarget || 12;
+        const bTarget = getPlantById(b.selected_plant_type || 'fern').growthTarget || 12;
+        const aProgress = (a.growth_stage || 0) / aTarget;
+        const bProgress = (b.growth_stage || 0) / bTarget;
+
+        return bProgress - aProgress || (b.growth_stage || 0) - (a.growth_stage || 0);
+      })[0] || null;
+      const today = getLocalDateString();
       const todayLogs = logsRes.data.filter(log => log.log_date === today);
+      const todayLoggedHabits = new Set(todayLogs.map(log => log.habit_id));
       
       const todayCompletedHabits = todayLogs.filter(log => log.completion_percentage === 3);
       const allHabitsCompletedToday = activeHabits.length > 0 && 
@@ -48,21 +73,26 @@ function Dashboard() {
         return logDate >= sevenDaysAgo && log.completion_percentage > 0;
       });
       
-      const totalCompletions = recentLogs.length;
+      const recentCompletionsCount = recentLogs.length;
       const totalPossible = activeHabits.length * 7;
-      const completionRate = totalPossible > 0 ? (totalCompletions / totalPossible) * 100 : 0;
+      const completionRate = totalPossible > 0 ? (recentCompletionsCount / totalPossible) * 100 : 0;
       
       const uniqueDays = new Set(recentLogs.map(log => log.log_date));
       const daysCompleted = uniqueDays.size;
+      const totalCompletions = logsRes.data.filter(log => log.completion_percentage === 3).length;
 
       setHabits(activeHabits);
+      setFeaturedHabit(spotlightHabit);
+      setGardenSummary(gardenRes.data);
       setStats({
         totalHabits: allHabits.length,
         activeHabits: activeHabits.length,
+        todayLogged: todayLoggedHabits.size,
         todayCompletions: todayCompletedHabits.length,
         streak: Math.max(...allHabits.map(h => h.consecutive_days || 0), 0),
         completionRate: Math.min(completionRate, 100),
         daysCompleted,
+        totalCompletions,
         allHabitsCompletedToday
       });
     } catch (error) {
@@ -74,207 +104,173 @@ function Dashboard() {
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return 'A New Dawn';
+    if (hour < 18) return 'A Quiet Afternoon';
+    return 'A Serene Evening';
   };
 
-  const getMotivationalQuote = () => {
+  const getBotanicalQuote = () => {
     const quotes = [
-      "Small steps every day",
-      "Progress, not perfection",
-      "You're building your future",
-      "Consistency is key",
-      "One habit at a time"
+      "The forest grows in quiet whispers.",
+      "Each small drop nourishes the root.",
+      "Patience is the gardener's greatest gift.",
+      "Bloom at your own natural pace.",
+      "Deep roots withstand the turning season."
     ];
     return quotes[Math.floor(stats.completionRate / 20) % quotes.length];
   };
+
+  const featuredGrowthTarget = featuredHabit
+    ? (getPlantById(featuredHabit.selected_plant_type || 'fern').growthTarget || 12)
+    : 12;
+  const featuredPlantProgress = featuredHabit
+    ? Math.min(100, ((featuredHabit.growth_stage || 0) / featuredGrowthTarget) * 100)
+    : stats.completionRate;
 
   if (loading) {
     return (
       <div className="dashboard-loading">
         <div className="loader"></div>
-        <p>Loading your RoutiQ journey...</p>
+        <p>Consulting the Botanical Logs...</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-unique">
-      {/* Floating Particles Background */}
-      <div className="dashboard-particles">
-        {[...Array(6)].map((_, i) => (
-          <div 
-            key={i} 
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${10 + Math.random() * 10}s`
-            }}
-          ></div>
-        ))}
-      </div>
-
-      {/* Hero Header - FIXED */}
-      <div className="dashboard-hero">
-        <div className="hero-left">
-          <h1 className="greeting">{getGreeting()}!</h1>
-          <p className="motivational-quote">{getMotivationalQuote()}</p>
-          <div className="time-display">
-            <Calendar size={16} />
-            <span>{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+    <div className="dashboard-premium">
+      <div className="dashboard-width">
+        <div className="dashboard-header-premium">
+          <div className="header-left">
+            <span className="dashboard-kicker">Daily atmosphere</span>
+            <h1 className="greeting-serif">{getGreeting()}, {user?.username}</h1>
+            <p className="motivational-italic">"{getBotanicalQuote()}"</p>
+            <div className="date-display">
+              <span>{currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <div className="header-note">
+              <strong>{stats.todayLogged}/{stats.activeHabits}</strong>
+              <span>Sequences logged today</span>
+            </div>
+          </div>
+          <div className="header-right">
+            <div className="dashboard-signal-card">
+              <span className="signal-label">Today&apos;s signal</span>
+              <strong>{stats.allHabitsCompletedToday ? 'Fully in bloom' : 'Still unfolding'}</strong>
+              <p>
+                {stats.allHabitsCompletedToday
+                  ? 'Every active ritual has been completed today.'
+                  : 'There is still room to turn today into a clean, intentional close.'}
+              </p>
+            </div>
+            <Link to="/habits/new" className="btn-add-premium">
+              <Plus size={18} />
+              <span>Plant Sequence</span>
+            </Link>
           </div>
         </div>
-        <div className="hero-right">
-          <Link to="/habits" className="hero-add-btn">
-            <Plus size={20} />
-            <span>Add Habit</span>
-          </Link>
-        </div>
-      </div>
 
-      {/* Dashboard Grid */}
-      <div className="dashboard-grid">
-        {/* Stats Row - SIMPLIFIED ICONS */}
-        <div className="stats-row">
-          <div className="stat-card">
-            <div className="stat-icon-wrapper">
-              <Flame size={26} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.streak}</h3>
-              <p>Day Streak</p>
-              <div className="stat-progress">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${Math.min((stats.streak / 30) * 100, 100)}%` }}
-                ></div>
+        <div className="stats-row-premium">
+          <div className="stat-card-premium">
+            <span className="stat-label">Total Blooms</span>
+            <span className="stat-value-serif">{stats.totalCompletions}</span>
+          </div>
+          <div className="stat-card-premium">
+            <span className="stat-label">Longest Vine</span>
+            <span className="stat-value-serif">{stats.streak}</span>
+          </div>
+          <div className="stat-card-premium">
+            <span className="stat-label">Active Seeds</span>
+            <span className="stat-value-serif">{stats.activeHabits}</span>
+          </div>
+          <div className="stat-card-premium">
+            <span className="stat-label">7-Day Rate</span>
+            <span className="stat-value-serif">{Math.round(stats.completionRate)}%</span>
+          </div>
+        </div>
+
+        <div className="content-grid-premium">
+          <div className="tree-section-premium">
+            <div className="section-title-premium">
+              <div>
+                <span className="section-kicker">Living model</span>
+                <h2 className="title-serif">The Arboretum</h2>
               </div>
+              <span className="completion-percentage">{Math.round(featuredPlantProgress)}%</span>
             </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon-wrapper">
-              <Target size={26} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.activeHabits}</h3>
-              <p>Active Habits</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon-wrapper">
-              <Zap size={26} />
-            </div>
-            <div className="stat-content">
-              <h3>{stats.todayCompletions}</h3>
-              <p>Completed Today</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon-wrapper">
-              <TrendingUp size={26} />
-            </div>
-            <div className="stat-content">
-              <h3>{Math.round(stats.completionRate)}%</h3>
-              <p>Weekly Rate</p>
-            </div>
-          </div>
-        </div>
-
-               {/* Main Content - PERFECT GRID LAYOUT */}
-               <div className="content-grid">
-          {/* Left Column - Tree */}
-          <div className="tree-section">
-            <div className="section-title">
-              <h2>Your Growth Tree</h2>
-              <div className="completion-badge">
-                {Math.round(stats.completionRate)}%
-              </div>
-            </div>
-            <div className="tree-container">
-              <TreeModel 
-                completionRate={stats.completionRate}
-                daysCompleted={stats.daysCompleted}
-                allHabitsCompletedToday={stats.allHabitsCompletedToday}
-                weekDay={new Date().getDay()}
+            
+            <div className="tree-container-premium">
+              <TreeModel
+                completionRate={featuredPlantProgress}
+                plantType={featuredHabit?.selected_plant_type}
+                growthStage={featuredHabit?.growth_stage}
               />
             </div>
-            <div className="tree-info">
-              <div className="tree-stat-item">
-                <Award size={16} />
-                <span>{stats.daysCompleted} days of growth</span>
-              </div>
-              {stats.allHabitsCompletedToday && (
-                <div className="tree-stat-item completed-badge">
-                  <CheckCircle size={16} />
-                  <span>All habits completed today!</span>
+            {featuredHabit && (
+              <div className="featured-plant-strip">
+                <PlantPreview
+                  plantType={featuredHabit.selected_plant_type}
+                  growthStage={featuredHabit.growth_stage}
+                  showLabel
+                />
+                <div className="featured-plant-copy">
+                  <span className="section-kicker">Spotlight plant</span>
+                  <h3>{featuredHabit.name}</h3>
+                  <p>{featuredHabit.current_goal || 'No active milestone goal set yet.'}</p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Column - Quick Actions + Your Habits */}
-          <div className="right-column">
-            {/* Quick Actions */}
-            <div className="quick-actions-card">
-              <h3>Quick Actions</h3>
-              <div className="actions-list">
-                <Link to="/habits" className="action-btn">
-                  <Target size={20} />
-                  <span>Manage Habits</span>
-                </Link>
-                <Link to="/reports" className="action-btn">
-                  <BarChart3 size={20} />
-                  <span>View Reports</span>
-                </Link>
+          <div className="habits-section-premium">
+            <div className="section-title-premium">
+              <div>
+                <span className="section-kicker">Current registry</span>
+                <h2 className="title-serif">Sequence Registry</h2>
               </div>
+              <Link to="/habits" className="view-all-link">Review All</Link>
             </div>
 
-            {/* Your Habits - Compact */}
-            <div className="habits-compact">
-              <div className="section-header-compact">
-                <h3>Your Habits</h3>
-                <Link to="/habits" className="view-all-link">View All →</Link>
-              </div>
-
-              {habits.length === 0 ? (
-                <div className="empty-state-compact">
-                  <div className="empty-icon-small">
-                    <Target size={32} />
-                  </div>
-                  <p>No habits yet</p>
-                  <Link to="/habits" className="start-link">
-                    <Plus size={16} />
-                    Get Started
-                  </Link>
-                </div>
-              ) : (
-                <div className="habits-list-compact">
-                  {habits.slice(0, 3).map(habit => (
-                    <div key={habit.id} className="habit-item-compact">
-                      <div className="habit-item-header">
-                        <h4>{habit.name}</h4>
-                        {habit.consecutive_days > 0 && (
-                          <div className="habit-streak-small">
-                            <Flame size={12} />
-                            <span>{habit.consecutive_days}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="habit-item-footer">
-                        <span className="habit-count">{habit.total_completions || 0} completions</span>
-                        <Link to={`/habits/${habit.id}/log`} className="log-link">
-                          Log →
-                        </Link>
+            <div className="habits-list-premium">
+              {habits.length > 0 ? (
+                habits.slice(0, 5).map(habit => (
+                  <div key={habit.id} className="habit-item-premium">
+                    <div className="habit-content">
+                      <h3 className="habit-title-serif">{habit.name}</h3>
+                      <div className="habit-meta">
+                        <span>{habit.consecutive_days || 0} day sequence</span>
+                        <Link to={`/habits/${habit.id}/log`} className="log-link">Archive Progress</Link>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state-premium">
+                  <p>No sequences have been planted yet.</p>
+                  <Link to="/habits/new" className="btn-add-premium">Begin your registry</Link>
                 </div>
               )}
+            </div>
+            <div className="dashboard-garden-preview">
+              <div className="section-title-premium compact">
+                <div>
+                  <span className="section-kicker">Garden archive</span>
+                  <h2 className="title-serif">Grown thus far</h2>
+                </div>
+                <Link to="/garden" className="view-all-link">Open Garden</Link>
+              </div>
+              <div className="garden-preview-row">
+                {(gardenSummary?.garden_plants || []).slice(0, 3).map((plant) => (
+                  <div key={plant.id} className="garden-preview-card">
+                    <PlantPreview plantType={plant.plant_type} growthStage={12} fullBloom />
+                    <span>{plant.habit_name}</span>
+                  </div>
+                ))}
+                {(!gardenSummary?.garden_plants || gardenSummary.garden_plants.length === 0) && (
+                  <div className="garden-preview-empty">
+                    Complete milestone cycles and your finished plants will collect here.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

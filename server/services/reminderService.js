@@ -1,65 +1,60 @@
 const cron = require('node-cron');
 const { pool } = require('../database/init');
 
+async function createNotificationIfMissing(userId, habitId, message, type) {
+  const existing = await pool.query(
+    `SELECT id
+     FROM notifications
+     WHERE user_id = $1
+       AND habit_id IS NOT DISTINCT FROM $2
+       AND notification_type = $3
+       AND DATE(created_at) = CURRENT_DATE
+     LIMIT 1`,
+    [userId, habitId || null, type]
+  );
+
+  if (existing.rows.length > 0) {
+    return;
+  }
+
+  await pool.query(
+    'INSERT INTO notifications (user_id, habit_id, message, notification_type) VALUES ($1, $2, $3, $4)',
+    [userId, habitId || null, message, type]
+  );
+}
+
 async function sendDailyReminders() {
   try {
-    // Get all users with reminders enabled
     const usersResult = await pool.query(
-      'SELECT id, username, reminder_time, reminder_enabled FROM users WHERE reminder_enabled = true'
+      'SELECT id, username, reminder_enabled FROM users WHERE reminder_enabled = true'
     );
 
     const today = new Date().toISOString().split('T')[0];
 
     for (const user of usersResult.rows) {
-      // Get active habits for user
       const habitsResult = await pool.query(
-        'SELECT id, name FROM habits WHERE user_id = $1 AND is_active = true',
+        'SELECT id, name, current_goal FROM habits WHERE user_id = $1 AND is_active = true',
         [user.id]
       );
 
-      if (habitsResult.rows.length === 0) continue;
+      if (habitsResult.rows.length === 0) {
+        continue;
+      }
 
-      // Check if user has already logged today
       const todayLogsResult = await pool.query(
         'SELECT COUNT(*) as count FROM habit_logs WHERE user_id = $1 AND log_date = $2',
         [user.id, today]
       );
 
-      const hasLoggedToday = parseInt(todayLogsResult.rows[0].count) > 0;
+      const hasLoggedToday = parseInt(todayLogsResult.rows[0].count, 10) > 0;
 
       if (!hasLoggedToday) {
-        // Create reminder notification
-        const habitNames = habitsResult.rows.map(h => h.name).join(', ');
-        const message = `Don't forget to log your habits today! ${habitNames}`;
-
-        await pool.query(
-          'INSERT INTO notifications (user_id, message, notification_type) VALUES ($1, $2, $3)',
-          [user.id, message, 'reminder']
-        );
-      }
-
-      // Check for inconsistent habits
-      for (const habit of habitsResult.rows) {
-        const { analyzeHabitConsistency } = require('./consistencyService');
-        const analysis = await analyzeHabitConsistency(habit.id, user.id);
-
-        if (analysis.isInconsistent) {
-          const habitDataResult = await pool.query(
-            'SELECT continue_reason, is_inconsistent FROM habits WHERE id = $1',
-            [habit.id]
-          );
-
-          const habitData = habitDataResult.rows[0];
-
-          if (habitData.is_inconsistent && habitData.continue_reason) {
-            // Send reminder with motivation
-            const message = `Remember: ${habit.name}. ${habitData.continue_reason}`;
-            await pool.query(
-              'INSERT INTO notifications (user_id, habit_id, message, notification_type) VALUES ($1, $2, $3, $4)',
-              [user.id, habit.id, message, 'motivation']
-            );
-          }
-        }
+        const habitSummary = habitsResult.rows
+          .slice(0, 3)
+          .map((habit) => habit.name)
+          .join(', ');
+        const message = `Today's garden still needs attention. Check in on: ${habitSummary}.`;
+        await createNotificationIfMissing(user.id, null, message, 'daily_summary');
       }
     }
 
@@ -69,7 +64,83 @@ async function sendDailyReminders() {
   }
 }
 
-// Schedule reminders to run every hour and check if it's time to send
+async function sendHabitTimeReminders() {
+  try {
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}:00`;
+    const today = now.toISOString().split('T')[0];
+
+    const result = await pool.query(
+      `SELECT h.id, h.name, h.current_goal, h.habit_time, u.id as user_id
+       FROM habits h
+       JOIN users u ON u.id = h.user_id
+       WHERE h.is_active = true
+         AND h.habit_time = $1
+         AND u.reminder_enabled = true`,
+      [currentTime]
+    );
+
+    for (const habit of result.rows) {
+      const logResult = await pool.query(
+        `SELECT id
+         FROM habit_logs
+         WHERE habit_id = $1 AND user_id = $2 AND log_date = $3
+         LIMIT 1`,
+        [habit.id, habit.user_id, today]
+      );
+
+      if (logResult.rows.length > 0) {
+        continue;
+      }
+
+      const message = habit.current_goal
+        ? `It's time for ${habit.name}. Current goal: ${habit.current_goal}.`
+        : `It's time for ${habit.name}.`;
+
+      await createNotificationIfMissing(habit.user_id, habit.id, message, 'habit_time');
+    }
+  } catch (error) {
+    console.error('Error sending habit-time reminders:', error);
+  }
+}
+
+async function sendGoalWindowPrompts() {
+  try {
+    const result = await pool.query(
+      `SELECT h.id, h.name, h.current_goal, h.current_goal_due_at, h.user_id
+       FROM habits h
+       JOIN users u ON u.id = h.user_id
+       WHERE h.is_active = true
+         AND h.current_goal_completed = false
+         AND h.current_goal_due_at IS NOT NULL
+         AND h.current_goal_due_at <= NOW()
+         AND h.goal_reminder_sent_at IS NULL
+         AND u.reminder_enabled = true`
+    );
+
+    for (const habit of result.rows) {
+      const message = `Goal check for ${habit.name}: did you complete "${habit.current_goal || 'this milestone'}" within the window? Open the registry to confirm and claim the reward.`;
+
+      await pool.query(
+        'UPDATE habits SET goal_reminder_sent_at = NOW() WHERE id = $1',
+        [habit.id]
+      );
+
+      await createNotificationIfMissing(habit.user_id, habit.id, message, 'goal_window');
+    }
+  } catch (error) {
+    console.error('Error sending goal-window prompts:', error);
+  }
+}
+
+cron.schedule('* * * * *', async () => {
+  await sendHabitTimeReminders();
+  await sendGoalWindowPrompts();
+});
+
 cron.schedule('0 * * * *', async () => {
   try {
     const now = new Date();
@@ -88,12 +159,15 @@ cron.schedule('0 * * * *', async () => {
   }
 });
 
-// Also send reminders at 9 AM by default
 cron.schedule('0 9 * * *', sendDailyReminders);
 
 function start() {
   console.log('Reminder service started');
 }
 
-module.exports = { start, sendDailyReminders };
-
+module.exports = {
+  start,
+  sendDailyReminders,
+  sendHabitTimeReminders,
+  sendGoalWindowPrompts
+};

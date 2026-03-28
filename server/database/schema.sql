@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reminder_time TIME DEFAULT '09:00:00',
-    reminder_enabled BOOLEAN DEFAULT true
+    reminder_enabled BOOLEAN DEFAULT true,
+    plants_fully_grown INTEGER DEFAULT 0
 );
 
 -- Habits table
@@ -31,6 +32,19 @@ CREATE TABLE IF NOT EXISTS habits (
     consecutive_days INTEGER DEFAULT 0,
     total_completions INTEGER DEFAULT 0,
     last_completed_at TIMESTAMP,
+    habit_time TIME,
+    current_goal TEXT,
+    current_reward TEXT,
+    goal_window_days INTEGER DEFAULT 1,
+    current_goal_started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    current_goal_due_at TIMESTAMP,
+    current_goal_completed BOOLEAN DEFAULT false,
+    goal_reminder_sent_at TIMESTAMP,
+    milestones_achieved INTEGER DEFAULT 0,
+    fully_grown_count INTEGER DEFAULT 0,
+    growth_stage INTEGER DEFAULT 0,
+    selected_plant_type VARCHAR(50) DEFAULT 'fern',
+    last_reward_claimed_at TIMESTAMP,
     -- Inconsistency analysis
     is_inconsistent BOOLEAN DEFAULT false,
     continue_reason TEXT,
@@ -103,6 +117,18 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Garden archive table
+CREATE TABLE IF NOT EXISTS garden_plants (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    habit_id INTEGER REFERENCES habits(id) ON DELETE SET NULL,
+    habit_name VARCHAR(100),
+    plant_type VARCHAR(50) NOT NULL,
+    milestone_number INTEGER DEFAULT 0,
+    reward_given TEXT,
+    grown_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_habits_user_id ON habits(user_id);
 CREATE INDEX IF NOT EXISTS idx_habit_logs_user_id ON habit_logs(user_id);
@@ -113,4 +139,20 @@ CREATE INDEX IF NOT EXISTS idx_mood_logs_date ON mood_logs(log_date);
 CREATE INDEX IF NOT EXISTS idx_weekly_reports_user_id ON weekly_reports(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_sub_tasks_habit_id ON sub_tasks(habit_id);
+CREATE INDEX IF NOT EXISTS idx_garden_plants_user_id ON garden_plants(user_id);
 
+ALTER TABLE users ADD COLUMN IF NOT EXISTS plants_fully_grown INTEGER DEFAULT 0;
+
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS habit_time TIME;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS current_goal TEXT;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS current_reward TEXT;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS goal_window_days INTEGER DEFAULT 1;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS current_goal_started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS current_goal_due_at TIMESTAMP;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS current_goal_completed BOOLEAN DEFAULT false;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS goal_reminder_sent_at TIMESTAMP;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS milestones_achieved INTEGER DEFAULT 0;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS fully_grown_count INTEGER DEFAULT 0;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS growth_stage INTEGER DEFAULT 0;
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS selected_plant_type VARCHAR(50) DEFAULT 'fern';
+ALTER TABLE habits ADD COLUMN IF NOT EXISTS last_reward_claimed_at TIMESTAMP;

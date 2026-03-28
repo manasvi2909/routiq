@@ -8,13 +8,13 @@ const moodRoutes = require('./routes/mood');
 const reportRoutes = require('./routes/reports');
 const notificationRoutes = require('./routes/notifications');
 const subtaskRoutes = require('./routes/subtasks');
+const gardenRoutes = require('./routes/garden');
 const reminderService = require('./services/reminderService');
 
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5600;
-app.listen(PORT, () => console.log(`Server started on ${PORT}`));
 
 // Middleware
 app.use(cors());
@@ -31,6 +31,7 @@ app.use('/api/mood', moodRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/subtasks', subtaskRoutes);
+app.use('/api/garden', gardenRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

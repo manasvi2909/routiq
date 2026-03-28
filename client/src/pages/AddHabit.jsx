@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import PlantPreview from '../components/PlantPreview';
 import './AddHabit.css';
 
 function AddHabit() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [plantCatalog, setPlantCatalog] = useState([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -15,9 +18,29 @@ function AddHabit() {
     whom_tell: '',
     who_inspires: '',
     milestones: '',
-    treat_myself: ''
+    treat_myself: '',
+    current_goal: '',
+    current_reward: '',
+    habit_time: '08:00',
+    goal_window_days: 1,
+    selected_plant_type: 'fern'
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const response = await api.get('/habits/plant-catalog');
+        setPlantCatalog(response.data.catalog);
+      } catch (error) {
+        console.error('Error fetching plant catalog:', error);
+      } finally {
+        setLoadingCatalog(false);
+      }
+    };
+
+    fetchCatalog();
+  }, []);
 
   const handleNext = () => {
     if (step < 4) {
@@ -37,11 +60,10 @@ function AddHabit() {
 
     try {
       await api.post('/habits', formData);
-      alert('Habit created successfully!');
       navigate('/habits');
     } catch (error) {
       console.error('Error creating habit:', error);
-      alert('Error creating habit');
+      alert(error.response?.data?.error || 'Error recording sequence');
     } finally {
       setLoading(false);
     }
@@ -51,154 +73,220 @@ function AddHabit() {
     <div className="add-habit-page">
       <div className="add-habit-container">
         <div className="add-habit-header">
-          <h1>Create New Habit</h1>
-          <p className="add-habit-subtitle">Add a new habit to your RoutiQ routine</p>
+          <span className="eyebrow">Create a new ritual</span>
+          <h1>Registry Entry</h1>
+          <p className="add-habit-subtitle">
+            Configure the habit, the reminder moment, the milestone window, and the plant that will grow with it.
+          </p>
         </div>
-        
+
         <div className="progress-indicator">
-          <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>1</div>
-          <div className="progress-line"></div>
-          <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>2</div>
-          <div className="progress-line"></div>
-          <div className={`progress-step ${step >= 3 ? 'active' : ''}`}>3</div>
-          <div className="progress-line"></div>
-          <div className={`progress-step ${step >= 4 ? 'active' : ''}`}>4</div>
+          <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>Identity</div>
+          <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>Support</div>
+          <div className={`progress-step ${step >= 3 ? 'active' : ''}`}>Milestone</div>
+          <div className={`progress-step ${step >= 4 ? 'active' : ''}`}>Plant</div>
         </div>
 
         <form onSubmit={handleSubmit}>
           {step === 1 && (
             <div className="form-step">
-              <h2>Basic Information</h2>
-              <p className="step-description">Let's start building your RoutiQ habit</p>
+              <h2>The rhythm</h2>
+              <p className="step-description">Name the ritual and define when it should happen.</p>
+
               <div className="form-group">
-                <label>Habit Name *</label>
+                <label>Sequence name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  placeholder="e.g., Morning Meditation"
+                  placeholder="Morning Stillness"
                 />
               </div>
+
               <div className="form-group">
-                <label>Description</label>
+                <label>Root purpose</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of your habit"
-                  rows="3"
+                  placeholder="Why does this habit matter to the life you're building?"
                 />
               </div>
+
+              <div className="form-group">
+                <label>Reminder time</label>
+                <input
+                  type="time"
+                  value={formData.habit_time}
+                  onChange={(e) => setFormData({ ...formData, habit_time: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Specific cue</label>
+                <textarea
+                  value={formData.when_specifically}
+                  onChange={(e) => setFormData({ ...formData, when_specifically: e.target.value })}
+                  placeholder="For example: right after tea, before opening messages, or once I get back from class."
+                />
+              </div>
+
               <button type="button" onClick={handleNext} className="next-btn">
-                Next
+                Continue
               </button>
             </div>
           )}
 
           {step === 2 && (
             <div className="form-step">
-              <h2>Planning & Motivation</h2>
+              <h2>The support system</h2>
+              <p className="step-description">Document the motivation, the friction, and the person watching your progress.</p>
+
               <div className="form-group">
-                <label>When Specifically? *</label>
-                <textarea
-                  value={formData.when_specifically}
-                  onChange={(e) => setFormData({ ...formData, when_specifically: e.target.value })}
-                  required
-                  placeholder="Plan A: Do everything right after waking up and before starting to work. Plan B: Do what's left before bed."
-                  rows="3"
-                />
-              </div>
-              <div className="form-group">
-                <label>What's Motivating Me? *</label>
+                <label>Motivation</label>
                 <textarea
                   value={formData.what_motivating}
                   onChange={(e) => setFormData({ ...formData, what_motivating: e.target.value })}
-                  required
-                  placeholder="e.g., stronger immune-system, more calmness and energy during the day, personal development and progress"
-                  rows="4"
+                  placeholder="What makes this ritual worth keeping?"
                 />
               </div>
+
+              <div className="form-group">
+                <label>Potential friction</label>
+                <textarea
+                  value={formData.what_hindering}
+                  onChange={(e) => setFormData({ ...formData, what_hindering: e.target.value })}
+                  placeholder="What usually gets in the way?"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Accountability person</label>
+                <input
+                  type="text"
+                  value={formData.whom_tell}
+                  onChange={(e) => setFormData({ ...formData, whom_tell: e.target.value })}
+                  placeholder="Who is monitoring this habit with you?"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Who inspires this goal?</label>
+                <input
+                  type="text"
+                  value={formData.who_inspires}
+                  onChange={(e) => setFormData({ ...formData, who_inspires: e.target.value })}
+                  placeholder="A person, mentor, or version of yourself"
+                />
+              </div>
+
               <div className="button-group">
-                <button type="button" onClick={handleBack} className="back-btn">
-                  Back
-                </button>
-                <button type="button" onClick={handleNext} className="next-btn">
-                  Next
-                </button>
+                <button type="button" onClick={handleBack} className="back-btn">Back</button>
+                <button type="button" onClick={handleNext} className="next-btn">Continue</button>
               </div>
             </div>
           )}
 
           {step === 3 && (
             <div className="form-step">
-              <h2>Challenges & Support</h2>
-              <p className="step-description">RoutiQ helps you overcome obstacles</p>
+              <h2>The current milestone</h2>
+              <p className="step-description">Set the immediate goal, the reward, and the completion window for this milestone.</p>
+
               <div className="form-group">
-                <label>What's Hindering Me?</label>
+                <label>Current goal</label>
                 <textarea
-                  value={formData.what_hindering}
-                  onChange={(e) => setFormData({ ...formData, what_hindering: e.target.value })}
-                  placeholder="e.g., Having a Cold, Traveling and not being home, early meetings, being in a hurry"
-                  rows="3"
+                  value={formData.current_goal}
+                  onChange={(e) => setFormData({ ...formData, current_goal: e.target.value })}
+                  required
+                  placeholder="What should be completed before the next reward is given?"
                 />
               </div>
+
               <div className="form-group">
-                <label>Whom Do I Tell? (Accountability)</label>
+                <label>Reward when achieved</label>
                 <input
                   type="text"
-                  value={formData.whom_tell}
-                  onChange={(e) => setFormData({ ...formData, whom_tell: e.target.value })}
-                  placeholder="e.g., Colleagues Andreas & Tina, Family"
+                  value={formData.current_reward}
+                  onChange={(e) => setFormData({ ...formData, current_reward: e.target.value })}
+                  required
+                  placeholder="Coffee out, a movie night, a quiet walk..."
                 />
               </div>
+
               <div className="form-group">
-                <label>Who Inspires Me?</label>
+                <label>Goal window in days</label>
+                <select
+                  value={formData.goal_window_days}
+                  onChange={(e) => setFormData({ ...formData, goal_window_days: parseInt(e.target.value, 10) })}
+                >
+                  {[1, 2, 3, 5, 7, 10, 14].map((value) => (
+                    <option key={value} value={value}>
+                      {value} {value === 1 ? 'day' : 'days'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Longer milestone vision</label>
+                <textarea
+                  value={formData.milestones}
+                  onChange={(e) => setFormData({ ...formData, milestones: e.target.value })}
+                  placeholder="What larger milestone path are you building toward?"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Celebration style</label>
                 <input
                   type="text"
-                  value={formData.who_inspires}
-                  onChange={(e) => setFormData({ ...formData, who_inspires: e.target.value })}
-                  placeholder="e.g., My Dad: Swims in Ice Water every Morning, James Clear: Master of Habits"
+                  value={formData.treat_myself}
+                  onChange={(e) => setFormData({ ...formData, treat_myself: e.target.value })}
+                  placeholder="How do you like to celebrate progress overall?"
                 />
               </div>
+
               <div className="button-group">
-                <button type="button" onClick={handleBack} className="back-btn">
-                  Back
-                </button>
-                <button type="button" onClick={handleNext} className="next-btn">
-                  Next
-                </button>
+                <button type="button" onClick={handleBack} className="back-btn">Back</button>
+                <button type="button" onClick={handleNext} className="next-btn">Continue</button>
               </div>
             </div>
           )}
 
           {step === 4 && (
             <div className="form-step">
-              <h2>Goals & Rewards</h2>
-              <p className="step-description">Set milestones and celebrate with RoutiQ</p>
-              <div className="form-group">
-                <label>My Milestones Are:</label>
-                <textarea
-                  value={formData.milestones}
-                  onChange={(e) => setFormData({ ...formData, milestones: e.target.value })}
-                  placeholder="e.g., 10 days without missing twice, 20 days without missing twice"
-                  rows="3"
-                />
+              <h2>Select the plant</h2>
+              <p className="step-description">Choose the plant that will visually grow with this habit. Rarer plants unlock as your garden fills.</p>
+
+              <div className="plant-selector-grid">
+                {loadingCatalog ? (
+                  <div className="plant-selector-loading">Loading plant catalog...</div>
+                ) : (
+                  plantCatalog.map((plant) => (
+                    <button
+                      key={plant.id}
+                      type="button"
+                      className={`plant-option-card ${formData.selected_plant_type === plant.id ? 'selected' : ''} ${!plant.unlocked ? 'locked' : ''}`}
+                      onClick={() => plant.unlocked && setFormData({ ...formData, selected_plant_type: plant.id })}
+                      disabled={!plant.unlocked}
+                    >
+                      <PlantPreview plantType={plant.id} growthStage={plant.growthTarget} showLabel fullBloom />
+                      <p>{plant.description}</p>
+                      <span>
+                        {plant.unlocked
+                          ? `${plant.growthTarget} growth points to fully bloom`
+                          : `Unlock at ${plant.unlockCount} full plants`}
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
-              <div className="form-group">
-                <label>I'm Gonna Treat Myself With:</label>
-                <input
-                  type="text"
-                  value={formData.treat_myself}
-                  onChange={(e) => setFormData({ ...formData, treat_myself: e.target.value })}
-                  placeholder="e.g., Thai Massage, Day at the Spa, Eating Out Korean Food"
-                />
-              </div>
+
               <div className="button-group">
-                <button type="button" onClick={handleBack} className="back-btn">
-                  Back
-                </button>
+                <button type="button" onClick={handleBack} className="back-btn">Back</button>
                 <button type="submit" disabled={loading} className="submit-btn">
-                  {loading ? 'Creating...' : 'Create Habit'}
+                  {loading ? 'Creating ritual...' : 'Finalize Registry'}
                 </button>
               </div>
             </div>
@@ -210,4 +298,3 @@ function AddHabit() {
 }
 
 export default AddHabit;
-

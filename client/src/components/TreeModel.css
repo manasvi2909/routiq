@@ -1,352 +1,104 @@
-.tree-model-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2.5rem;
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  border-radius: 24px;
+.botanical-tree-wrapper {
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-
-/* Animated background elements */
-.tree-bg-elements {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+  min-height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0.5rem 1rem 0;
+  overflow: hidden;
 }
 
-.tree-bg-circle {
+.arboretum-aura {
   position: absolute;
+  width: min(82vw, 38rem);
+  aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(103, 125, 106, 0.15) 0%, transparent 70%);
-  animation: float 20s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.08) 34%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(circle at 50% 50%, rgba(190, 224, 215, 0.12), rgba(190, 224, 215, 0) 74%);
+  filter: blur(6px);
+  animation: arboretumPulse 7s ease-in-out infinite alternate;
 }
 
-.circle-1 {
-  width: 300px;
-  height: 300px;
-  top: -100px;
-  left: -100px;
-  animation-delay: 0s;
+.arboretum-motes {
+  position: absolute;
+  inset: 18% 12% 16%;
+  pointer-events: none;
 }
 
-.circle-2 {
-  width: 200px;
-  height: 200px;
-  bottom: -50px;
-  right: -50px;
-  animation-delay: 7s;
+.mote {
+  position: absolute;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: rgba(255, 246, 216, 0.82);
+  box-shadow: 0 0 18px rgba(255, 246, 216, 0.35);
+  animation: moteDrift 8s ease-in-out infinite alternate;
 }
 
-.circle-3 {
-  width: 150px;
-  height: 150px;
-  top: 50%;
-  right: -30px;
-  animation-delay: 14s;
+.mote-one {
+  top: 16%;
+  left: 22%;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.3;
+.mote-two {
+  top: 8%;
+  right: 26%;
+  width: 0.65rem;
+  height: 0.65rem;
+  animation-delay: 1s;
+}
+
+.mote-three {
+  top: 48%;
+  right: 14%;
+  width: 0.72rem;
+  height: 0.72rem;
+  animation-delay: 1.8s;
+}
+
+.arboretum-plant {
+  position: relative;
+  z-index: 1;
+  transition: transform 320ms ease;
+  transform-origin: center bottom;
+}
+
+.arboretum-plant .plant-preview {
+  gap: 0;
+}
+
+.arboretum-plant .plant-preview.large .plant-preview-svg {
+  width: min(100%, 29rem);
+  filter: drop-shadow(0 26px 40px rgba(14, 26, 28, 0.24));
+}
+
+@keyframes arboretumPulse {
+  from {
+    opacity: 0.7;
+    transform: scale(0.96);
   }
-  25% {
-    transform: translate(20px, -20px) scale(1.1);
-    opacity: 0.5;
+  to {
+    opacity: 1;
+    transform: scale(1.04);
   }
-  50% {
-    transform: translate(-10px, 20px) scale(0.9);
+}
+
+@keyframes moteDrift {
+  from {
+    transform: translate3d(0, 0, 0);
     opacity: 0.4;
   }
-  75% {
-    transform: translate(15px, 10px) scale(1.05);
-    opacity: 0.45;
+  to {
+    transform: translate3d(0.65rem, -0.8rem, 0);
+    opacity: 0.95;
   }
 }
 
-/* Canvas wrapper */
-.tree-canvas-wrapper {
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.5));
-  margin-bottom: 2rem;
-}
-
-.tree-canvas {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border-radius: 12px;
-}
-
-/* Info section */
-.tree-info-section {
-  width: 100%;
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Stage badge */
-.tree-stage-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  background: rgba(103, 125, 106, 0.2);
-  border: 2px solid rgba(103, 125, 106, 0.3);
-  border-radius: 50px;
-  backdrop-filter: blur(10px);
-  animation: glow 3s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(103, 125, 106, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(103, 125, 106, 0.5);
-  }
-}
-
-.stage-emoji {
-  font-size: 1.5rem;
-  animation: bounce 2s ease-in-out infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.stage-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #D6BD98;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Stats grid */
-.tree-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-  padding: 1.5rem;
-  background: rgba(15, 32, 39, 0.5);
-  border-radius: 16px;
-  border: 1px solid rgba(103, 125, 106, 0.2);
-}
-
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: rgba(103, 125, 106, 0.1);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  background: rgba(103, 125, 106, 0.2);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: #677D6A;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #D6BD98;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.stat-icon {
-  font-size: 1.2rem;
-  margin-bottom: 0.25rem;
-}
-
-/* Progress bar */
-.tree-progress-section {
-  width: 100%;
-  padding: 1.5rem;
-  background: rgba(15, 32, 39, 0.5);
-  border-radius: 16px;
-  border: 1px solid rgba(103, 125, 106, 0.2);
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  color: #D6BD98;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 12px;
-  background: rgba(15, 32, 39, 0.7);
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #677D6A 0%, #D6BD98 100%);
-  border-radius: 20px;
-  transition: width 1s ease-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-bar-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* Flower indicator */
-.flower-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(214, 189, 152, 0.15);
-  border: 2px solid rgba(214, 189, 152, 0.3);
-  border-radius: 12px;
-  color: #D6BD98;
-  font-weight: 600;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
-.flower-icon {
-  font-size: 1.3rem;
-  animation: rotate 4s linear infinite;
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .tree-model-container {
-    padding: 1.5rem;
-    border-radius: 16px;
-  }
-
-  .tree-canvas-wrapper {
-    margin-bottom: 1.5rem;
-  }
-
-  .tree-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    padding: 1rem;
-  }
-
-  .stat-card {
-    padding: 0.75rem;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-  }
-
-  .tree-stage-badge {
-    padding: 0.6rem 1.2rem;
-    gap: 0.5rem;
-  }
-
-  .stage-emoji {
-    font-size: 1.2rem;
-  }
-
-  .stage-name {
-    font-size: 0.95rem;
-  }
-
-  .tree-progress-section {
-    padding: 1rem;
-  }
-
-  .progress-label {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .tree-model-container {
-    padding: 1rem;
-  }
-
-  .tree-stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tree-info-section {
-    gap: 1rem;
+@media (prefers-reduced-motion: reduce) {
+  .arboretum-aura,
+  .mote {
+    animation: none;
   }
 }

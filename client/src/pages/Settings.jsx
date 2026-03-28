@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Bell, Clock, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import './Settings.css';
 
 function Settings() {
@@ -15,9 +15,7 @@ function Settings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await api.get('/auth/me');
-      // Note: You may need to add these fields to the user response
-      // For now, using defaults
+      await api.get('/auth/me');
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
@@ -36,7 +34,7 @@ function Settings() {
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Error saving settings');
+      alert('Error during calibration');
     } finally {
       setLoading(false);
     }
@@ -44,20 +42,25 @@ function Settings() {
 
   return (
     <div className="settings-page">
-      <h1>Settings</h1>
+      <h1>Ritual Calibration</h1>
 
       <div className="settings-card">
         <div className="settings-header">
-          <Bell className="settings-icon" />
+          <div className="settings-ornament" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
           <div>
-            <h2>Reminders & Notifications</h2>
-            <p>Configure when you receive daily reminders</p>
+            <h2>Protocol Markers</h2>
+            <p>Define the temporal highlights for your daily entries</p>
           </div>
         </div>
 
         <div className="settings-content">
           <div className="setting-item">
             <label className="toggle-label">
+              <span className="toggle-text">Active Journey Reminders</span>
               <input
                 type="checkbox"
                 checked={reminderEnabled}
@@ -65,15 +68,13 @@ function Settings() {
                 className="toggle-input"
               />
               <span className="toggle-slider"></span>
-              <span className="toggle-text">Enable Daily Reminders</span>
             </label>
           </div>
 
           {reminderEnabled && (
             <div className="setting-item">
-              <label>
-                <Clock size={20} />
-                Reminder Time
+              <label className="time-label">
+                Archival Threshold (Time)
               </label>
               <input
                 type="time"
@@ -89,28 +90,37 @@ function Settings() {
             disabled={loading}
             className="save-btn"
           >
-            {loading ? 'Saving...' : saved ? (
+            {loading ? 'Calibrating...' : saved ? (
               <>
                 <Check size={18} />
-                Saved
+                Journal Updated
               </>
-            ) : 'Save Settings'}
+            ) : 'Update Calibration'}
           </button>
         </div>
       </div>
 
       <div className="settings-card">
         <div className="settings-header">
+          <div className="settings-ornament settings-ornament-alt" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
           <div>
-            <h2>About RoutiQ</h2>
-            <p>Your Personal Growth Companion</p>
+            <h2>The Botanical Ethos</h2>
+            <p>On persistent growth and intentional living</p>
           </div>
         </div>
         <div className="settings-content">
           <p>
-            RoutiQ helps you track your habits, monitor your mood, and watch your growth tree flourish
-            as you build consistency in your daily routines. Every habit you complete brings you closer
-            to becoming the person you want to be.
+            RoutiQ is a sanctuary designed for the meticulous documentation of personal evolution. 
+            By treating each habit as a botanical specimen in a mental arboretum, 
+            we foster a relationship with time that is both disciplined and serene.
+          </p>
+          <p>
+            Every sequence recorded is a thread in the tapestry of your becoming. 
+            We invite you to witness your own bloom with grace and patience.
           </p>
         </div>
       </div>
@@ -119,4 +129,3 @@ function Settings() {
 }
 
 export default Settings;
-

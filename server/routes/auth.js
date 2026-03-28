@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
+      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, reminder_time, reminder_enabled, plants_fully_grown',
       [username, email, passwordHash]
     );
 
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
 
     // Find user
     const result = await pool.query(
-      'SELECT id, username, email, password_hash FROM users WHERE email = $1',
+      'SELECT id, username, email, password_hash, reminder_time, reminder_enabled, plants_fully_grown FROM users WHERE email = $1',
       [email]
     );
 
@@ -83,7 +83,14 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        reminder_time: user.reminder_time,
+        reminder_enabled: user.reminder_enabled,
+        plants_fully_grown: user.plants_fully_grown
+      },
       token
     });
   } catch (error) {
@@ -115,4 +122,3 @@ router.put('/reminder-settings', authenticate, async (req, res) => {
 });
 
 module.exports = router;
-

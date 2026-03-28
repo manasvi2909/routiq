@@ -1,75 +1,56 @@
 .growth-plant-container {
+  display: grid;
+  gap: 1rem;
   text-align: center;
-  padding: 2rem;
 }
 
 .plant-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
 }
 
-.plant-emoji {
-  transition: all 0.5s ease;
-  animation: grow 2s ease-in-out infinite;
-}
-
-@keyframes grow {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+.plant-mark {
+  width: 8rem;
+  height: auto;
 }
 
 .plant-info h3 {
-  color: #1f2937;
-  font-size: 1.5rem;
-  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
 .plant-info p {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0.5rem 0 0 0;
+  margin-top: 0.35rem;
+  color: rgba(10, 51, 35, 0.62);
 }
 
 .progress-bar-container {
-  width: 100%;
-  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.45rem;
 }
 
 .progress-bar {
-  width: 100%;
-  height: 20px;
-  background: #e5e7eb;
-  border-radius: 10px;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: rgba(10, 51, 35, 0.08);
   overflow: hidden;
-  margin-bottom: 0.5rem;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-  border-radius: 10px;
-  transition: width 0.5s ease;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #124d39, #d6876c);
+  box-shadow: 0 6px 18px rgba(18, 77, 57, 0.18);
 }
 
 .progress-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
-  color: #6b7280;
+  color: rgba(10, 51, 35, 0.48);
+  font-family: var(--font-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-
-.plant-message {
-  color: #667eea;
-  font-style: italic;
-  margin-top: 1rem;
-  font-size: 1rem;
-}
-

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 import './Auth.css';
 
 function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,10 +19,11 @@ function Register() {
     setLoading(true);
 
     try {
-      await register(username, email, password);
-      navigate('/dashboard');
+      await axios.post('http://localhost:3001/api/auth/register', formData);
+      alert('Your registry spot has been reserved. Please sign in.');
+      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      setError(err.response?.data?.error || 'Registry failed');
     } finally {
       setLoading(false);
     }
@@ -30,55 +32,61 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <Link to="/" className="auth-home-link">
+          Return to landing
+        </Link>
         <div className="auth-brand">
-          <h1>Join <span className="brand-highlight">RoutiQ</span></h1>
-          <p className="subtitle">Start your habit tracking journey today</p>
+          <div className="auth-brand-lockup">
+            <span className="auth-brand-mark" aria-hidden="true" />
+            <span className="auth-brand-name">RoutiQ</span>
+          </div>
+          <h1>Begin <br /><span className="brand-highlight">Growth</span></h1>
+          <p className="subtitle">Join the botanical registry</p>
         </div>
         
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Username</label>
+            <label>Nom de Plume (Username)</label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               required
-              placeholder="johndoe"
+              placeholder="e.g. CuratorName"
             />
           </div>
-          
+
           <div className="form-group">
-            <label>Email</label>
+            <label>The Curator's Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              placeholder="your@email.com"
+              placeholder="e.g. curator@sanctuary.me"
             />
           </div>
           
           <div className="form-group">
-            <label>Password</label>
+            <label>Master Cipher (Password)</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
               placeholder="••••••••"
-              minLength="6"
             />
           </div>
           
           <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? 'Reserving...' : 'Initiate Registry'}
           </button>
         </form>
         
         <p className="auth-link">
-          Already have an account? <Link to="/login">Sign in</Link>
+          Already part of the sanctuary? <Link to="/login">Sign in here</Link>
         </p>
       </div>
     </div>
@@ -86,4 +94,3 @@ function Register() {
 }
 
 export default Register;
-

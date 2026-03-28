@@ -1,252 +1,399 @@
-# Habit Tracker - Full Stack Application
+# Routiq
 
-A comprehensive habit tracking application with mood tracking, visual growth plant, weekly reports, and intelligent reminders.
+Routiq is a full-stack habit tracking application built around rituals, milestones, and visual plant growth. Users create habits with motivation and accountability context, log daily progress, grow collectible plants, unlock rarer species, review analytics, and manage reminders inside a themed interface with light and dark modes.
 
-## Features
+## What The App Does
 
-- ✅ **User Authentication** - Secure login and registration
-- ✅ **Habit Logging** - Multi-step form with completion percentage (0-3 scale)
-- ✅ **Mood & Stress Tracker** - Track mood and stress levels (1-5 scale) while completing habits
-- ✅ **Visual Growth Plant** - Plant that grows based on habit completion consistency
-- ✅ **Habit Creation with Questions** - Series of questions to help attach value to habits:
-  - When specifically? (Planning)
-  - What's motivating me? (Motivation)
-  - What's hindering me? (Challenges)
-  - Whom do I tell? (Accountability)
-  - Who inspires me? (Inspiration)
-  - My milestones are (Goals)
-  - I'm gonna treat myself with (Rewards)
-- ✅ **Inconsistent Habits Analysis** - Detects inconsistent habits and asks follow-up questions
-- ✅ **Reminders & Notifications** - Daily reminders for habit logging
-- ✅ **Weekly Reports** - Comprehensive reports with charts:
-  - Habit completion rates (Bar chart)
-  - Mood distribution (Pie chart)
-  - Stress level distribution (Bar chart)
-  - Week-over-week comparison (Line chart)
-- ✅ **Settings** - Configure reminder times and preferences
+- Creates habits with structure, not just a title:
+  - when the habit should happen
+  - motivation
+  - blockers
+  - accountability person
+  - inspiration
+  - current goal
+  - reward
+  - goal window in days
+- Logs daily progress with:
+  - completion level
+  - mood
+  - stress
+  - notes
+- Tracks milestones and rewards:
+  - mark a goal complete
+  - trigger reward flow
+  - set the next goal and reward
+  - carry progress forward even if the plant choice changes
+- Grows plants visually over time:
+  - each habit has a selected plant
+  - plants unlock based on how many plants the user has fully grown
+  - higher-tier plants take more progress to finish
+  - completed plants are archived in the garden
+- Schedules reminders:
+  - daily habit-time reminders
+  - goal-window follow-ups
+  - in-app notifications
+- Shows a premium visual dashboard:
+  - featured living plant model
+  - daily logging summary
+  - longest vine
+  - 7-day rate
+  - recent signals and reports
+- Provides a full visual experience:
+  - custom landing page
+  - dark mode and light mode
+  - live clock
+  - garden archive
+  - reports with custom visual charts
+
+## Core Product Areas
+
+### Landing
+The landing page introduces the product with the final visual direction used across the app: editorial typography, atmospheric backgrounds, animated layers, and premium card styling.
+
+### Auth
+Users can register, sign in, and return to the landing page from both auth screens.
+
+### Habit Registry
+Users can:
+- add a new habit
+- edit an existing habit mid-cycle
+- change reminder time
+- change goal window
+- change current goal and reward
+- change the selected plant
+- log progress for the day
+- complete a milestone and start the next one
+
+### Arboretum
+The dashboard includes a larger live plant view that reflects the selected plant for the featured habit and shows its current growth progress.
+
+### Garden
+The garden stores previously completed plants and shows unlock progression across the plant catalog.
+
+### Reports
+Reports summarize behavior, progress, mood, and activity patterns with custom-styled charts rather than default generic graph styling.
+
+## Plant System
+
+Routiq includes a progression-based plant system.
+
+- `fern` is the base plant
+- rarer plants unlock after enough fully grown plants are archived
+- each plant has its own hidden growth target
+- growth is displayed as 12 visible stages in the UI
+- the rendered plant builds incrementally instead of showing the final silhouette from the beginning
+- completing a plant triggers a celebration flow and allows the user to choose the next plant
+
+Current plant tiers are defined in:
+- [client/src/constants/plants.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/constants/plants.js)
+- [server/services/plantCatalog.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/services/plantCatalog.js)
 
 ## Tech Stack
 
-### Backend
-- **Node.js** with Express.js
-- **PostgreSQL** (SQL database)
-- **JWT** for authentication
-- **node-cron** for scheduled reminders
-- **bcryptjs** for password hashing
-
 ### Frontend
-- **React** with Vite
-- **React Router** for navigation
-- **Recharts** for data visualization
-- **Axios** for API calls
-- **Lucide React** for icons
+- React 18
+- Vite
+- React Router
+- Axios
+- Recharts
+- date-fns
+- lucide-react
 
-## Setup Instructions
+### Backend
+- Node.js
+- Express
+- PostgreSQL
+- pg
+- JWT authentication
+- bcryptjs
+- node-cron
 
-### Prerequisites
-- Node.js (v16 or higher)
-- PostgreSQL (v12 or higher)
-- npm or yarn
+## Project Structure
 
-### Database Setup
-
-1. Create a PostgreSQL database:
-```bash
-createdb habit_tracker
+```text
+routiq-dbms-project/
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── constants/
+│   │   ├── contexts/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
+│   │   └── index.css
+│   ├── package.json
+│   └── vite.config.js
+├── server/
+│   ├── database/
+│   │   ├── init.js
+│   │   └── schema.sql
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── index.js
+│   └── package.json
+├── package.json
+└── README.md
 ```
 
-2. Update the database credentials in `server/.env`:
+## Application Routes
+
+### Frontend Routes
+- `/` landing page
+- `/login` sign in
+- `/register` sign up
+- `/dashboard` authenticated dashboard
+- `/habits` habit registry
+- `/habits/new` create ritual
+- `/habits/:id/log` log daily progress
+- `/reports` analytics and charts
+- `/garden` archive and unlocks
+- `/settings` preferences and reminder settings
+
+### Backend API Prefix
+All backend routes are served under `/api`.
+
+Main route groups:
+- `/api/auth`
+- `/api/habits`
+- `/api/logs`
+- `/api/mood`
+- `/api/reports`
+- `/api/notifications`
+- `/api/subtasks`
+- `/api/garden`
+
+Health check:
+- `GET /api/health`
+
+## Database Model
+
+The PostgreSQL schema includes:
+
+- `users`
+  - auth data
+  - reminder preferences
+  - number of fully grown plants
+- `habits`
+  - habit metadata
+  - motivation/accountability fields
+  - reminder time
+  - current goal and reward
+  - goal window
+  - milestone counts
+  - selected plant
+  - growth progress
+- `habit_logs`
+  - one log per habit per day
+  - completion level
+  - mood
+  - stress
+  - notes
+- `mood_logs`
+- `weekly_reports`
+- `sub_tasks`
+- `notifications`
+- `garden_plants`
+
+Schema file:
+- [server/database/schema.sql](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/schema.sql)
+
+## Prerequisites
+
+- Node.js 18+ recommended
+- npm
+- PostgreSQL 12+ recommended
+
+## Environment Variables
+
+Create `server/.env` manually with values like:
+
 ```env
 DB_USER=postgres
 DB_HOST=localhost
 DB_NAME=habit_tracker
-DB_PASSWORD=your_password
+DB_PASSWORD=postgres
 DB_PORT=5432
-JWT_SECRET=your-secret-key-change-this-in-production
-PORT=5000
+JWT_SECRET=replace-this-with-a-secure-secret
+PORT=5600
 ```
 
-3. Copy the example env file:
-```bash
-cd server
-cp .env.example .env
-# Edit .env with your database credentials
-```
+Notes:
+- The backend defaults to port `5600`.
+- The Vite dev server proxies `/api` to `http://localhost:5600`.
+- The backend can auto-increment to another port if `5600` is busy, but the frontend proxy is hardcoded to `5600`, so local development is simplest when the backend stays on `5600`.
 
-### Installation
+Relevant files:
+- [server/index.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/index.js)
+- [server/database/init.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/init.js)
+- [client/vite.config.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/vite.config.js)
 
-1. Install root dependencies:
+## Installation
+
+### 1. Install dependencies
+
+From the repo root:
+
 ```bash
 npm install
+npm run install-all
 ```
 
-2. Install server dependencies:
+If you prefer manual installation:
+
+```bash
+cd server && npm install
+cd ../client && npm install
+```
+
+### 2. Create the database
+
+Create a PostgreSQL database named `habit_tracker` or change `DB_NAME` to match your database.
+
+Example:
+
+```bash
+createdb habit_tracker
+```
+
+### 3. Initialize the schema
+
+From the repo root:
+
 ```bash
 cd server
-npm install
+node -e "require('./database/init').initDatabase().then(() => process.exit(0)).catch(() => process.exit(1))"
 ```
 
-3. Install client dependencies:
-```bash
-cd ../client
-npm install
-```
+This reads and executes:
+- [server/database/schema.sql](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/database/schema.sql)
 
-4. Initialize the database (from server directory):
-```bash
-cd server
-node -e "require('./database/init').initDatabase().then(() => process.exit())"
-```
+## Running The App
 
-### Running the Application
+### Run client and server together
 
-#### Option 1: Run both server and client together
-From the root directory:
+From the repo root:
+
 ```bash
 npm run dev
 ```
 
-#### Option 2: Run separately
+This starts:
+- Express server from `server/`
+- Vite client from `client/`
 
-Terminal 1 - Backend:
+### Run them separately
+
+Backend:
+
 ```bash
 cd server
 npm run dev
 ```
 
-Terminal 2 - Frontend:
+Frontend:
+
 ```bash
 cd client
 npm run dev
 ```
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+Default local URLs:
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:5600`
 
-## Project Structure
+## Available Scripts
 
-```
-routiq-dbms-project/
-├── server/
-│   ├── database/
-│   │   ├── schema.sql          # Database schema
-│   │   └── init.js             # Database initialization
-│   ├── middleware/
-│   │   └── auth.js             # Authentication middleware
-│   ├── routes/
-│   │   ├── auth.js             # Authentication routes
-│   │   ├── habits.js           # Habit CRUD routes
-│   │   ├── logs.js             # Habit logging routes
-│   │   ├── mood.js             # Mood tracking routes
-│   │   ├── reports.js          # Report generation routes
-│   │   └── notifications.js    # Notification routes
-│   ├── services/
-│   │   ├── consistencyService.js  # Habit consistency analysis
-│   │   ├── reportService.js       # Weekly report generation
-│   │   └── reminderService.js     # Reminder scheduling
-│   ├── index.js                # Server entry point
-│   └── package.json
-├── client/
-│   ├── src/
-│   │   ├── components/         # Reusable components
-│   │   ├── contexts/          # React contexts
-│   │   ├── pages/             # Page components
-│   │   ├── services/          # API services
-│   │   └── App.jsx            # Main app component
-│   └── package.json
-└── package.json               # Root package.json
-```
+### Root
+- `npm run dev` run server and client together
+- `npm run server` run only the backend in dev mode
+- `npm run client` run only the frontend in dev mode
+- `npm run install-all` install root, server, and client dependencies
 
-## API Endpoints
+### Server
+- `npm run dev` start backend with nodemon
+- `npm run start` start backend with node
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
-- `PUT /api/auth/reminder-settings` - Update reminder settings
+### Client
+- `npm run dev` start Vite
+- `npm run build` create production build
+- `npm run preview` preview production build locally
 
-### Habits
-- `GET /api/habits` - Get all habits
-- `GET /api/habits/:id` - Get single habit
-- `POST /api/habits` - Create habit
-- `PUT /api/habits/:id` - Update habit
-- `DELETE /api/habits/:id` - Delete habit
-- `GET /api/habits/:id/consistency` - Get consistency analysis
+## Frontend Notes
 
-### Logs
-- `POST /api/logs` - Log habit completion
-- `GET /api/logs` - Get all logs
-- `GET /api/logs/habit/:habit_id` - Get logs for specific habit
+- API calls use a shared Axios instance with `baseURL: '/api'`
+- auth state is handled through React context
+- theme state is handled through React context
+- the UI is designed to support both light and dark themes
 
-### Mood
-- `POST /api/mood` - Log mood
-- `GET /api/mood` - Get mood logs
+Relevant files:
+- [client/src/services/api.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/services/api.js)
+- [client/src/contexts/AuthContext.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/contexts/AuthContext.jsx)
+- [client/src/contexts/ThemeContext.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/contexts/ThemeContext.jsx)
 
-### Reports
-- `GET /api/reports/weekly` - Get current week report
-- `GET /api/reports/weekly/compare?weeks=4` - Get weekly comparison
+## Reminder And Notification Behavior
 
-### Notifications
-- `GET /api/notifications` - Get notifications
-- `PUT /api/notifications/:id/read` - Mark notification as read
-- `PUT /api/notifications/read-all` - Mark all as read
+The server starts the reminder service at boot. It is responsible for checking habits and creating reminder notifications for:
 
-## Database Schema
+- scheduled habit times
+- goal-window follow-ups
+- milestone-related prompts
 
-The application uses PostgreSQL with the following main tables:
-- `users` - User accounts
-- `habits` - Habit definitions with question answers
-- `habit_logs` - Daily habit completion logs
-- `mood_logs` - Mood and stress tracking
-- `weekly_reports` - Generated weekly reports
-- `notifications` - User notifications
+Relevant files:
+- [server/services/reminderService.js](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/server/services/reminderService.js)
+- [client/src/components/NotificationBell.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/components/NotificationBell.jsx)
 
-## Features in Detail
+## Visual System
 
-### Habit Logging Questions
-When creating a habit, users answer a series of questions:
-1. **When Specifically?** - Planning when to do the habit
-2. **What's Motivating Me?** - Understanding the "why"
-3. **What's Hindering Me?** - Identifying obstacles
-4. **Whom Do I Tell?** - Accountability partners
-5. **Who Inspires Me?** - Role models
-6. **My Milestones Are** - Goal setting
-7. **I'm Gonna Treat Myself With** - Rewards
+The current app uses:
 
-### Inconsistent Habits Analysis
-- Automatically detects habits with <50% completion rate
-- Prompts user to continue or remove
-- If continuing, asks for reason (used as daily reminder)
-- Sends motivational notifications based on user's reason
+- custom typography
+- animated atmospheric backgrounds
+- premium glass/tinted surfaces
+- dark and light mode
+- consistent plant visuals across selection, growth, garden, and arboretum
 
-### Visual Growth Plant
-- Plant grows based on overall habit completion rate
-- Stages: Seed → Sprout → Growing → Thriving → Flourishing → Blooming
-- Visual feedback encourages consistency
+Primary UI entry points:
+- [client/src/pages/Landing.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Landing.jsx)
+- [client/src/pages/Dashboard.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Dashboard.jsx)
+- [client/src/pages/Habits.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Habits.jsx)
+- [client/src/pages/Reports.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Reports.jsx)
+- [client/src/pages/Garden.jsx](/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project/client/src/pages/Garden.jsx)
 
-### Weekly Reports
-- Comprehensive analytics with multiple chart types
-- Side-by-side week comparison
-- Mood and stress analysis per habit
-- Consistency tracking
+## Troubleshooting
 
-## Development
+### Frontend cannot reach the backend
 
-### Adding New Features
-1. Update database schema if needed (`server/database/schema.sql`)
-2. Create/update backend routes (`server/routes/`)
-3. Create/update frontend components (`client/src/`)
-4. Test thoroughly
+Check:
+- backend is running
+- backend is on port `5600`
+- `client/vite.config.js` still proxies `/api` to `5600`
 
-### Database Migrations
-To update the database schema, modify `schema.sql` and re-run the initialization script.
+### Database connection fails
+
+Check:
+- PostgreSQL is running
+- `server/.env` values are correct
+- the database exists
+- the schema has been initialized
+
+### Auth appears broken after changing backend settings
+
+Clear local storage in the browser and sign in again if an old JWT is still present.
+
+## Current Status
+
+This repository contains the implemented UI and feature work for:
+
+- redesigned landing page
+- dark/light theme support
+- editable habit registry
+- plant unlocking and growth progression
+- garden archive
+- arboretum live model
+- reminder-driven habit flow
+- analytics and report visuals
 
 ## License
 
-This project is created for educational purposes.
-
-## Support
-
-For issues or questions, please check the code comments or create an issue in the repository.
-
+No license file is currently included in this repository.

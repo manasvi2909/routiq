@@ -40,7 +40,7 @@ function SubTasks({ habitId, onUpdate }) {
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Error adding sub-task:', error);
-      alert('Error adding sub-task');
+      alert('Error adding sequence marker');
     }
   };
 
@@ -57,7 +57,7 @@ function SubTasks({ habitId, onUpdate }) {
   };
 
   const handleDelete = async (taskId) => {
-    if (!window.confirm('Delete this sub-task?')) return;
+    if (!window.confirm('Remove this sequence marker?')) return;
 
     try {
       await api.delete(`/subtasks/${taskId}`);
@@ -65,24 +65,24 @@ function SubTasks({ habitId, onUpdate }) {
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Error deleting sub-task:', error);
-      alert('Error deleting sub-task');
+      alert('Error removing marker');
     }
   };
 
   if (loading) {
-    return <div className="subtasks-loading">Loading sub-tasks...</div>;
+    return <div className="subtasks-loading">Retrieving markers...</div>;
   }
 
   return (
     <div className="subtasks-container">
       <div className="subtasks-header">
-        <h3>Sub-Tasks</h3>
+        <h3>Sequence Markers</h3>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="add-subtask-btn"
         >
-          <Plus size={16} />
-          Add Sub-Task
+          <Plus size={14} />
+          Append Marker
         </button>
       </div>
 
@@ -92,13 +92,13 @@ function SubTasks({ habitId, onUpdate }) {
             type="text"
             value={newTaskName}
             onChange={(e) => setNewTaskName(e.target.value)}
-            placeholder="Enter sub-task name..."
+            placeholder="Define marker name..."
             className="subtask-input"
             autoFocus
           />
           <div className="form-actions">
             <button type="submit" className="save-btn">
-              Add
+              Append
             </button>
             <button
               type="button"
@@ -108,7 +108,7 @@ function SubTasks({ habitId, onUpdate }) {
               }}
               className="cancel-btn"
             >
-              <X size={16} />
+              Cancel
             </button>
           </div>
         </form>
@@ -116,7 +116,7 @@ function SubTasks({ habitId, onUpdate }) {
 
       <div className="subtasks-list">
         {subTasks.length === 0 ? (
-          <p className="no-subtasks">No sub-tasks yet. Add one to break down your RoutiQ habit into smaller steps.</p>
+          <p className="no-subtasks">No markers defined for this sequence.</p>
         ) : (
           subTasks.map(task => (
             <div
@@ -127,17 +127,14 @@ function SubTasks({ habitId, onUpdate }) {
                 onClick={() => handleToggleComplete(task.id, task.is_completed)}
                 className="subtask-checkbox"
               >
-                <Check
-                  size={18}
-                  className={task.is_completed ? 'checked' : ''}
-                />
+                {task.is_completed && <Check size={14} className="checked" />}
               </button>
               <span className="subtask-name">{task.name}</span>
               <button
                 onClick={() => handleDelete(task.id)}
                 className="delete-subtask-btn"
               >
-                <Trash2 size={14} />
+                <Trash2 size={12} />
               </button>
             </div>
           ))
@@ -148,4 +145,3 @@ function SubTasks({ habitId, onUpdate }) {
 }
 
 export default SubTasks;
-

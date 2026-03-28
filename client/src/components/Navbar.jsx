@@ -1,46 +1,56 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, Target, BarChart3, Settings, LogOut, Leaf } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import LiveClock from './LiveClock';
+import NotificationBell from './NotificationBell';
 import './Navbar.css';
 
 function Navbar() {
   const { logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => location.pathname === path;
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">
-        <Leaf className="brand-icon" size={28} />
-        <span className="brand-text">RoutiQ</span>
-      </div>
-      <div className="navbar-links">
-        <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>
-          <Home size={20} />
-          <span>Dashboard</span>
-        </Link>
-        <Link to="/habits" className={isActive('/habits') ? 'active' : ''}>
-          <Target size={20} />
-          <span>Habits</span>
-        </Link>
-        <Link to="/reports" className={isActive('/reports') ? 'active' : ''}>
-          <BarChart3 size={20} />
-          <span>Reports</span>
-        </Link>
-        <Link to="/settings" className={isActive('/settings') ? 'active' : ''}>
-          <Settings size={20} />
-          <span>Settings</span>
-        </Link>
-        <button onClick={logout} className="logout-btn">
-          <LogOut size={20} />
-          <span>Logout</span>
-        </button>
+    <nav className="navbar-premium">
+      <div className="navbar-container">
+        <div className="navbar-brand-lockup">
+          <span className="navbar-brand-mark" aria-hidden="true" />
+          <div className="navbar-brand-serif">RoutiQ</div>
+        </div>
+        <div className="navbar-links-premium">
+          <div className="navbar-clock-wrap">
+            <LiveClock compact />
+          </div>
+          <Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>
+            <span>Atmosphere</span>
+          </Link>
+          <Link to="/habits" className={isActive('/habits') ? 'active' : ''}>
+            <span>Registry</span>
+          </Link>
+          <Link to="/garden" className={isActive('/garden') ? 'active' : ''}>
+            <span>Garden</span>
+          </Link>
+          <Link to="/reports" className={isActive('/reports') ? 'active' : ''}>
+            <span>Archives</span>
+          </Link>
+          <Link to="/settings" className={isActive('/settings') ? 'active' : ''}>
+            <span>Refinement</span>
+          </Link>
+          <NotificationBell />
+          <button onClick={handleLogout} className="logout-btn-premium" title="Exit Archive">
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
     </nav>
   );
 }
 
 export default Navbar;
-

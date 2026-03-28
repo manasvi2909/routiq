@@ -20,7 +20,7 @@ function Login() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      setError(err.response?.data?.error || 'Registry access denied');
     } finally {
       setLoading(false);
     }
@@ -29,27 +29,34 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <Link to="/" className="auth-home-link">
+          Return to landing
+        </Link>
         <div className="auth-brand">
-          <h1>Welcome Back to <span className="brand-highlight">RoutiQ</span></h1>
-          <p className="subtitle">Sign in to continue your habit journey</p>
+          <div className="auth-brand-lockup">
+            <span className="auth-brand-mark" aria-hidden="true" />
+            <span className="auth-brand-name">RoutiQ</span>
+          </div>
+          <h1>Welcome <br /><span className="brand-highlight">Auspiciously</span></h1>
+          <p className="subtitle">Re-enter your botanical archive</p>
         </div>
         
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>The Curator's Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="your@email.com"
+              placeholder="e.g. curator@sanctuary.me"
             />
           </div>
           
           <div className="form-group">
-            <label>Password</label>
+            <label>Master Cipher (Password)</label>
             <input
               type="password"
               value={password}
@@ -60,12 +67,12 @@ function Login() {
           </div>
           
           <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Consulting Files...' : 'Unlock Registry'}
           </button>
         </form>
         
         <p className="auth-link">
-          Don't have an account? <Link to="/register">Sign up</Link>
+          New to the sanctuary? <Link to="/register">Create an account</Link>
         </p>
       </div>
     </div>
@@ -73,4 +80,3 @@ function Login() {
 }
 
 export default Login;
-
