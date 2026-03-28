@@ -1404,3 +1404,63 @@ body[data-theme='dark'] .footer-container-minimal {
     gap: 4rem;
   }
 }
+
+/* Scroll Reveal & Animation Layers */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(4px);
+  transition: 
+    opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, opacity, filter;
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Specific Staggering for Grids */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: 
+    opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal-stagger.is-revealed > *:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.is-revealed > *:nth-child(2) { transition-delay: 0.25s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.is-revealed > *:nth-child(3) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.is-revealed > *:nth-child(4) { transition-delay: 0.55s; opacity: 1; transform: translateY(0); }
+
+/* Atmospheric Parallax Orbs - Enhanced */
+@keyframes orbSlowMove {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, 4%) scale(1.05); }
+  100% { transform: translate(-1%, -2%) scale(0.98); }
+}
+
+.atmosphere-orb {
+  animation: orbSlowMove 25s ease-in-out infinite alternate !important;
+}
+
+/* Section-Specific Micro-Animations */
+.problem-visual {
+  transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.problem-section.is-revealed .problem-visual {
+  transform: scale(1.02);
+}
+
+.comparison-us .organic-mockup {
+  transition: box-shadow 1s ease;
+}
+
+.problem-section.is-revealed .comparison-us .organic-mockup {
+  box-shadow: 0 30px 60px rgba(18, 77, 57, 0.2);
+}

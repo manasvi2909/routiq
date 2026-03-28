@@ -12,6 +12,26 @@ function Landing() {
 
   useEffect(() => {
     setIsVisible(true);
+
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+        }
+      });
+    }, observerOptions);
+
+    const revealElements = document.querySelectorAll('.reveal, .reveal-stagger');
+    revealElements.forEach(el => observer.observe(el));
+
+    return () => {
+      revealElements.forEach(el => observer.unobserve(el));
+    };
   }, []);
 
   return (
@@ -44,7 +64,7 @@ function Landing() {
         </div>
       </nav>
 
-      <section className="hero-editorial">
+      <section className="hero-editorial reveal">
         <div className="hero-inner">
           <div className="hero-copy">
             <div className="hero-meta-row">
@@ -63,7 +83,7 @@ function Landing() {
 
             <div className="hero-actions-premium">
               <Link to="/register" className="btn-premium-primary">
-                Build your garden
+                Build your ritual
                 <ArrowRight size={20} />
               </Link>
               <Link to="/login" className="btn-premium-secondary">
@@ -71,7 +91,7 @@ function Landing() {
               </Link>
             </div>
 
-            <div className="hero-proof">
+            <div className="hero-proof reveal-stagger">
               <div className="proof-item">
                 <span className="proof-value">Mood-aware</span>
                 <span className="proof-label">Reflection woven into every streak</span>
@@ -130,10 +150,10 @@ function Landing() {
         </div>
       </section>
 
-      <section className="problem-section">
+      <section className="problem-section reveal">
         <div className="container">
           <div className="problem-grid">
-            <div className="problem-copy">
+            <div className="problem-copy reveal">
               <span className="section-label">The Friction</span>
               <h2 className="serif-title">The Boxy Prison</h2>
               <p>
@@ -153,7 +173,7 @@ function Landing() {
                 </li>
               </ul>
             </div>
-            <div className="problem-visual">
+            <div className="problem-visual reveal">
               <div className="binary-comparison">
                 <div className="comparison-side comparison-them">
                   <span>Their approach</span>
@@ -178,10 +198,10 @@ function Landing() {
         </div>
       </section>
 
-      <section className="philosophy-section">
+      <section className="philosophy-section reveal">
         <div className="philosophy-container">
           <div className="philosophy-grid">
-            <div className="philosophy-text">
+            <div className="philosophy-text reveal">
               <span className="section-label">The Philosophy</span>
               <h2>Structure with pulse, clarity, and a little atmosphere.</h2>
               <p>
@@ -191,7 +211,7 @@ function Landing() {
               </p>
             </div>
 
-            <div className="philosophy-quote">
+            <div className="philosophy-quote reveal">
               <div className="quote-mark">
                 <Quote size={28} />
               </div>
@@ -202,14 +222,14 @@ function Landing() {
         </div>
       </section>
 
-      <section className="features-editorial">
+      <section className="features-editorial reveal">
         <div className="container">
-          <div className="editorial-header">
+          <div className="editorial-header reveal">
             <span className="section-label">Core tools</span>
             <h2 className="serif-title">Signals designed to feel human</h2>
           </div>
 
-          <div className="features-minimal-grid">
+          <div className="features-minimal-grid reveal-stagger">
             <div className="feature-item-minimal">
               <div className="feature-topline">
                 <div className="feature-num">01</div>
@@ -282,8 +302,8 @@ function Landing() {
         </div>
       </section>
 
-      <section className="cta-editorial">
-        <div className="cta-inner-minimal">
+      <section className="cta-editorial reveal">
+        <div className="cta-inner-minimal reveal">
           <span className="section-label">Begin the ritual</span>
           <h2>Make your routine feel cultivated from the first click.</h2>
           <p>
