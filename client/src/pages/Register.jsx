@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import './Auth.css';
 
 function Register() {
@@ -19,7 +19,7 @@ function Register() {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:3001/api/auth/register', formData);
+      await api.post('/auth/register', formData);
       alert('Your registry spot has been reserved. Please sign in.');
       navigate('/login');
     } catch (err) {
