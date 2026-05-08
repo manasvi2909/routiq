@@ -793,7 +793,7 @@ async function generateLocalResponse(userId, message, history) {
     }
 
     if (lastAssistantMessageTopic === 'burnout') {
-      return `In addition to reducing habit difficulty, another key burnout prevention technique is **intentional rest days**. You can toggle your habits to inactive in the registry, giving your mind a guilt-free space to recover.`;
+      return `In addition to reducing habit difficulty, another key burnout prevention technique is **intentional rest days**. On tough days, you can choose to scale down your habit to a 2-minute version or take an intentional skip to keep your stress low while protecting your mental space.`;
     }
 
     if (lastAssistantMessageTopic === 'consistency') {
