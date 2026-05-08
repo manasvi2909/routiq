@@ -23,6 +23,80 @@ const ICON_MAP = {
   sunrise: Sunrise,
 };
 
+function PlantPersonIcon({ size = 24, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      className={className}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Little green sprout growing from head */}
+      <path
+        d="M 50 35 C 50 15, 30 15, 30 25 C 30 35, 50 35, 50 35 Z"
+        fill="#4ade80"
+      />
+      <path
+        d="M 50 35 C 50 15, 70 15, 70 25 C 70 35, 50 35, 50 35 Z"
+        fill="#22c55e"
+      />
+      {/* Tiny brown stem */}
+      <path
+        d="M 50 42 L 50 34"
+        stroke="#854d0e"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+
+      {/* Cute terracotta pot body */}
+      <path
+        d="M 28 50 L 72 50 L 66 85 C 65 89, 61 92, 57 92 L 43 92 C 39 92, 35 89, 34 85 Z"
+        fill="#e07a5f"
+      />
+      {/* Pot rim */}
+      <rect
+        x="24"
+        y="42"
+        width="52"
+        height="10"
+        rx="5"
+        fill="#d2694e"
+      />
+
+      {/* Cute anime blushing cheeks */}
+      <circle cx="38" cy="68" r="4" fill="#f87171" opacity="0.6" />
+      <circle cx="62" cy="68" r="4" fill="#f87171" opacity="0.6" />
+
+      {/* Cute happy eyes */}
+      <path
+        d="M 33 63 Q 37 59 41 63"
+        stroke="#1e293b"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M 59 63 Q 63 59 67 63"
+        stroke="#1e293b"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* Cute smiling mouth */}
+      <path
+        d="M 46 72 Q 50 76 54 72"
+        stroke="#1e293b"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 function getInsightIcon(iconName) {
   const Icon = ICON_MAP[iconName] || Sparkles;
   return <Icon size={20} />;
@@ -156,7 +230,7 @@ function Chat() {
         {/* ── Header ──────────────────────────────── */}
         <div className="oracle-header">
           <div className="oracle-brand-mark">
-            <Sprout size={24} />
+            <PlantPersonIcon size={24} />
           </div>
           <span className="oracle-kicker eyebrow">Personalized Intelligence</span>
           <h1 className="oracle-title">The Oracle</h1>
@@ -220,7 +294,7 @@ function Chat() {
               {messages.length === 0 && (
                 <div className="chat-empty-state">
                   <div className="chat-oracle-avatar-lg">
-                    <Sprout size={26} />
+                    <PlantPersonIcon size={26} />
                   </div>
                   <h3>What would you like to reflect on?</h3>
                   <p className="chat-empty-desc">
@@ -250,7 +324,7 @@ function Chat() {
                 >
                   {msg.role === 'assistant' && (
                     <div className="chat-avatar oracle-avatar">
-                      <Sprout size={14} />
+                      <PlantPersonIcon size={14} />
                     </div>
                   )}
                   <div className="chat-bubble">
@@ -273,7 +347,7 @@ function Chat() {
               {isLoading && (
                 <div className="chat-message chat-oracle">
                   <div className="chat-avatar oracle-avatar">
-                    <Sprout size={14} />
+                    <PlantPersonIcon size={14} />
                   </div>
                   <div className="chat-bubble typing-bubble">
                     <div className="typing-indicator">
