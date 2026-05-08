@@ -37,24 +37,24 @@ function PlantPersonIcon({ size = 24, className = "" }) {
       strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* 🌱 Elegant Outlined Sprout */}
+      {/* 🌱 Large, Prominent Outlined Sprout */}
       {/* Left Leaf Outline */}
-      <path d="M 50 28 C 50 14, 38 12, 36 20 C 34 28, 50 28, 50 28" />
+      <path d="M 50 35 C 50 10, 26 5, 24 18 C 22 31, 50 35, 50 35" />
       {/* Right Leaf Outline */}
-      <path d="M 50 28 C 50 14, 62 12, 64 20 C 66 28, 50 28, 50 28" />
+      <path d="M 50 35 C 50 10, 74 5, 76 18 C 78 31, 50 35, 50 35" />
       {/* Stem */}
-      <path d="M 50 34 L 50 28" />
+      <path d="M 50 44 L 50 35" />
 
-      {/* ⚪ Outlined Circular Head */}
-      <circle cx="50" cy="62" r="28" />
+      {/* 🟦 Outlined Modern Square Head (Squircle) */}
+      <rect x="12" y="38" width="76" height="56" rx="12" />
 
       {/* 😊 Warm Minimalist Line Expression */}
       {/* Left Smiling Eye */}
-      <path d="M 38 56 Q 42 51 46 56" />
+      <path d="M 33 62 Q 38 56 43 62" />
       {/* Right Smiling Eye */}
-      <path d="M 54 56 Q 58 51 62 56" />
+      <path d="M 57 62 Q 62 56 67 62" />
       {/* Soft Warm Smile */}
-      <path d="M 44 70 Q 50 76 56 70" />
+      <path d="M 42 78 Q 50 85 58 78" />
     </svg>
   );
 }
@@ -192,7 +192,7 @@ function Chat() {
         {/* ── Header ──────────────────────────────── */}
         <div className="oracle-header">
           <div className="oracle-brand-mark">
-            <PlantPersonIcon size={24} />
+            <PlantPersonIcon size={36} />
           </div>
           <span className="oracle-kicker eyebrow">Personalized Intelligence</span>
           <h1 className="oracle-title">The Oracle</h1>
@@ -256,7 +256,7 @@ function Chat() {
               {messages.length === 0 && (
                 <div className="chat-empty-state">
                   <div className="chat-oracle-avatar-lg">
-                    <PlantPersonIcon size={26} />
+                    <PlantPersonIcon size={42} />
                   </div>
                   <h3>What would you like to reflect on?</h3>
                   <p className="chat-empty-desc">
@@ -286,7 +286,7 @@ function Chat() {
                 >
                   {msg.role === 'assistant' && (
                     <div className="chat-avatar oracle-avatar">
-                      <PlantPersonIcon size={14} />
+                      <PlantPersonIcon size={20} />
                     </div>
                   )}
                   <div className="chat-bubble">
@@ -309,7 +309,7 @@ function Chat() {
               {isLoading && (
                 <div className="chat-message chat-oracle">
                   <div className="chat-avatar oracle-avatar">
-                    <PlantPersonIcon size={14} />
+                    <PlantPersonIcon size={20} />
                   </div>
                   <div className="chat-bubble typing-bubble">
                     <div className="typing-indicator">
