@@ -436,6 +436,116 @@ async function generateLocalResponse(userId, message, history) {
   );
   const logs = logsRes.rows;
 
+  // Base conversation history analysis to track follow-ups
+  let lastBotRecommendationType = null;
+  let lastAssistantMessageTopic = null;
+
+  if (Array.isArray(history) && history.length > 0) {
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].role === 'assistant') {
+        const content = history[i].content.toLowerCase();
+        
+        // Identify recommendation type if any
+        if (content.includes('hydration') || content.includes('water')) {
+          lastBotRecommendationType = 'hydration';
+        } else if (content.includes('mindfulness') || content.includes('journal') || content.includes('breath') || content.includes('meditat')) {
+          lastBotRecommendationType = 'mindfulness';
+        } else if (content.includes('movement') || content.includes('walk') || content.includes('stretch') || content.includes('workout')) {
+          lastBotRecommendationType = 'movement';
+        } else if (content.includes('evening reflection') || content.includes('close out')) {
+          lastBotRecommendationType = 'reflection';
+        }
+
+        // Identify last assistant message topic
+        if (content.includes('burnout') || content.includes('stress') || content.includes('exhausted')) {
+          lastAssistantMessageTopic = 'burnout';
+        } else if (content.includes('productive') || content.includes('peak') || content.includes('completion rate')) {
+          lastAssistantMessageTopic = 'timing';
+        } else if (content.includes('consistency') || content.includes('struggling') || content.includes('falling off')) {
+          lastAssistantMessageTopic = 'consistency';
+        } else if (content.includes('mood') || content.includes('emotion') || content.includes('feeling')) {
+          lastAssistantMessageTopic = 'mood';
+        } else if (content.includes('benefit from adding') || content.includes('new habit') || content.includes('recommendation') || content.includes('add') || content.includes('complements')) {
+          lastAssistantMessageTopic = 'recommend';
+        } else if (content.includes('garden') || content.includes('plant') || content.includes('bloom')) {
+          lastAssistantMessageTopic = 'garden';
+        }
+        break; // Only analyze the most recent assistant message
+      }
+    }
+  }
+
+  // 0. DETECT "ANYTHING ELSE" OR "OTHER THAN..." FOLLOW-UPS
+  const isFollowUp = msg.match(/(anything else|other|another|else|more|something else|recommend something)/);
+
+  if (isFollowUp) {
+    const names = activeHabits.map(h => h.name.toLowerCase());
+    
+    // Build possible suggestions
+    const suggestions = [];
+    suggestions.push({
+      type: 'hydration',
+      text: 'a hydration habit (like drinking water first thing in the morning)'
+    });
+    suggestions.push({
+      type: 'mindfulness',
+      text: 'a mindfulness habit (like 2 minutes of journaling or breathing)'
+    });
+    suggestions.push({
+      type: 'movement',
+      text: 'a light movement habit (like a 10-minute walk or morning stretch)'
+    });
+    suggestions.push({
+      type: 'reflection',
+      text: 'a brief evening reflection to close out your day'
+    });
+
+    // Determine context
+    if (lastAssistantMessageTopic === 'recommend' || msg.match(/(habit|add|complement)/)) {
+      let filteredSuggestions = suggestions.filter(s => {
+        if (s.type === 'hydration') return !names.some(n => n.includes('water') || n.includes('hydrate'));
+        if (s.type === 'mindfulness') return !names.some(n => n.includes('journal') || n.includes('meditate') || n.includes('breath') || n.includes('mindful'));
+        if (s.type === 'movement') return !names.some(n => n.includes('walk') || n.includes('move') || n.includes('stretch') || n.includes('workout'));
+        return true; // reflection
+      });
+
+      // Exclude based on explicit negation (e.g. "other than hydration")
+      if (msg.includes('hydration') || msg.includes('water')) {
+        filteredSuggestions = filteredSuggestions.filter(s => s.type !== 'hydration');
+      }
+      if (msg.includes('mindfulness') || msg.includes('journal') || msg.includes('breath') || msg.includes('meditat')) {
+        filteredSuggestions = filteredSuggestions.filter(s => s.type !== 'mindfulness');
+      }
+      if (msg.includes('movement') || msg.includes('walk') || msg.includes('stretch') || msg.includes('workout')) {
+        filteredSuggestions = filteredSuggestions.filter(s => s.type !== 'movement');
+      }
+
+      // Also exclude whatever we recommended last, if possible
+      if (lastBotRecommendationType && filteredSuggestions.length > 1) {
+        filteredSuggestions = filteredSuggestions.filter(s => s.type !== lastBotRecommendationType);
+      }
+
+      if (filteredSuggestions.length === 0) {
+        filteredSuggestions = suggestions.filter(s => s.type !== lastBotRecommendationType);
+      }
+
+      const selectedSuggestion = filteredSuggestions[0] || suggestions[3];
+      return `Certainly! Since we already discussed ${lastBotRecommendationType || 'that option'}, another excellent addition would be **${selectedSuggestion.text}**.\n\nAdding habits sequentially ensures they stick. Try doing this for just a few days before scaling it up!`;
+    }
+
+    if (lastAssistantMessageTopic === 'timing') {
+      return `To build on your schedule patterns: try keeping your habits pinned to a "time anchor" rather than a strict clock time. For example, doing your morning stretch "immediately after pouring coffee" is much more reliable than trying to do it at exactly "08:00 AM".`;
+    }
+
+    if (lastAssistantMessageTopic === 'burnout') {
+      return `In addition to reducing habit difficulty, another key burnout prevention technique is **intentional rest days**. You can pause your habit sequence in the settings without breaking your vine streak, giving your mind a guilt-free space to recover.`;
+    }
+
+    if (lastAssistantMessageTopic === 'consistency') {
+      return `Besides reducing habit size, you can also leverage **habit tracking visibility**. Keep a physical journal, place a sticky note on your mirror, or check your RoutiQ garden daily. The visual progress of seeing your plants grow reinforces your neural identity of being a consistent person.`;
+    }
+  }
+
   // 1. BURNOUT / STRESS
   if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much)/)) {
     const recentWeekLogs = logs.filter(l => new Date(l.log_date) >= new Date(Date.now() - 7 * 86400000));
