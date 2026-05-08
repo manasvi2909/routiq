@@ -718,8 +718,64 @@ async function generateLocalResponse(userId, message, history) {
   }
 
   // 15. BREAKING BAD HABITS
-  if (msg.match(/(bad habit|break|stop|quit|remove|eliminate|distract)/)) {
-    return `To break an unwanted or **bad habit**, we invert the 4 stages of behavior change:\n\n1. **Invert the Cue**: Make it *invisible*. (Remove triggers from your sight).\n2. **Invert the Craving**: Make it *unattractive*. (Reframe your mindset; focus on the cost of the habit).\n3. **Invert the Response**: Make it *difficult*. (Increase friction, e.g. put timers on apps, hide temptations).\n4. **Invert the Reward**: Make it *unsatisfying*. (Create a habit contract with an accountability partner).\n\nWhat is one habit you are currently trying to weed out of your daily routine?`;
+  if (msg.match(/(bad habit|break|stop|quit|remove|eliminate|distract|drinking|alcohol|beer|wine|liquor|doomscroll|scroll|phone|screen|social media|instagram|tiktok|procrastinat|lazy|postpone|delay|overeat|junk food|sugar|eating|snack|binge|nail|bite|biting|pick|smoking|nicotine|vape|vaping|cigarette|sleeping late|late night|sleep|midnight|stay up|caffeine|coffee)/)) {
+    let specificAdvice = '';
+    
+    if (msg.match(/(doomscroll|scroll|phone|screen|social media|instagram|tiktok)/)) {
+      specificAdvice = `### 📱 Action Plan for Doomscrolling & Screen Addiction:\n` +
+        `- **Make it Invisible**: Charge your phone in another room overnight. Do not touch it for the first 30 minutes after waking up.\n` +
+        `- **Make it Difficult**: Turn your screen to **Grayscale mode**. Removing the bright, dopamine-inducing colors instantly makes apps like Instagram or TikTok incredibly boring.\n` +
+        `- **Make it Unsatisfying**: Set strict app timers, or have a friend set a passcode you don't know for social media access.`;
+    } else if (msg.match(/(procrastinat|lazy|postpone|delay)/)) {
+      specificAdvice = `### ⏳ Action Plan for Procrastination & Delay:\n` +
+        `- **Make it Easy**: Use the **2-Minute Rule**. If you are procrastinating on a task, commit to doing just 2 minutes of it (e.g. open the file and write 1 sentence). Starting is 90% of the battle.\n` +
+        `- **Make it Obvious**: Lay out your work materials or open your browser tabs the night before so there is zero friction when you sit down.\n` +
+        `- **Make it Satisfying**: Pair the task with an immediate micro-reward, or log your progress visually here on RoutiQ.`;
+    } else if (msg.match(/(overeat|junk food|sugar|eating|snack|binge)/)) {
+      specificAdvice = `### 🍩 Action Plan for Overeating & Sugar Cravings:\n` +
+        `- **Make it Invisible**: Out of sight, out of mind. Do not buy junk food or keep snacks on your desk. Put healthy alternatives (like fruit or nuts) in plain sight.\n` +
+        `- **Make it Difficult**: Never eat directly out of the box or bag. Pre-portion snacks into small bowls and store the rest back in the pantry.\n` +
+        `- **Make it Unattractive**: Drink a large glass of water first. Often, our brain confuses thirst or mild boredom with a craving for sugar.`;
+    } else if (msg.match(/(nail|bite|biting|pick)/)) {
+      specificAdvice = `### 💅 Action Plan for Biting Nails & Skin Picking:\n` +
+        `- **Make it Invisible/Difficult**: Apply bitter-tasting nail polish, or wear thin gloves/bandages on your target fingers to block the physical trigger.\n` +
+        `- **Make it Obvious**: Track when you do it. Place a rubber band on your wrist and gently snap it when you find yourself biting to bring awareness to the subconscious act.\n` +
+        `- **Make it Easy**: Keep a fidget toy, worry stone, or stress ball in your hands when sitting idle or watching TV.`;
+    } else if (msg.match(/(smoking|nicotine|vape|vaping|cigarette)/)) {
+      specificAdvice = `### 🚬 Action Plan for Smoking & Vaping:\n` +
+        `- **Make it Invisible**: Throw away all lighters, ashtrays, and vape chargers. Avoid your usual "smoking spots" entirely.\n` +
+        `- **Make it Difficult**: Increase the friction. Make your car or room a strict smoke-free zone so you have to walk far outside to do it.\n` +
+        `- **Make it Easy (Alternative)**: Keep mints, sugar-free gum, or cinnamon toothpicks nearby to satisfy the oral fixation when a craving hits.`;
+    } else if (msg.match(/(drinking|alcohol|beer|wine|liquor)/)) {
+      specificAdvice = `### 🍷 Action Plan for Drinking Alcohol:\n` +
+        `- **Make it Invisible**: Remove all alcohol from your home cabinet. Put sparkling water or premium non-alcoholic sodas at eye-level in your fridge.\n` +
+        `- **Make it Difficult**: When going out, make a commitment to order a club soda with lime *first* before ordering any alcohol. Often, holding a glass satisfies the social cue.\n` +
+        `- **Make it Unattractive**: Calculate how much money and deep sleep you save by skipping alcohol for a week, and read that list when cravings hit.`;
+    } else if (msg.match(/(sleeping late|late night|sleep|midnight|stay up)/)) {
+      specificAdvice = `### 🌙 Action Plan for Sleeping Late & Stay-Up Habits:\n` +
+        `- **Make it Obvious**: Set a "Wind-Down Alarm" 1 hour before bed. When it goes off, it is your cue to turn off all screens and put on dim lighting.\n` +
+        `- **Make it Invisible**: Leave your phone charger across the room. Do not allow screens in the bed.\n` +
+        `- **Make it Easy**: Pick a relaxing, low-energy activity (like reading a physical book or stretching) to bridge the gap between screens and sleep.`;
+    } else if (msg.match(/(caffeine|coffee|energy drink)/)) {
+      specificAdvice = `### ☕ Action Plan for Excess Caffeine Consumption:\n` +
+        `- **Make it Difficult**: Set a strict "Caffeine Curfew" at 12:00 PM. After noon, only decaf, herbal teas, or water are allowed.\n` +
+        `- **Make it Easy**: Switch the morning second-cup routine to a high-quality decaf coffee or mushroom elixir that tastes identical but has zero jittery crashes.\n` +
+        `- **Make it Satisfying**: Notice how much better and deeper your sleep is on days you respect your caffeine curfew.`;
+    }
+
+    let response = `To break an unwanted or **bad habit**, we invert the 4 stages of behavior change:\n\n` +
+      `1. **Invert the Cue**: Make it *invisible*. (Remove triggers from sight).\n` +
+      `2. **Invert the Craving**: Make it *unattractive*. (Reframe your mindset; focus on the cost of the habit).\n` +
+      `3. **Invert the Response**: Make it *difficult*. (Increase friction, e.g. put timers on apps, hide temptations).\n` +
+      `4. **Invert the Reward**: Make it *unsatisfying*. (Create a habit contract or accountability metric).\n\n`;
+
+    if (specificAdvice) {
+      response += specificAdvice + `\n\nRemember: **You don't eliminate a bad habit, you replace it.** Try substituting the craving's trigger with one of your healthy RoutiQ habits!`;
+    } else {
+      response += `What is one bad habit you are currently trying to weed out of your daily routine? Let me know, and I will give you a highly specific action plan for it!`;
+    }
+    
+    return response;
   }
 
   // 16. HABIT TRACKING & VISUAL STREAKS
