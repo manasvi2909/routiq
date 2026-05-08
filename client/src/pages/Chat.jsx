@@ -33,65 +33,121 @@ function PlantPersonIcon({ size = 24, className = "" }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Little green sprout growing from head */}
+      <defs>
+        {/* Pot Gradient: 3D spherical shading */}
+        <linearGradient id="potGrad" x1="20%" y1="20%" x2="80%" y2="80%">
+          <stop offset="0%" stopColor="#f0927a" />
+          <stop offset="50%" stopColor="#e07a5f" />
+          <stop offset="100%" stopColor="#b55238" />
+        </linearGradient>
+        
+        {/* Pot Rim Gradient */}
+        <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#e27c62" />
+          <stop offset="50%" stopColor="#d2694e" />
+          <stop offset="100%" stopColor="#a84830" />
+        </linearGradient>
+
+        {/* Leaf 1 Gradient */}
+        <linearGradient id="leafGradLeft" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#22c55e" />
+          <stop offset="100%" stopColor="#86efac" />
+        </linearGradient>
+
+        {/* Leaf 2 Gradient */}
+        <linearGradient id="leafGradRight" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#15803d" />
+          <stop offset="100%" stopColor="#4ade80" />
+        </linearGradient>
+
+        {/* Flower Gradient */}
+        <radialGradient id="flowerGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fef08a" />
+          <stop offset="100%" stopColor="#eab308" />
+        </radialGradient>
+      </defs>
+
+      {/* Tiny shadow underneath the pot */}
+      <ellipse cx="50" cy="94" rx="22" ry="4" fill="#0f172a" opacity="0.15" />
+
+      {/* 🌸 Cute Little Flower on head */}
+      <circle cx="34" cy="28" r="6" fill="#fecdd3" />
+      <circle cx="44" cy="22" r="6" fill="#fecdd3" />
+      <circle cx="44" cy="34" r="6" fill="#fecdd3" />
+      <circle cx="34" cy="38" r="6" fill="#fecdd3" />
+      <circle cx="39" cy="30" r="4.5" fill="url(#flowerGrad)" />
+
+      {/* 🌱 Lush green sprout leaves growing from head */}
       <path
-        d="M 50 35 C 50 15, 30 15, 30 25 C 30 35, 50 35, 50 35 Z"
-        fill="#4ade80"
+        d="M 50 35 C 50 15, 68 12, 70 23 C 70 34, 50 35, 50 35 Z"
+        fill="url(#leafGradRight)"
       />
       <path
-        d="M 50 35 C 50 15, 70 15, 70 25 C 70 35, 50 35, 50 35 Z"
-        fill="#22c55e"
-      />
-      {/* Tiny brown stem */}
-      <path
-        d="M 50 42 L 50 34"
-        stroke="#854d0e"
-        strokeWidth="4"
-        strokeLinecap="round"
+        d="M 50 35 C 50 18, 35 15, 38 25 C 41 35, 50 35, 50 35 Z"
+        fill="url(#leafGradLeft)"
       />
 
-      {/* Cute terracotta pot body */}
+      {/* Tiny organic brown stem */}
+      <path
+        d="M 50 42 C 50 38, 48 35, 49 32"
+        stroke="#713f12"
+        strokeWidth="4"
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* 🪴 Terracotta pot body with 3D gradient */}
       <path
         d="M 28 50 L 72 50 L 66 85 C 65 89, 61 92, 57 92 L 43 92 C 39 92, 35 89, 34 85 Z"
-        fill="#e07a5f"
+        fill="url(#potGrad)"
       />
-      {/* Pot rim */}
+      {/* 3D Pot Rim */}
       <rect
         x="24"
         y="42"
         width="52"
-        height="10"
-        rx="5"
-        fill="#d2694e"
+        height="11"
+        rx="5.5"
+        fill="url(#rimGrad)"
       />
 
-      {/* Cute anime blushing cheeks */}
-      <circle cx="38" cy="68" r="4" fill="#f87171" opacity="0.6" />
-      <circle cx="62" cy="68" r="4" fill="#f87171" opacity="0.6" />
-
-      {/* Cute happy eyes */}
+      {/* ✨ Tiny Gold Oracle Sparkle near head */}
       <path
-        d="M 33 63 Q 37 59 41 63"
+        d="M 80 18 L 82 22 L 86 24 L 82 26 L 80 30 L 78 26 L 74 24 L 78 22 Z"
+        fill="#eab308"
+      />
+
+      {/* ☺️ Soft Rosy Blushing Cheeks */}
+      <circle cx="36" cy="69" r="5" fill="#f43f5e" opacity="0.35" />
+      <circle cx="64" cy="69" r="5" fill="#f43f5e" opacity="0.35" />
+
+      {/* 👀 Large, Shiny, Incredibly Cute Eyes (Alive Cartoon Eyes) */}
+      {/* Left Eye */}
+      <circle cx="40" cy="61" r="5" fill="#1e293b" />
+      <circle cx="38" cy="59" r="1.8" fill="#ffffff" /> {/* Eye light reflection */}
+      <circle cx="41.5" cy="62.5" r="0.8" fill="#ffffff" /> {/* Eye sub reflection */}
+
+      {/* Right Eye */}
+      <circle cx="60" cy="61" r="5" fill="#1e293b" />
+      <circle cx="58" cy="59" r="1.8" fill="#ffffff" /> {/* Eye light reflection */}
+      <circle cx="61.5" cy="62.5" r="0.8" fill="#ffffff" /> {/* Eye sub reflection */}
+
+      {/* 👄 Cute smiling mouth */}
+      <path
+        d="M 47 71 Q 50 75 53 71"
         stroke="#1e293b"
-        strokeWidth="3.5"
+        strokeWidth="3"
         strokeLinecap="round"
         fill="none"
       />
-      <path
-        d="M 59 63 Q 63 59 67 63"
-        stroke="#1e293b"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
 
-      {/* Cute smiling mouth */}
+      {/* Cute little green leaf waving hand! */}
       <path
-        d="M 46 72 Q 50 76 54 72"
-        stroke="#1e293b"
-        strokeWidth="3.5"
+        d="M 70 66 C 76 66, 79 58, 80 54 C 81 50, 77 48, 75 51 C 73 54, 71 61, 70 63"
+        fill="#4ade80"
+        stroke="#15803d"
+        strokeWidth="1.5"
         strokeLinecap="round"
-        fill="none"
       />
     </svg>
   );
