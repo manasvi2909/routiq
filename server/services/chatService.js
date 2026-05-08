@@ -417,6 +417,12 @@ async function generateLocalResponse(userId, message, history) {
   const msg = message.toLowerCase();
 
   // Fetch base user data
+  const userRes = await pool.query(
+    `SELECT created_at FROM users WHERE id = $1`,
+    [userId]
+  );
+  const user = userRes.rows[0];
+
   const habitsRes = await pool.query(
     `SELECT * FROM habits WHERE user_id = $1 ORDER BY is_active DESC`,
     [userId]
