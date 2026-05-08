@@ -687,6 +687,46 @@ async function generateLocalResponse(userId, message, history) {
     return `Your garden is responding to your consistency.\n\nYour habit **"${closest.name}"** is at ${progress}% growth. A few more consistent days and your ${closest.selected_plant_type || 'fern'} will fully bloom. Keep nourishing it with your daily logs.`;
   }
 
+  // 9. HABIT STACKING & CUES
+  if (msg.match(/(stack|anchor|combine|link|cue|trigger)/)) {
+    return `**Habit Stacking** is one of the most powerful ways to build consistency. The formula is simple:\n\n> *\"After [Current Habit], I will [New Habit].\"*\n\nInstead of tying your habits to a strict clock time (which is easily derailed), anchor them to a highly reliable time-independent cue that already happens without fail. For example:\n- *\"After I pour my morning coffee, I will open my book and read 1 page.\"*\n- *\"After I close my laptop for the day, I will put on my sneakers and stretch.\"*\n\nWhat is a daily anchor you can use to trigger your current routines?`;
+  }
+
+  // 10. HABIT LOOP (CUE, CRAVING, RESPONSE, REWARD)
+  if (msg.match(/(loop|craving|response|reward|behavior|james clear|atomic)/)) {
+    return `The science of behavior change relies on the **4-Stage Habit Loop**:\n\n1. **Cue**: Make it obvious. (e.g. Leave your journal directly on your pillow).\n2. **Craving**: Make it attractive. (e.g. Pair a difficult habit with something you love, like listening to your favorite podcast only while walking).\n3. **Response**: Make it easy. (e.g. Scale your goals down to a "2-Minute Version").\n4. **Reward**: Make it satisfying. (e.g. Watching your RoutiQ plants grow stage-by-stage is a built-in visual dopamine hit!).\n\nWhich stage of the loop do you feel is currently the weakest in your routine?`;
+  }
+
+  // 11. IDENTITY-BASED HABITS
+  if (msg.match(/(identity|who i am|self-image|mindset|vibe|believe|person)/)) {
+    return `Most people focus on *outcomes* (e.g. \"I want to read 20 books\"). Successful people focus on **Identity** (e.g. \"I want to become a reader\").\n\nYour habits are how you embody your identity. Every single time you log a habit on RoutiQ, you aren't just checking off a chore—you are **casting a vote** for the type of person you want to become. One page of reading casts a vote for being a reader. 2 minutes of stretching casts a vote for being a healthy person.\n\nWho is the person you are casting votes for today?`;
+  }
+
+  // 12. FRICTION & ENVIRONMENT DESIGN
+  if (msg.match(/(environment|friction|easy|hard|room|setup|obstacle|space)/)) {
+    return `In habit formation, **environment design beats willpower every time**.\n\nYour brain is wired to conserve energy, meaning it naturally takes the path of least resistance. To succeed:\n- **Reduce friction for good habits**: Lay out your exercise clothes the night before, fill your water bottle and put it on your desk, or leave your book open.\n- **Increase friction for bad habits**: Unplug the TV after use, put your phone in another room while working, or delete distracting apps.\n\nHow can you design your physical room or workspace to make your habits effortless?`;
+  }
+
+  // 13. KEYSTONE HABITS
+  if (msg.match(/(keystone|foundational|core habit|anchor habit)/)) {
+    return `A **Keystone Habit** is a foundational routine that naturally triggers a positive domino effect in other areas of your life. They don't just change one behavior; they shift your entire daily energy.\n\nCommon keystone habits include:\n- **Regular exercise**: Naturally leads to better eating habits, improved sleep, and less stress.\n- **Daily journaling**: Boosts self-awareness, reduces anxiety, and keeps you focused.\n- **Sleep routine**: Directly increases your emotional resilience and next-day willpower.\n\nAre there any keystone habits you are currently cultivating?`;
+  }
+
+  // 14. MOTIVATION VS DISCIPLINE
+  if (msg.match(/(motivation|discipline|willpower|lazy|don't feel like|cannot start|procrastinate)/)) {
+    return `Relying on motivation is a trap. Motivation is an emotion—it rises and falls with your mood, energy, and stress level. If you only practice your habits when you \"feel motivated\", your consistency will be erratic.\n\n**Discipline is what carries you when motivation fails.** To build discipline:\n- **Build systems, not goals**: *\"You do not rise to the level of your goals. You fall to the level of your systems.\"*\n- **The 2-Minute Rule**: When you don't feel like doing it, promise yourself to do it for just 120 seconds. Once you start, momentum usually takes over.\n\nLet's keep showing up, even for 2 minutes, to nourish your plants!`;
+  }
+
+  // 15. BREAKING BAD HABITS
+  if (msg.match(/(bad habit|break|stop|quit|remove|eliminate|distract)/)) {
+    return `To break an unwanted or **bad habit**, we invert the 4 stages of behavior change:\n\n1. **Invert the Cue**: Make it *invisible*. (Remove triggers from your sight).\n2. **Invert the Craving**: Make it *unattractive*. (Reframe your mindset; focus on the cost of the habit).\n3. **Invert the Response**: Make it *difficult*. (Increase friction, e.g. put timers on apps, hide temptations).\n4. **Invert the Reward**: Make it *unsatisfying*. (Create a habit contract with an accountability partner).\n\nWhat is one habit you are currently trying to weed out of your daily routine?`;
+  }
+
+  // 16. HABIT TRACKING & VISUAL STREAKS
+  if (msg.match(/(track|view|visual|calendar|streak|chart|history)/)) {
+    return `**Visual habit tracking** is highly effective because it leverages three psychological triggers:\n\n1. **It is Obvious**: Looking at your RoutiQ garden or registry makes your progress immediately clear.\n2. **It is Attractive**: Watching your plants transition from tiny seeds to full blooms is intrinsically motivating.\n3. **It is Satisfying**: Seeing your streak counter (the *Longest Vine*) increment feels like a rewarding win.\n\nYour only job on tough days is simple: **Don't break the chain!** Even if you complete a habit late or scale it down, logging it keeps the chain alive.`;
+  }
+
   // 7. GREETINGS
   if (msg.match(/^(hi|hello|hey|greetings|morning|evening)$/)) {
     return `Hello. I am the Oracle, your reflection companion.\n\nI'm observing your habit patterns, stress levels, and consistency. How are you feeling about your routines today?`;
