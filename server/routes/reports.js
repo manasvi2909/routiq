@@ -44,17 +44,29 @@ router.get('/weekly/compare', authenticate, async (req, res) => {
     const { weeks = 4 } = req.query;
     const numWeeks = parseInt(weeks);
 
+    const userResult = await pool.query('SELECT created_at FROM users WHERE id = $1', [req.user.id]);
+    const userCreatedAt = new Date(userResult.rows[0].created_at);
+    userCreatedAt.setHours(0, 0, 0, 0);
+
     const reports = [];
     const today = new Date();
     
     for (let i = 0; i < numWeeks; i++) {
       const day = today.getDay();
       const diff = today.getDate() - day + (day === 0 ? -6 : 1) - (i * 7);
-      const weekStart = new Date(today.setDate(diff));
+      
+      const weekStart = new Date(today.getTime());
+      weekStart.setDate(diff);
       weekStart.setHours(0, 0, 0, 0);
       
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekEnd.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999);
+
+      // Don't show archives for weeks before the user created their account
+      if (weekEnd < userCreatedAt) {
+        break;
+      }
 
       const report = await generateWeeklyReport(
         req.user.id,

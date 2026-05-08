@@ -40,6 +40,9 @@ function Navbar() {
           <Link to="/reports" className={isActive('/reports') ? 'active' : ''}>
             <span>Archives</span>
           </Link>
+          <Link to="/oracle" className={isActive('/oracle') ? 'active' : ''}>
+            <span>Oracle</span>
+          </Link>
           <Link to="/settings" className={isActive('/settings') ? 'active' : ''}>
             <span>Refinement</span>
           </Link>

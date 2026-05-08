@@ -357,7 +357,10 @@ body[data-theme='dark'] .habit-item-premium,
 body[data-theme='dark'] .registry-summary-card,
 body[data-theme='dark'] .garden-card,
 body[data-theme='dark'] .garden-empty,
-body[data-theme='dark'] .notification-item.unread {
+body[data-theme='dark'] .notification-item.unread,
+body[data-theme='dark'] .chat-container,
+body[data-theme='dark'] .insight-card,
+body[data-theme='dark'] .insights-empty {
   background: var(--surface-panel);
   border-color: var(--color-border);
   box-shadow: var(--shadow-soft);
@@ -378,7 +381,9 @@ body[data-theme='dark'] .nav-link-minimal,
 body[data-theme='dark'] .nav-btn-minimal,
 body[data-theme='dark'] .feature-ornament,
 body[data-theme='dark'] .subtask-item,
-body[data-theme='dark'] .add-subtask-btn {
+body[data-theme='dark'] .add-subtask-btn,
+body[data-theme='dark'] .prompt-pill,
+body[data-theme='dark'] .chat-input-area {
   background: var(--surface-chip) !important;
   border-color: var(--color-border) !important;
 }

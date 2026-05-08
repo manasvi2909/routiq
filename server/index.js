@@ -9,6 +9,7 @@ const reportRoutes = require('./routes/reports');
 const notificationRoutes = require('./routes/notifications');
 const subtaskRoutes = require('./routes/subtasks');
 const gardenRoutes = require('./routes/garden');
+const chatRoutes = require('./routes/chat');
 const reminderService = require('./services/reminderService');
 
 require('dotenv').config();
@@ -28,6 +29,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/subtasks', subtaskRoutes);
 app.use('/api/garden', gardenRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

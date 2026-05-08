@@ -24,6 +24,13 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Habit not found' });
     }
 
+    // Get existing log to check if this is new growth
+    const existingLogResult = await pool.query(
+      'SELECT completion_percentage FROM habit_logs WHERE habit_id = $1 AND log_date = $2',
+      [habit_id, log_date]
+    );
+    const existingLog = existingLogResult.rows[0];
+
     // Insert or update log
     const result = await pool.query(
       `INSERT INTO habit_logs (habit_id, user_id, log_date, completion_percentage, mood, stress_level, notes)
@@ -44,17 +51,28 @@ router.post('/', authenticate, async (req, res) => {
       ]
     );
 
+    // Update plant growth stage based on completion change
+    const newCompletion = completion_percentage || 0;
+    const oldCompletion = existingLog ? existingLog.completion_percentage : 0;
+
+    const isNewGrowth = oldCompletion === 0 && newCompletion > 0;
+    const isLostGrowth = oldCompletion > 0 && newCompletion === 0;
+
+    if (isNewGrowth) {
+      await pool.query('UPDATE habits SET growth_stage = COALESCE(growth_stage, 0) + 1 WHERE id = $1', [habit_id]);
+    } else if (isLostGrowth) {
+      await pool.query('UPDATE habits SET growth_stage = GREATEST(0, COALESCE(growth_stage, 0) - 1) WHERE id = $1', [habit_id]);
+    }
+
     // Update habit statistics
     await updateHabitStats(habit_id, log_date);
 
     // Check consistency after logging
     const analysis = await analyzeHabitConsistency(habit_id, req.user.id);
-    if (analysis.isInconsistent) {
-      await pool.query(
-        'UPDATE habits SET is_inconsistent = true WHERE id = $1',
-        [habit_id]
-      );
-    }
+    await pool.query(
+      'UPDATE habits SET is_inconsistent = $1 WHERE id = $2',
+      [analysis.isInconsistent, habit_id]
+    );
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -127,37 +145,35 @@ async function updateHabitStats(habitId, logDate) {
     const count = parseInt(completionResult.rows[0].count);
     const lastCompleted = completionResult.rows[0].last_completed;
 
-    // Calculate consecutive days
-    const consecutiveResult = await pool.query(
-      `WITH RECURSIVE date_series AS (
-        SELECT $1::date as check_date
-        UNION ALL
-        SELECT check_date - INTERVAL '1 day'
-        FROM date_series
-        WHERE check_date > $2::date
-      )
-      SELECT COUNT(*) as consecutive
-      FROM date_series ds
-      WHERE EXISTS (
-        SELECT 1 FROM habit_logs hl
-        WHERE hl.habit_id = $3
-        AND hl.log_date = ds.check_date
-        AND hl.completion_percentage > 0
-      )
-      AND NOT EXISTS (
-        SELECT 1 FROM date_series ds2
-        WHERE ds2.check_date = ds.check_date - INTERVAL '1 day'
-        AND NOT EXISTS (
-          SELECT 1 FROM habit_logs hl2
-          WHERE hl2.habit_id = $3
-          AND hl2.log_date = ds2.check_date
-          AND hl2.completion_percentage > 0
-        )
-      )`,
-      [logDate, thirtyDaysAgo.toISOString().split('T')[0], habitId]
+    // Calculate consecutive days in JS for accuracy
+    const logsRes = await pool.query(
+      `SELECT log_date 
+       FROM habit_logs 
+       WHERE habit_id = $1 AND completion_percentage > 0
+       ORDER BY log_date DESC`,
+      [habitId]
     );
+    
+    const logDates = new Set(logsRes.rows.map(r => new Date(r.log_date).toISOString().split('T')[0]));
+    
+    let consecutiveDays = 0;
+    let currentDate = new Date(logDate);
+    currentDate.setHours(0, 0, 0, 0);
 
-    const consecutiveDays = parseInt(consecutiveResult.rows[0]?.consecutive || 0);
+    // If the logDate itself is not in the logs (e.g. updating to 0 completion), streak from today is 0.
+    // Otherwise count backwards.
+    const logDateStr = currentDate.toISOString().split('T')[0];
+    if (logDates.has(logDateStr)) {
+      while (true) {
+        const checkStr = currentDate.toISOString().split('T')[0];
+        if (logDates.has(checkStr)) {
+          consecutiveDays++;
+          currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
 
     // Update habit
     await pool.query(

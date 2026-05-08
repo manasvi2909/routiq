@@ -1,0 +1,583 @@
+const { pool } = require('../database/init');
+const { getPlantById } = require('./plantCatalog');
+
+/**
+ * Gather a complete snapshot of a user's habit data for AI context.
+ * This is the single source of truth the Oracle uses to personalise every response.
+ */
+async function getUserContext(userId) {
+  // ── 1. User profile ──────────────────────────────────────────────
+  const userRes = await pool.query(
+    `SELECT id, username, created_at, plants_fully_grown
+     FROM users WHERE id = $1`,
+    [userId]
+  );
+  const user = userRes.rows[0];
+  if (!user) throw new Error('User not found');
+
+  const daysSinceJoined = Math.floor(
+    (Date.now() - new Date(user.created_at).getTime()) / 86400000
+  );
+
+  // ── 2. All habits (active + inactive) ────────────────────────────
+  const habitsRes = await pool.query(
+    `SELECT id, name, description, is_active, consecutive_days,
+            total_completions, growth_stage, milestones_achieved,
+            is_inconsistent, selected_plant_type, current_goal,
+            current_reward, habit_time, when_specifically,
+            what_motivating, what_hindering, created_at,
+            fully_grown_count
+     FROM habits WHERE user_id = $1
+     ORDER BY is_active DESC, created_at DESC`,
+    [userId]
+  );
+  const habits = habitsRes.rows;
+  const activeHabits = habits.filter(h => h.is_active);
+  const inactiveHabits = habits.filter(h => !h.is_active);
+
+  // ── 3. Logs from the last 30 days ────────────────────────────────
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const logsRes = await pool.query(
+    `SELECT hl.habit_id, hl.log_date, hl.completion_percentage,
+            hl.mood, hl.stress_level, hl.notes, h.name AS habit_name
+     FROM habit_logs hl
+     JOIN habits h ON hl.habit_id = h.id
+     WHERE hl.user_id = $1 AND hl.log_date >= $2
+     ORDER BY hl.log_date DESC`,
+    [userId, thirtyDaysAgo.toISOString().split('T')[0]]
+  );
+  const logs = logsRes.rows || [];
+
+  // ── 4. Per-habit stats (last 14 days) ────────────────────────────
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+  const recentLogs = logs.filter(
+    l => new Date(l.log_date) >= fourteenDaysAgo
+  );
+
+  const habitStats = {};
+  for (const h of activeHabits) {
+    const hLogs = recentLogs.filter(l => l.habit_id === h.id);
+    const completions = hLogs.filter(l => l.completion_percentage > 0).length;
+    const fullCompletions = hLogs.filter(l => l.completion_percentage === 3).length;
+    const moods = hLogs.filter(l => l.mood).map(l => l.mood);
+    const stressLevels = hLogs.filter(l => l.stress_level).map(l => l.stress_level);
+
+    habitStats[h.id] = {
+      name: h.name,
+      loggedDays: hLogs.length,
+      completions,
+      fullCompletions,
+      completionRate: hLogs.length > 0
+        ? Math.round((completions / 14) * 100)
+        : 0,
+      moods,
+      avgStress: stressLevels.length > 0
+        ? +(stressLevels.reduce((a, b) => a + b, 0) / stressLevels.length).toFixed(1)
+        : null,
+      mostCommonMood: modeMood(moods),
+    };
+  }
+
+  // ── 5. Overall mood & stress distribution ────────────────────────
+  const allMoods = logs.filter(l => l.mood).map(l => l.mood);
+  const allStress = logs.filter(l => l.stress_level).map(l => l.stress_level);
+  const moodDistribution = {};
+  allMoods.forEach(m => { moodDistribution[m] = (moodDistribution[m] || 0) + 1; });
+
+  // ── 6. Day-of-week patterns ──────────────────────────────────────
+  const dayOfWeekCompletions = [0, 0, 0, 0, 0, 0, 0];
+  const dayOfWeekLogs = [0, 0, 0, 0, 0, 0, 0];
+  logs.forEach(l => {
+    const dow = new Date(l.log_date).getDay();
+    dayOfWeekLogs[dow]++;
+    if (l.completion_percentage > 0) dayOfWeekCompletions[dow]++;
+  });
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayOfWeekRates = dayNames.map((name, i) => ({
+    day: name,
+    rate: dayOfWeekLogs[i] > 0 ? Math.round((dayOfWeekCompletions[i] / dayOfWeekLogs[i]) * 100) : null,
+  }));
+
+  // ── 7. Stress-to-completion correlation ──────────────────────────
+  const stressCompletionBuckets = { low: { completed: 0, total: 0 }, medium: { completed: 0, total: 0 }, high: { completed: 0, total: 0 } };
+  logs.forEach(l => {
+    if (!l.stress_level) return;
+    const bucket = l.stress_level <= 2 ? 'low' : l.stress_level <= 3 ? 'medium' : 'high';
+    stressCompletionBuckets[bucket].total++;
+    if (l.completion_percentage > 0) stressCompletionBuckets[bucket].completed++;
+  });
+
+  // ── 8. Garden ────────────────────────────────────────────────────
+  const gardenRes = await pool.query(
+    `SELECT plant_type, habit_name, milestone_number, grown_at
+     FROM garden_plants WHERE user_id = $1
+     ORDER BY grown_at DESC`,
+    [userId]
+  );
+
+  // ── 9. Build the formatted context string ────────────────────────
+  return buildContextString({
+    user,
+    daysSinceJoined,
+    activeHabits,
+    inactiveHabits,
+    habitStats,
+    moodDistribution,
+    avgStress: allStress.length > 0
+      ? +(allStress.reduce((a, b) => a + b, 0) / allStress.length).toFixed(1)
+      : null,
+    dayOfWeekRates,
+    stressCompletionBuckets,
+    gardenPlants: gardenRes.rows,
+    totalLogs: logs.length,
+  });
+}
+
+function modeMood(moods) {
+  if (moods.length === 0) return null;
+  const counts = {};
+  moods.forEach(m => { counts[m] = (counts[m] || 0) + 1; });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function buildContextString(ctx) {
+  const lines = [];
+
+  lines.push(`=== USER PROFILE ===`);
+  lines.push(`Username: ${ctx.user.username}`);
+  lines.push(`Member for: ${ctx.daysSinceJoined} days`);
+  lines.push(`Plants fully grown (lifetime): ${ctx.user.plants_fully_grown || 0}`);
+  lines.push(`Garden collection: ${ctx.gardenPlants.length} plants`);
+  lines.push(`Total log entries (last 30 days): ${ctx.totalLogs}`);
+  lines.push('');
+
+  lines.push(`=== ACTIVE HABITS (${ctx.activeHabits.length}) ===`);
+  ctx.activeHabits.forEach(h => {
+    const stats = ctx.habitStats[h.id] || {};
+    lines.push(`- ${h.name}`);
+    lines.push(`  Streak: ${h.consecutive_days || 0} consecutive days`);
+    lines.push(`  Total completions: ${h.total_completions || 0}`);
+    lines.push(`  14-day completion rate: ${stats.completionRate || 0}%`);
+    lines.push(`  Growth stage: ${h.growth_stage || 0}, Milestones: ${h.milestones_achieved || 0}`);
+    lines.push(`  Plant: ${h.selected_plant_type || 'fern'}`);
+    lines.push(`  Flagged inconsistent: ${h.is_inconsistent ? 'YES' : 'no'}`);
+    if (h.current_goal) lines.push(`  Current goal: ${h.current_goal}`);
+    if (h.habit_time) lines.push(`  Scheduled time: ${h.habit_time}`);
+    if (h.what_motivating) lines.push(`  Motivation: ${h.what_motivating}`);
+    if (h.what_hindering) lines.push(`  Hindrances: ${h.what_hindering}`);
+    if (stats.mostCommonMood) lines.push(`  Most common mood while logging: ${stats.mostCommonMood}`);
+    if (stats.avgStress !== null) lines.push(`  Avg stress while logging: ${stats.avgStress}/5`);
+  });
+  lines.push('');
+
+  if (ctx.inactiveHabits.length > 0) {
+    lines.push(`=== INACTIVE / PAUSED HABITS (${ctx.inactiveHabits.length}) ===`);
+    ctx.inactiveHabits.forEach(h => {
+      lines.push(`- ${h.name} (total completions: ${h.total_completions || 0})`);
+    });
+    lines.push('');
+  }
+
+  lines.push(`=== MOOD DISTRIBUTION (last 30 days) ===`);
+  Object.entries(ctx.moodDistribution).forEach(([mood, count]) => {
+    lines.push(`  ${mood}: ${count} logs`);
+  });
+  if (ctx.avgStress !== null) {
+    lines.push(`  Average stress level: ${ctx.avgStress}/5`);
+  }
+  lines.push('');
+
+  lines.push(`=== DAY-OF-WEEK PATTERNS ===`);
+  ctx.dayOfWeekRates.forEach(d => {
+    lines.push(`  ${d.day}: ${d.rate !== null ? d.rate + '%' : 'no data'}`);
+  });
+  lines.push('');
+
+  lines.push(`=== STRESS-COMPLETION CORRELATION ===`);
+  Object.entries(ctx.stressCompletionBuckets).forEach(([level, data]) => {
+    const rate = data.total > 0 ? Math.round((data.completed / data.total) * 100) : null;
+    lines.push(`  ${level} stress: ${rate !== null ? rate + '% completion' : 'no data'} (${data.total} logs)`);
+  });
+  lines.push('');
+
+  if (ctx.gardenPlants.length > 0) {
+    lines.push(`=== GARDEN COLLECTION ===`);
+    ctx.gardenPlants.slice(0, 10).forEach(p => {
+      lines.push(`  ${p.plant_type} from "${p.habit_name}" (milestone #${p.milestone_number})`);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Generate AI Insight Cards by analysing the user's data.
+ * Icons are returned as string identifiers that the client maps to lucide icons.
+ */
+async function generateInsights(userId) {
+  const userRes = await pool.query(
+    `SELECT id, username, created_at, plants_fully_grown FROM users WHERE id = $1`,
+    [userId]
+  );
+  const user = userRes.rows[0];
+  if (!user) return [];
+
+  const habitsRes = await pool.query(
+    `SELECT * FROM habits WHERE user_id = $1 ORDER BY is_active DESC`,
+    [userId]
+  );
+  const habits = habitsRes.rows;
+  const activeHabits = habits.filter(h => h.is_active);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const logsRes = await pool.query(
+    `SELECT hl.*, h.name AS habit_name
+     FROM habit_logs hl
+     JOIN habits h ON hl.habit_id = h.id
+     WHERE hl.user_id = $1 AND hl.log_date >= $2
+     ORDER BY hl.log_date DESC`,
+    [userId, thirtyDaysAgo.toISOString().split('T')[0]]
+  );
+  const logs = logsRes.rows;
+
+  const insights = [];
+
+  // ── Streak champion ──────────────────────────────────────────────
+  const bestStreak = [...activeHabits].sort(
+    (a, b) => (b.consecutive_days || 0) - (a.consecutive_days || 0)
+  )[0];
+  if (bestStreak && (bestStreak.consecutive_days || 0) >= 3) {
+    insights.push({
+      type: 'streak',
+      iconName: 'flame',
+      title: 'Streak Champion',
+      body: `"${bestStreak.name}" is on a ${bestStreak.consecutive_days}-day streak. This level of consistency rewires neural pathways — keep the chain alive.`,
+      priority: bestStreak.consecutive_days >= 7 ? 'high' : 'medium',
+    });
+  }
+
+  // ── Burnout signal ───────────────────────────────────────────────
+  const recentWeekLogs = logs.filter(l => {
+    const d = new Date(l.log_date);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return d >= weekAgo;
+  });
+  const highStressLogs = recentWeekLogs.filter(l => l.stress_level >= 4);
+  if (highStressLogs.length >= 3) {
+    insights.push({
+      type: 'burnout',
+      iconName: 'alert-triangle',
+      title: 'Burnout Signal Detected',
+      body: `You've logged high stress (4-5) on ${highStressLogs.length} of the last 7 days. Consider reducing habit difficulty or shortening your routine temporarily.`,
+      priority: 'high',
+    });
+  }
+
+  // ── Stress-completion correlation ────────────────────────────────
+  const lowStressLogs = logs.filter(l => l.stress_level && l.stress_level <= 2);
+  const highStressAll = logs.filter(l => l.stress_level && l.stress_level >= 4);
+  const lowStressCompletionRate = lowStressLogs.length > 0
+    ? lowStressLogs.filter(l => l.completion_percentage > 0).length / lowStressLogs.length
+    : 0;
+  const highStressCompletionRate = highStressAll.length > 0
+    ? highStressAll.filter(l => l.completion_percentage > 0).length / highStressAll.length
+    : 0;
+  if (lowStressLogs.length >= 3 && highStressAll.length >= 3) {
+    const diff = Math.round((lowStressCompletionRate - highStressCompletionRate) * 100);
+    if (diff > 15) {
+      insights.push({
+        type: 'pattern',
+        iconName: 'brain',
+        title: 'Stress-Performance Pattern',
+        body: `Your consistency is ${diff}% higher on low-stress days. On calmer days, your habits nearly run themselves.`,
+        priority: 'medium',
+      });
+    }
+  }
+
+  // ── Best/worst day of the week ───────────────────────────────────
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+  const dayCompletions = [0, 0, 0, 0, 0, 0, 0];
+  logs.forEach(l => {
+    const dow = new Date(l.log_date).getDay();
+    dayCounts[dow]++;
+    if (l.completion_percentage > 0) dayCompletions[dow]++;
+  });
+  let bestDay = -1;
+  let bestDayRate = 0;
+  let worstDay = -1;
+  let worstDayRate = 101;
+  dayCounts.forEach((count, i) => {
+    if (count >= 2) {
+      const rate = dayCompletions[i] / count;
+      if (rate > bestDayRate) { bestDayRate = rate; bestDay = i; }
+      if (rate < worstDayRate) { worstDayRate = rate; worstDay = i; }
+    }
+  });
+  if (bestDay >= 0) {
+    insights.push({
+      type: 'timing',
+      iconName: 'calendar-check',
+      title: 'Peak Day',
+      body: `${dayNames[bestDay]}s are your most productive day at ${Math.round(bestDayRate * 100)}% completion. Plan challenging habits here.`,
+      priority: 'low',
+    });
+  }
+  if (worstDay >= 0 && worstDay !== bestDay) {
+    insights.push({
+      type: 'timing',
+      iconName: 'moon',
+      title: 'Dip Day',
+      body: `${dayNames[worstDay]}s dip to ${Math.round(worstDayRate * 100)}% completion. Consider lighter routines or rest days.`,
+      priority: 'low',
+    });
+  }
+
+  // ── Inconsistent habit warning ───────────────────────────────────
+  const inconsistentHabits = activeHabits.filter(h => h.is_inconsistent);
+  if (inconsistentHabits.length > 0) {
+    const names = inconsistentHabits.map(h => `"${h.name}"`).join(', ');
+    insights.push({
+      type: 'consistency',
+      iconName: 'trending-down',
+      title: 'Consistency Watch',
+      body: `${names} ${inconsistentHabits.length === 1 ? 'has' : 'have'} been flagged as inconsistent. Small, daily micro-actions can rebuild momentum.`,
+      priority: 'medium',
+    });
+  }
+
+  // ── Emotional pattern ────────────────────────────────────────────
+  const moodCounts = {};
+  logs.filter(l => l.mood).forEach(l => { moodCounts[l.mood] = (moodCounts[l.mood] || 0) + 1; });
+  const topMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
+  if (topMood && topMood[1] >= 4) {
+    insights.push({
+      type: 'emotional',
+      iconName: 'heart-pulse',
+      title: 'Emotional Landscape',
+      body: `Your dominant mood recently is "${topMood[0]}" (${topMood[1]} logs). ${topMood[0] === 'happy' || topMood[0] === 'motivated' ? 'Ride this wave — momentum is on your side.' : 'Be gentle with yourself. Consistency matters more than perfection.'}`,
+      priority: 'medium',
+    });
+  }
+
+  // ── Growth milestone approaching ─────────────────────────────────
+  for (const h of activeHabits) {
+    const growthTarget = getPlantById(h.selected_plant_type || 'fern').growthTarget || 12;
+    const progress = ((h.growth_stage || 0) / growthTarget) * 100;
+    if (progress >= 70 && progress < 100) {
+      insights.push({
+        type: 'milestone',
+        iconName: 'sprout',
+        title: 'Almost Bloomed',
+        body: `"${h.name}" is at ${Math.round(progress)}% growth. A few more consistent days and your ${h.selected_plant_type || 'fern'} will be fully grown.`,
+        priority: 'medium',
+      });
+    }
+  }
+
+  // ── New user nudge ───────────────────────────────────────────────
+  const daysSinceJoined = Math.max(1, Math.ceil((Date.now() - new Date(user.created_at).getTime()) / 86400000));
+  if (activeHabits.length === 0) {
+    insights.push({
+      type: 'onboarding',
+      iconName: 'leaf',
+      title: 'Plant Your First Seed',
+      body: 'Start with one small habit — something so easy you can\'t say no. Consistency with one is worth more than ambition with five.',
+      priority: 'high',
+    });
+  } else if (daysSinceJoined <= 7 && activeHabits.length <= 2) {
+    insights.push({
+      type: 'onboarding',
+      iconName: 'sunrise',
+      title: 'Early Days',
+      body: `You're on day ${daysSinceJoined} with ${activeHabits.length} habit${activeHabits.length > 1 ? 's' : ''}. The first two weeks matter most — focus on showing up, not being perfect.`,
+      priority: 'medium',
+    });
+  }
+
+  // Sort by priority
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  insights.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  return insights.slice(0, 6);
+}
+
+/**
+ * Local Reflection Engine
+ * Parses user input and responds using actual user data without an LLM.
+ */
+async function generateLocalResponse(userId, message, history) {
+  const msg = message.toLowerCase();
+
+  // Fetch base user data
+  const habitsRes = await pool.query(
+    `SELECT * FROM habits WHERE user_id = $1 ORDER BY is_active DESC`,
+    [userId]
+  );
+  const habits = habitsRes.rows;
+  const activeHabits = habits.filter(h => h.is_active);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const logsRes = await pool.query(
+    `SELECT hl.*, h.name AS habit_name
+     FROM habit_logs hl
+     JOIN habits h ON hl.habit_id = h.id
+     WHERE hl.user_id = $1 AND hl.log_date >= $2
+     ORDER BY hl.log_date DESC`,
+    [userId, thirtyDaysAgo.toISOString().split('T')[0]]
+  );
+  const logs = logsRes.rows;
+
+  // 1. BURNOUT / STRESS
+  if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much)/)) {
+    const recentWeekLogs = logs.filter(l => new Date(l.log_date) >= new Date(Date.now() - 7 * 86400000));
+    const highStressLogs = recentWeekLogs.filter(l => l.stress_level >= 4);
+    
+    if (highStressLogs.length >= 3) {
+      return `I notice you've logged high stress (4 or 5) on ${highStressLogs.length} days this past week.\n\n*Burnout isn't a failure of willpower, it's a signal from your body.* When stress is this high, your consistency naturally drops. I strongly suggest scaling back your habits right now. Can you reduce the difficulty or time commitment of your hardest habit just for the next few days?`;
+    } else if (highStressLogs.length > 0) {
+      return `You've had a few high-stress days recently, but you aren't showing severe signs of burnout yet.\n\nHowever, it's good you're checking in. If you feel overwhelmed, remember that showing up for 2 minutes is better than skipping entirely. How are you feeling today?`;
+    } else {
+      return `Your recent logs don't show prolonged high stress, which is wonderful.\n\nHowever, if you are feeling exhausted, please listen to your body. Routines should support you, not drain you. It's perfectly okay to take a rest day to recharge.`;
+    }
+  }
+
+  // 2. TIMING / PRODUCTIVITY / PEAK
+  if (msg.match(/(when|time|productive|peak|best day|worst day|dip)/)) {
+    if (logs.length < 5) return `I need a few more days of data before I can find reliable patterns in your schedule. Keep logging, and ask me again next week!`;
+    
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+    const dayCompletions = [0, 0, 0, 0, 0, 0, 0];
+    logs.forEach(l => {
+      const dow = new Date(l.log_date).getDay();
+      dayCounts[dow]++;
+      if (l.completion_percentage > 0) dayCompletions[dow]++;
+    });
+    
+    let bestDay = -1; let bestDayRate = 0;
+    let worstDay = -1; let worstDayRate = 101;
+    dayCounts.forEach((count, i) => {
+      if (count >= 2) {
+        const rate = dayCompletions[i] / count;
+        if (rate > bestDayRate) { bestDayRate = rate; bestDay = i; }
+        if (rate < worstDayRate) { worstDayRate = rate; worstDay = i; }
+      }
+    });
+
+    if (bestDay >= 0) {
+      let res = `Based on your logs over the last 30 days, **${dayNames[bestDay]}s** are your most productive days, with a ${Math.round(bestDayRate * 100)}% completion rate.\n\nIf you want to tackle a difficult habit, plan it for ${dayNames[bestDay]}.`;
+      if (worstDay >= 0 && worstDay !== bestDay && worstDayRate < 0.6) {
+        res += `\n\nOn the flip side, your consistency drops to ${Math.round(worstDayRate * 100)}% on **${dayNames[worstDay]}s**. You might want to schedule lighter routines or rest days then.`;
+      }
+      return res;
+    } else {
+      return `Your completions are fairly balanced across the week right now. No extreme peaks or dips. Keep logging, and patterns will start to emerge.`;
+    }
+  }
+
+  // 3. CONSISTENCY / FALLING OFF
+  if (msg.match(/(consistency|consistent|lose consistency|inconsistent|falling off|off track|struggling)/)) {
+    const inconsistent = activeHabits.filter(h => h.is_inconsistent);
+    
+    let response = `Losing consistency usually happens when a habit's difficulty exceeds our motivation on a given day. We rely too much on feeling "ready" instead of making the action effortless.\n\n`;
+    
+    if (inconsistent.length > 0) {
+      response += `I notice you've been struggling specifically with **${inconsistent.map(h => h.name).join(', ')}**.\n\n`;
+      response += `Instead of trying to force it tomorrow, try scaling it down drastically. If it's reading for 30 minutes, change it to reading 1 page. Can you make it so easy you can't say no?`;
+    } else {
+      response += `Right now, none of your active habits are critically inconsistent. You're actually doing quite well! But if you feel like you're slipping, remember to focus on *starting* rather than finishing.`;
+    }
+    
+    // Check stress correlation
+    const lowStressLogs = logs.filter(l => l.stress_level && l.stress_level <= 2);
+    const highStressAll = logs.filter(l => l.stress_level && l.stress_level >= 4);
+    if (lowStressLogs.length > 0 && highStressAll.length > 0) {
+      const lRate = lowStressLogs.filter(l => l.completion_percentage > 0).length / lowStressLogs.length;
+      const hRate = highStressAll.filter(l => l.completion_percentage > 0).length / highStressAll.length;
+      if (lRate - hRate > 0.2) {
+        response += `\n\nAlso, your data shows your consistency drops by ${Math.round((lRate - hRate) * 100)}% on high-stress days. Protect your energy when you're stressed.`;
+      }
+    }
+    return response;
+  }
+
+  // 4. MOOD / EMOTION / PATTERNS
+  if (msg.match(/(mood|emotion|feeling|pattern|notice)/)) {
+    const moodCounts = {};
+    logs.filter(l => l.mood).forEach(l => { moodCounts[l.mood] = (moodCounts[l.mood] || 0) + 1; });
+    const sortedMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]);
+    const topMood = sortedMoods[0];
+
+    if (!topMood) return `You haven't logged enough mood data yet. When you complete habits, try selecting an emotion so I can track how your routines affect your headspace.`;
+
+    let response = `Your dominant mood recently is **"${topMood[0]}"** (${topMood[1]} logs in the last 30 days).\n\n`;
+    
+    if (topMood[0] === 'happy' || topMood[0] === 'motivated' || topMood[0] === 'calm') {
+      response += `Your routines seem to be grounding you and providing positive momentum. This is a great time to lean into your practice.`;
+    } else {
+      response += `Since you've been feeling ${topMood[0]} frequently, be gentle with yourself. Focus on small, grounding routines rather than ambitious goals right now. Consistency matters more than perfection.`;
+    }
+    return response;
+  }
+
+  // 5. NEW HABIT / ADD / COMPLEMENT
+  if (msg.match(/(complement|next|add|new habit|what should i do|recommend)/)) {
+    if (activeHabits.length === 0) {
+      return `You don't have any active habits yet! I'd recommend starting with something foundational and small, like **Drinking a glass of water every morning** or **2 minutes of deep breathing**.`;
+    } else if (activeHabits.length >= 5) {
+      return `You already have ${activeHabits.length} active habits. Adding more right now might dilute your focus. I'd recommend solidifying your current routine until your plants are fully grown before adding anything new.`;
+    } else {
+      const names = activeHabits.map(h => h.name.toLowerCase());
+      let suggestion = '';
+      
+      // Basic heuristic complementarity
+      if (!names.some(n => n.includes('water') || n.includes('hydrate'))) {
+        suggestion = "a hydration habit (like drinking water first thing in the morning)";
+      } else if (!names.some(n => n.includes('journal') || n.includes('meditate') || n.includes('breath'))) {
+        suggestion = "a mindfulness habit (like 2 minutes of journaling or breathing)";
+      } else if (!names.some(n => n.includes('walk') || n.includes('move') || n.includes('stretch') || n.includes('workout'))) {
+        suggestion = "a light movement habit (like a 10-minute walk or morning stretch)";
+      } else {
+        suggestion = "a brief evening reflection to close out your day";
+      }
+
+      return `Looking at your current routine, you might benefit from adding **${suggestion}**.\n\nHowever, only add it if you feel completely confident you can do it on your worst days. Stack it directly onto one of your existing habits so it's easier to remember.`;
+    }
+  }
+
+  // 6. GARDEN / PLANTS / GROWTH
+  if (msg.match(/(plant|garden|grow|seed|bloom)/)) {
+    const growing = activeHabits.filter(h => h.growth_stage > 0);
+    if (growing.length === 0) return `You don't have any plants actively growing right now. Start logging your habits consistently to see your seeds sprout!`;
+    
+    const closest = [...growing].sort((a, b) => b.growth_stage - a.growth_stage)[0];
+    const progress = Math.round((closest.growth_stage / 12) * 100);
+    
+    return `Your garden is responding to your consistency.\n\nYour habit **"${closest.name}"** is at ${progress}% growth. A few more consistent days and your ${closest.selected_plant_type || 'fern'} will fully bloom. Keep nourishing it with your daily logs.`;
+  }
+
+  // 7. GREETINGS
+  if (msg.match(/^(hi|hello|hey|greetings|morning|evening)$/)) {
+    return `Hello. I am the Oracle, your reflection companion.\n\nI'm observing your habit patterns, stress levels, and consistency. How are you feeling about your routines today?`;
+  }
+
+  // 8. ONBOARDING / EARLY DAYS
+  if (msg.match(/(early days|first seed|onboarding|start|beginning)/)) {
+    const daysSinceJoined = Math.max(1, Math.ceil((Date.now() - new Date(user.created_at).getTime()) / 86400000));
+    return `You are currently on Day ${daysSinceJoined} of your journey with RoutIQ.\n\nIn these early days, the most important metric is simply *showing up*. Don't worry about being perfect, and don't worry if your plant growth seems slow. The roots are forming beneath the surface.\n\nHow is your current routine feeling? Is there anything you'd like to adjust to make it easier?`;
+  }
+
+  // FALLBACK
+  return `I am focused specifically on analyzing your habit data, stress patterns, and consistency.\n\nCould you rephrase your question? Try asking me about:\n- Your consistency patterns\n- Signs of burnout\n- Your most productive days\n- What habit to add next`;
+}
+
+module.exports = { getUserContext, generateInsights, generateLocalResponse };

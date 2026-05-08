@@ -22,6 +22,7 @@ function Dashboard() {
     totalHabits: 0,
     activeHabits: 0,
     todayLogged: 0,
+    todayLoggedHabits: new Set(),
     todayCompletions: 0,
     streak: 0,
     completionRate: 0,
@@ -32,7 +33,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [gardenSummary, setGardenSummary] = useState(null);
-  const [featuredHabit, setFeaturedHabit] = useState(null);
+  const [defaultFeaturedHabit, setDefaultFeaturedHabit] = useState(null);
+  const [selectedFeaturedHabitId, setSelectedFeaturedHabitId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -58,9 +60,16 @@ function Dashboard() {
 
         return bProgress - aProgress || (b.growth_stage || 0) - (a.growth_stage || 0);
       })[0] || null;
-      const today = getLocalDateString();
-      const todayLogs = logsRes.data.filter(log => log.log_date === today);
-      const todayLoggedHabits = new Set(todayLogs.map(log => log.habit_id));
+      const todayDate = new Date();
+      todayDate.setHours(0, 0, 0, 0);
+      
+      const todayLogs = logsRes.data.filter(log => {
+        if (!log.log_date) return false;
+        const d = new Date(log.log_date);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === todayDate.getTime();
+      });
+      const todayLoggedHabits = new Set(todayLogs.map(log => String(log.habit_id)));
       
       const todayCompletedHabits = todayLogs.filter(log => log.completion_percentage === 3);
       const allHabitsCompletedToday = activeHabits.length > 0 && 
@@ -77,17 +86,22 @@ function Dashboard() {
       const totalPossible = activeHabits.length * 7;
       const completionRate = totalPossible > 0 ? (recentCompletionsCount / totalPossible) * 100 : 0;
       
-      const uniqueDays = new Set(recentLogs.map(log => log.log_date));
+      const uniqueDays = new Set(recentLogs.map(log => {
+        if (!log.log_date) return '';
+        const d = new Date(log.log_date);
+        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      }));
       const daysCompleted = uniqueDays.size;
       const totalCompletions = logsRes.data.filter(log => log.completion_percentage === 3).length;
 
       setHabits(activeHabits);
-      setFeaturedHabit(spotlightHabit);
+      setDefaultFeaturedHabit(spotlightHabit);
       setGardenSummary(gardenRes.data);
       setStats({
         totalHabits: allHabits.length,
         activeHabits: activeHabits.length,
         todayLogged: todayLoggedHabits.size,
+        todayLoggedHabits: todayLoggedHabits,
         todayCompletions: todayCompletedHabits.length,
         streak: Math.max(...allHabits.map(h => h.consecutive_days || 0), 0),
         completionRate: Math.min(completionRate, 100),
@@ -119,6 +133,10 @@ function Dashboard() {
     ];
     return quotes[Math.floor(stats.completionRate / 20) % quotes.length];
   };
+
+  const featuredHabit = selectedFeaturedHabitId
+    ? habits.find(h => h.id === selectedFeaturedHabitId) || defaultFeaturedHabit
+    : defaultFeaturedHabit;
 
   const featuredGrowthTarget = featuredHabit
     ? (getPlantById(featuredHabit.selected_plant_type || 'fern').growthTarget || 12)
@@ -198,6 +216,20 @@ function Dashboard() {
               <span className="completion-percentage">{Math.round(featuredPlantProgress)}%</span>
             </div>
             
+            {habits.length > 1 && (
+              <div className="arboretum-tabs">
+                {habits.map(habit => (
+                  <button
+                    key={habit.id}
+                    className={`arboretum-tab ${featuredHabit?.id === habit.id ? 'active' : ''}`}
+                    onClick={() => setSelectedFeaturedHabitId(habit.id)}
+                  >
+                    {habit.name}
+                  </button>
+                ))}
+              </div>
+            )}
+            
             <div className="tree-container-premium">
               <TreeModel
                 completionRate={featuredPlantProgress}
@@ -238,7 +270,11 @@ function Dashboard() {
                       <h3 className="habit-title-serif">{habit.name}</h3>
                       <div className="habit-meta">
                         <span>{habit.consecutive_days || 0} day sequence</span>
-                        <Link to={`/habits/${habit.id}/log`} className="log-link">Archive Progress</Link>
+                        {stats.todayLoggedHabits && stats.todayLoggedHabits.has(String(habit.id)) ? (
+                          <span className="log-link logged">Archived Today</span>
+                        ) : (
+                          <Link to={`/habits/${habit.id}/log`} className="log-link">Archive Progress</Link>
+                        )}
                       </div>
                     </div>
                   </div>

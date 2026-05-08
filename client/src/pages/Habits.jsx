@@ -174,6 +174,15 @@ function Habits() {
     return Math.min(12, Math.max(0, Math.floor(((habit.growth_stage || 0) / growthTarget) * 12)));
   };
 
+  const isLoggedToday = (habit) => {
+    if (!habit.last_completed_at) return false;
+    const lastDate = new Date(habit.last_completed_at);
+    const today = new Date();
+    lastDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return lastDate.getTime() === today.getTime();
+  };
+
   if (loading) {
     return (
       <div className="habits-loading">
@@ -269,9 +278,15 @@ function Habits() {
               </div>
 
               <div className="habit-actions">
-                <Link to={`/habits/${habit.id}/log`} className="action-btn log">
-                  Archive Progress
-                </Link>
+                {isLoggedToday(habit) ? (
+                  <span className="action-btn log logged">
+                    Archived Today
+                  </span>
+                ) : (
+                  <Link to={`/habits/${habit.id}/log`} className="action-btn log">
+                    Archive Progress
+                  </Link>
+                )}
                 <button onClick={() => openMilestoneModal(habit)} className="action-btn milestone">
                   <Check size={16} />
                   Milestone Achieved

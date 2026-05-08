@@ -12,6 +12,7 @@ import LogHabit from './pages/LogHabit';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Garden from './pages/Garden';
+import Chat from './pages/Chat';
 import Navbar from './components/Navbar';
 import ThemeToggle from './components/ThemeToggle';
 import './App.css';
@@ -82,6 +83,14 @@ function AppContent() {
           element={
             <PrivateRoute>
               <Garden />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/oracle"
+          element={
+            <PrivateRoute>
+              <Chat />
             </PrivateRoute>
           }
         />

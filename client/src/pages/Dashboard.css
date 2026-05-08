@@ -252,6 +252,38 @@
   color: #1f7960;
 }
 
+.arboretum-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.arboretum-tab {
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 51, 35, 0.08);
+  background: transparent;
+  color: rgba(10, 51, 35, 0.6);
+  font-family: var(--font-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arboretum-tab:hover {
+  background: rgba(10, 51, 35, 0.04);
+}
+
+.arboretum-tab.active {
+  background: rgba(18, 77, 57, 0.08);
+  border-color: rgba(18, 77, 57, 0.24);
+  color: var(--forest-deep);
+}
+
 .tree-container-premium {
   min-height: 48rem;
   display: flex;
@@ -334,6 +366,12 @@
 .log-link {
   color: #145845;
   text-decoration: none;
+}
+
+.log-link.logged {
+  color: rgba(10, 51, 35, 0.4);
+  pointer-events: none;
+  cursor: default;
 }
 
 .empty-state-premium {
