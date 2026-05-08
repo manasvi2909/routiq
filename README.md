@@ -73,6 +73,9 @@ The garden stores previously completed plants and shows unlock progression acros
 ### Reports
 Reports summarize behavior, progress, mood, and activity patterns with custom-styled charts rather than default generic graph styling.
 
+### Oracle AI Companion
+The Oracle is a local, stateful reflection companion that integrates with your habit database. It coaches you on routine building, schedules, and bad habit elimination using personalized behavioral analysis.
+
 ## Plant System
 
 Routiq includes a progression-based plant system.
@@ -83,6 +86,84 @@ Routiq includes a progression-based plant system.
 - growth is displayed as 12 visible stages in the UI
 - the rendered plant builds incrementally instead of showing the final silhouette from the beginning
 - completing a plant triggers a celebration flow and allows the user to choose the next plant
+
+## 💬 The Oracle AI Companion
+
+The **Oracle** is a stateful, local reflection companion designed to act as your behavioral psychologist. It is equipped with **16 specialized behavioral modules** spanning habit stacking, environment design, burnout prevention, scheduling optimization, and custom bad-habit inversion action plans.
+
+### Core Conversation Modules & Triggers
+
+| Module Topic | Trigger Keywords | Focus Area |
+| :--- | :--- | :--- |
+| **🚨 Burnout & Stress** | `burnout`, `stress`, `exhausted`, `overwhelmed` | Analyzes historical stress levels and suggests scaling back goals. |
+| **⏳ Productivity Timing** | `when`, `time`, `productive`, `peak`, `dip` | Calculates your peak performance and completion days of the week. |
+| **📉 Consistency Slips** | `consistency`, `lose consistency`, `struggling` | Focuses on micro-steps and the psychology of failing forward. |
+| **🧠 Headspace & Moods** | `mood`, `emotion`, `feeling`, `pattern` | Coregulates mood patterns with routine completions. |
+| **📋 New Habit Additions** | `add`, `new habit`, `recommend`, `complement` | Recommends new habits to plug gaps (hydration, mindfulness, movement). |
+| **🌱 Garden Progress** | `plant`, `garden`, `grow`, `seed`, `bloom` | Identifies which plant is closest to blooming with exact progress. |
+| **🔗 Habit Stacking** | `stack`, `anchor`, `combine`, `link`, `cue` | Teaches cue-anchoring: *"After [Current Habit], I will [New Habit]"*. |
+| **🔄 The Habit Loop** | `loop`, `craving`, `response`, `reward` | Breaks down routine steps (Cue, Craving, Response, Reward). |
+| **🧬 Identity-Based Mindsets**| `identity`, `self-image`, `mindset`, `person` | Focuses on becoming the type of person who performs the habit. |
+| **⚡ Environment Design** | `environment`, `friction`, `easy`, `hard` | Adjusts friction to automate good habits and block bad ones. |
+| **🚀 Keystone Habits** | `keystone`, `foundational`, `core habit` | Explains high-leverage routines that trigger positive chain reactions. |
+| **💪 Motivation vs Discipline**| `motivation`, `discipline`, `willpower`, `lazy` | Replaces fleeting motivation with system-based rules (e.g. 2-Minute Rule). |
+| **📈 Streak Neuroscience** | `track`, `view`, `visual`, `calendar`, `streak` | Explains why visual tracking registers as a rewarding victory. |
+
+---
+
+### 💬 Conversational Q&A Examples
+
+The Oracle responds with deeply personalized, rich, and encouraging insights based on your actual data. Here are several real-world conversational examples of questions you can ask and the answers you will receive:
+
+#### 1. Checking Burnout & Stress Signals
+> **User**: *"Am I close to burnout?"*
+>
+> **Oracle**:
+> "I notice you've logged high stress (4 or 5) on 4 days this past week.
+>
+> *Burnout isn't a failure of willpower, it's a signal from your body.* When stress is this high, your consistency naturally drops. I strongly suggest scaling back your habits right now. Can you reduce the difficulty or time commitment of your hardest habit just for the next few days? Showing up for 2 minutes is infinitely better than skipping entirely."
+
+#### 2. Habit Recommendations with Stateful Follow-Ups
+> **User**: *"What habit complements my routine?"*
+>
+> **Oracle**:
+> "Looking at your current routine, you might benefit from adding **a hydration habit (like drinking water first thing in the morning)**.
+>
+> However, only add it if you feel completely confident you can do it on your worst days. Stack it directly onto one of your existing habits so it's easier to remember!"
+>
+> **User**: *"recommend something else"*
+>
+> **Oracle**:
+> "Certainly! Since we already discussed hydration, another excellent addition would be **a mindfulness habit (like 2 minutes of journaling or breathing)**.
+>
+> Adding habits sequentially ensures they stick. Try doing this for just a few days before scaling it up!"
+
+#### 3. Breaking Bad Habits: Specific Inversions
+> **User**: *"How can I stop doomscrolling on my phone?"*
+>
+> **Oracle**:
+> "To break an unwanted or bad habit, we invert the 4 stages of behavior change:
+>
+> 1. **Invert the Cue**: Make it *invisible*. (Remove triggers from sight).
+> 2. **Invert the Craving**: Make it *unattractive*. (Reframe your mindset; focus on the cost of the habit).
+> 3. **Invert the Response**: Make it *difficult*. (Increase friction, e.g. put timers on apps).
+> 4. **Invert the Reward**: Make it *unsatisfying*. (Create an accountability metric).
+>
+> ### 📱 Action Plan for Doomscrolling & Screen Addiction:
+> - **Make it Invisible**: Charge your phone in another room overnight. Do not touch it for the first 30 minutes after waking up.
+> - **Make it Difficult**: Turn your screen to **Grayscale mode**. Removing the bright, dopamine-inducing colors instantly makes apps like Instagram or TikTok incredibly boring.
+> - **Make it Unsatisfying**: Set strict app timers, or have a friend set a passcode you don't know for social media access."
+
+#### 4. Conquering Procrastination & Mindset Blockers
+> **User**: *"How do I deal with procrastination and laziness?"*
+>
+> **Oracle**:
+> "Procrastination is rarely about time management—it is a way of coping with difficult emotions like anxiety, boredom, or self-doubt associated with a task.
+>
+> ### ⏳ Action Plan for Procrastination & Delay:
+> - **Make it Easy (The 2-Minute Rule)**: Commit to doing just 2 minutes of the task (e.g. open your study file and write 1 sentence). Starting is 90% of the battle. Once you start, momentum usually takes over.
+> - **Make it Obvious**: Lay out your work materials or open your browser tabs the night before so there is zero starting friction.
+> - **Make it Satisfying**: Pair the task with an immediate micro-reward, or log your progress visually here on RoutiQ. Every time you show up, you are casting a vote for being a productive person."
 
 ## Tech Stack
 
