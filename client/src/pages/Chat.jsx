@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  Send, Sparkles, Loader2, MessageCircle, Bot, Leaf,
+  Send, Sparkles, Loader2, MessageCircle, Leaf,
   Search, Sprout, Clock, Brain, AlertTriangle, Flame,
   TrendingDown, CalendarCheck, Moon, HeartPulse, Sunrise,
   ArrowRight, ChevronRight
@@ -156,7 +156,7 @@ function Chat() {
         {/* ── Header ──────────────────────────────── */}
         <div className="oracle-header">
           <div className="oracle-brand-mark">
-            <Bot size={24} />
+            <Sprout size={24} />
           </div>
           <span className="oracle-kicker eyebrow">Personalized Intelligence</span>
           <h1 className="oracle-title">The Oracle</h1>
@@ -220,7 +220,7 @@ function Chat() {
               {messages.length === 0 && (
                 <div className="chat-empty-state">
                   <div className="chat-oracle-avatar-lg">
-                    <Bot size={26} />
+                    <Sprout size={26} />
                   </div>
                   <h3>What would you like to reflect on?</h3>
                   <p className="chat-empty-desc">
@@ -250,7 +250,7 @@ function Chat() {
                 >
                   {msg.role === 'assistant' && (
                     <div className="chat-avatar oracle-avatar">
-                      <Bot size={14} />
+                      <Sprout size={14} />
                     </div>
                   )}
                   <div className="chat-bubble">
@@ -273,7 +273,7 @@ function Chat() {
               {isLoading && (
                 <div className="chat-message chat-oracle">
                   <div className="chat-avatar oracle-avatar">
-                    <Bot size={14} />
+                    <Sprout size={14} />
                   </div>
                   <div className="chat-bubble typing-bubble">
                     <div className="typing-indicator">
