@@ -87,7 +87,7 @@ Routiq includes a progression-based plant system.
 - the rendered plant builds incrementally instead of showing the final silhouette from the beginning
 - completing a plant triggers a celebration flow and allows the user to choose the next plant
 
-## 💬 The Oracle AI Companion
+## The Oracle AI Companion
 
 The **Oracle** is a stateful, local reflection companion designed to act as your behavioral psychologist. It is equipped with **16 specialized behavioral modules** spanning habit stacking, environment design, burnout prevention, scheduling optimization, and custom bad-habit inversion action plans.
 
@@ -95,23 +95,23 @@ The **Oracle** is a stateful, local reflection companion designed to act as your
 
 | Module Topic | Trigger Keywords | Focus Area |
 | :--- | :--- | :--- |
-| **🚨 Burnout & Stress** | `burnout`, `stress`, `exhausted`, `overwhelmed` | Analyzes historical stress levels and suggests scaling back goals. |
-| **⏳ Productivity Timing** | `when`, `time`, `productive`, `peak`, `dip` | Calculates your peak performance and completion days of the week. |
-| **📉 Consistency Slips** | `consistency`, `lose consistency`, `struggling` | Focuses on micro-steps and the psychology of failing forward. |
-| **🧠 Headspace & Moods** | `mood`, `emotion`, `feeling`, `pattern` | Coregulates mood patterns with routine completions. |
-| **📋 New Habit Additions** | `add`, `new habit`, `recommend`, `complement` | Recommends new habits to plug gaps (hydration, mindfulness, movement). |
-| **🌱 Garden Progress** | `plant`, `garden`, `grow`, `seed`, `bloom` | Identifies which plant is closest to blooming with exact progress. |
-| **🔗 Habit Stacking** | `stack`, `anchor`, `combine`, `link`, `cue` | Teaches cue-anchoring: *"After [Current Habit], I will [New Habit]"*. |
-| **🔄 The Habit Loop** | `loop`, `craving`, `response`, `reward` | Breaks down routine steps (Cue, Craving, Response, Reward). |
-| **🧬 Identity-Based Mindsets**| `identity`, `self-image`, `mindset`, `person` | Focuses on becoming the type of person who performs the habit. |
-| **⚡ Environment Design** | `environment`, `friction`, `easy`, `hard` | Adjusts friction to automate good habits and block bad ones. |
-| **🚀 Keystone Habits** | `keystone`, `foundational`, `core habit` | Explains high-leverage routines that trigger positive chain reactions. |
-| **💪 Motivation vs Discipline**| `motivation`, `discipline`, `willpower`, `lazy` | Replaces fleeting motivation with system-based rules (e.g. 2-Minute Rule). |
-| **📈 Streak Neuroscience** | `track`, `view`, `visual`, `calendar`, `streak` | Explains why visual tracking registers as a rewarding victory. |
+| **Burnout & Stress** | `burnout`, `stress`, `exhausted`, `overwhelmed` | Analyzes historical stress levels and suggests scaling back goals. |
+| **Productivity Timing** | `when`, `time`, `productive`, `peak`, `dip` | Calculates your peak performance and completion days of the week. |
+| **Consistency Slips** | `consistency`, `lose consistency`, `struggling` | Focuses on micro-steps and the psychology of failing forward. |
+| **Headspace & Moods** | `mood`, `emotion`, `feeling`, `pattern` | Coregulates mood patterns with routine completions. |
+| **New Habit Additions** | `add`, `new habit`, `recommend`, `complement` | Recommends new habits to plug gaps (hydration, mindfulness, movement). |
+| **Garden Progress** | `plant`, `garden`, `grow`, `seed`, `bloom` | Identifies which plant is closest to blooming with exact progress. |
+| **Habit Stacking** | `stack`, `anchor`, `combine`, `link`, `cue` | Teaches cue-anchoring: *"After [Current Habit], I will [New Habit]"*. |
+| **The Habit Loop** | `loop`, `craving`, `response`, `reward` | Breaks down routine steps (Cue, Craving, Response, Reward). |
+| **Identity-Based Mindsets**| `identity`, `self-image`, `mindset`, `person` | Focuses on becoming the type of person who performs the habit. |
+| **Environment Design** | `environment`, `friction`, `easy`, `hard` | Adjusts friction to automate good habits and block bad ones. |
+| **Keystone Habits** | `keystone`, `foundational`, `core habit` | Explains high-leverage routines that trigger positive chain reactions. |
+| **Motivation vs Discipline**| `motivation`, `discipline`, `willpower`, `lazy` | Replaces fleeting motivation with system-based rules (e.g. 2-Minute Rule). |
+| **Streak Neuroscience** | `track`, `view`, `visual`, `calendar`, `streak` | Explains why visual tracking registers as a rewarding victory. |
 
 ---
 
-### 💬 Conversational Q&A Examples
+### Conversational Q&A Examples
 
 The Oracle responds with deeply personalized, rich, and encouraging insights based on your actual data. Here are several real-world conversational examples of questions you can ask and the answers you will receive:
 
@@ -149,7 +149,7 @@ The Oracle responds with deeply personalized, rich, and encouraging insights bas
 > 3. **Invert the Response**: Make it *difficult*. (Increase friction, e.g. put timers on apps).
 > 4. **Invert the Reward**: Make it *unsatisfying*. (Create an accountability metric).
 >
-> ### 📱 Action Plan for Doomscrolling & Screen Addiction:
+> ### Action Plan for Doomscrolling & Screen Addiction:
 > - **Make it Invisible**: Charge your phone in another room overnight. Do not touch it for the first 30 minutes after waking up.
 > - **Make it Difficult**: Turn your screen to **Grayscale mode**. Removing the bright, dopamine-inducing colors instantly makes apps like Instagram or TikTok incredibly boring.
 > - **Make it Unsatisfying**: Set strict app timers, or have a friend set a passcode you don't know for social media access."
@@ -160,7 +160,7 @@ The Oracle responds with deeply personalized, rich, and encouraging insights bas
 > **Oracle**:
 > "Procrastination is rarely about time management—it is a way of coping with difficult emotions like anxiety, boredom, or self-doubt associated with a task.
 >
-> ### ⏳ Action Plan for Procrastination & Delay:
+> ### Action Plan for Procrastination & Delay:
 > - **Make it Easy (The 2-Minute Rule)**: Commit to doing just 2 minutes of the task (e.g. open your study file and write 1 sentence). Starting is 90% of the battle. Once you start, momentum usually takes over.
 > - **Make it Obvious**: Lay out your work materials or open your browser tabs the night before so there is zero starting friction.
 > - **Make it Satisfying**: Pair the task with an immediate micro-reward, or log your progress visually here on RoutiQ. Every time you show up, you are casting a vote for being a productive person."

@@ -793,7 +793,7 @@ async function generateLocalResponse(userId, message, history) {
     }
 
     if (lastAssistantMessageTopic === 'burnout') {
-      return `In addition to reducing habit difficulty, another key burnout prevention technique is **intentional rest days**. You can pause your habit sequence in the settings without breaking your vine streak, giving your mind a guilt-free space to recover.`;
+      return `In addition to reducing habit difficulty, another key burnout prevention technique is **intentional rest days**. You can toggle your habits to inactive in the registry, giving your mind a guilt-free space to recover.`;
     }
 
     if (lastAssistantMessageTopic === 'consistency') {
