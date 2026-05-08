@@ -31,86 +31,30 @@ function PlantPersonIcon({ size = 24, className = "" }) {
       viewBox="0 0 100 100"
       className={className}
       fill="none"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        {/* Soft, warm Sage Green gradient for the minimalist head */}
-        <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f4efe9" />
-          <stop offset="100%" stopColor="#e2d9cd" />
-        </linearGradient>
+      {/* 🌱 Elegant Outlined Sprout */}
+      {/* Left Leaf Outline */}
+      <path d="M 50 28 C 50 14, 38 12, 36 20 C 34 28, 50 28, 50 28" />
+      {/* Right Leaf Outline */}
+      <path d="M 50 28 C 50 14, 62 12, 64 20 C 66 28, 50 28, 50 28" />
+      {/* Stem */}
+      <path d="M 50 34 L 50 28" />
 
-        {/* Premium Sage Border Gradient */}
-        <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#c5b7a3" />
-          <stop offset="100%" stopColor="#a3947f" />
-        </linearGradient>
+      {/* ⚪ Outlined Circular Head */}
+      <circle cx="50" cy="62" r="28" />
 
-        {/* Minimalist Sprout Leaf Gradient */}
-        <linearGradient id="sproutGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#2e7d32" />
-          <stop offset="100%" stopColor="#4caf50" />
-        </linearGradient>
-      </defs>
-
-      {/* 🌱 Minimalist sprout popping from top */}
-      {/* Left Leaf */}
-      <path
-        d="M 50 28 C 50 14, 38 12, 36 20 C 34 28, 50 28, 50 28 Z"
-        fill="url(#sproutGrad)"
-      />
-      {/* Right Leaf */}
-      <path
-        d="M 50 28 C 50 14, 62 12, 64 20 C 66 28, 50 28, 50 28 Z"
-        fill="url(#sproutGrad)"
-        opacity="0.9"
-      />
-      {/* Sprout stem */}
-      <path
-        d="M 50 32 L 50 26"
-        stroke="#2e7d32"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-
-      {/* ⚪ Clean, modern minimalist circular head */}
-      <rect
-        x="18"
-        y="30"
-        width="64"
-        height="64"
-        rx="32"
-        fill="url(#headGrad)"
-        stroke="url(#borderGrad)"
-        strokeWidth="3.5"
-      />
-
-      {/* 😊 Warm minimalist closed/smiling eyes */}
-      {/* Left Eye Arc */}
-      <path
-        d="M 36 58 Q 40 54 44 58"
-        stroke="#4a3e2e"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* Right Eye Arc */}
-      <path
-        d="M 56 58 Q 60 54 64 58"
-        stroke="#4a3e2e"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-
-      {/* 👄 Gentle, warm, elegant smile */}
-      <path
-        d="M 44 71 Q 50 76 56 71"
-        stroke="#2e7d32"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
+      {/* 😊 Warm Minimalist Line Expression */}
+      {/* Left Smiling Eye */}
+      <path d="M 38 56 Q 42 51 46 56" />
+      {/* Right Smiling Eye */}
+      <path d="M 54 56 Q 58 51 62 56" />
+      {/* Soft Warm Smile */}
+      <path d="M 44 70 Q 50 76 56 70" />
     </svg>
   );
 }
