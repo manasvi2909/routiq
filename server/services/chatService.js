@@ -436,24 +436,27 @@ async function generateLocalResponse(userId, message, history) {
   );
   const logs = logsRes.rows;
 
-  // Base conversation history analysis to track follow-ups
-  let lastBotRecommendationType = null;
+  // Base conversation history analysis to track follow-ups and all previously suggested habits
+  let recommendedTypesInConversation = new Set();
   let lastAssistantMessageTopic = null;
 
-  if (Array.isArray(history) && history.length > 0) {
-    for (let i = history.length - 1; i >= 0; i--) {
-      if (history[i].role === 'assistant') {
-        const content = history[i].content.toLowerCase();
+  if (Array.isArray(history)) {
+    history.forEach(msg => {
+      if (msg.role === 'assistant') {
+        const content = msg.content.toLowerCase();
         
-        // Identify recommendation type if any
-        if (content.includes('hydration') || content.includes('water')) {
-          lastBotRecommendationType = 'hydration';
-        } else if (content.includes('mindfulness') || content.includes('journal') || content.includes('breath') || content.includes('meditat')) {
-          lastBotRecommendationType = 'mindfulness';
-        } else if (content.includes('movement') || content.includes('walk') || content.includes('stretch') || content.includes('workout')) {
-          lastBotRecommendationType = 'movement';
-        } else if (content.includes('evening reflection') || content.includes('close out')) {
-          lastBotRecommendationType = 'reflection';
+        // Track absolutely all recommended categories given so far in the conversation
+        if (content.includes('drinking water first thing') || (content.includes('hydration') && !content.includes('discussed hydration') && !content.includes('discussed water'))) {
+          recommendedTypesInConversation.add('hydration');
+        }
+        if (content.includes('journaling or breathing') || (content.includes('mindfulness') && !content.includes('discussed mindfulness') && !content.includes('discussed journal'))) {
+          recommendedTypesInConversation.add('mindfulness');
+        }
+        if (content.includes('10-minute walk') || (content.includes('movement') && !content.includes('discussed movement') && !content.includes('discussed walk'))) {
+          recommendedTypesInConversation.add('movement');
+        }
+        if (content.includes('evening reflection')) {
+          recommendedTypesInConversation.add('reflection');
         }
 
         // Identify last assistant message topic
@@ -465,14 +468,13 @@ async function generateLocalResponse(userId, message, history) {
           lastAssistantMessageTopic = 'consistency';
         } else if (content.includes('mood') || content.includes('emotion') || content.includes('feeling')) {
           lastAssistantMessageTopic = 'mood';
-        } else if (content.includes('benefit from adding') || content.includes('new habit') || content.includes('recommendation') || content.includes('add') || content.includes('complements')) {
+        } else if (content.includes('benefit from adding') || content.includes('new habit') || content.includes('recommendation') || content.includes('add') || content.includes('complements') || content.includes('excellent addition')) {
           lastAssistantMessageTopic = 'recommend';
         } else if (content.includes('garden') || content.includes('plant') || content.includes('bloom')) {
           lastAssistantMessageTopic = 'garden';
         }
-        break; // Only analyze the most recent assistant message
       }
-    }
+    });
   }
 
   // 0. DETECT "ANYTHING ELSE" OR "OTHER THAN..." FOLLOW-UPS
@@ -509,6 +511,9 @@ async function generateLocalResponse(userId, message, history) {
         return true; // reflection
       });
 
+      // Exclude anything we have ALREADY recommended anywhere in this conversation
+      filteredSuggestions = filteredSuggestions.filter(s => !recommendedTypesInConversation.has(s.type));
+
       // Exclude based on explicit negation (e.g. "other than hydration")
       if (msg.includes('hydration') || msg.includes('water')) {
         filteredSuggestions = filteredSuggestions.filter(s => s.type !== 'hydration');
@@ -520,17 +525,24 @@ async function generateLocalResponse(userId, message, history) {
         filteredSuggestions = filteredSuggestions.filter(s => s.type !== 'movement');
       }
 
-      // Also exclude whatever we recommended last, if possible
-      if (lastBotRecommendationType && filteredSuggestions.length > 1) {
-        filteredSuggestions = filteredSuggestions.filter(s => s.type !== lastBotRecommendationType);
-      }
-
       if (filteredSuggestions.length === 0) {
-        filteredSuggestions = suggestions.filter(s => s.type !== lastBotRecommendationType);
+        // Fall back to any suggestion not recommended in the very last step
+        const lastRecommended = Array.from(recommendedTypesInConversation).pop();
+        filteredSuggestions = suggestions.filter(s => s.type !== lastRecommended);
       }
 
       const selectedSuggestion = filteredSuggestions[0] || suggestions[3];
-      return `Certainly! Since we already discussed ${lastBotRecommendationType || 'that option'}, another excellent addition would be **${selectedSuggestion.text}**.\n\nAdding habits sequentially ensures they stick. Try doing this for just a few days before scaling it up!`;
+
+      // Build a friendly text listing what we already discussed
+      let discussedList = Array.from(recommendedTypesInConversation).map(t => {
+        if (t === 'hydration') return 'hydration';
+        if (t === 'mindfulness') return 'mindfulness';
+        if (t === 'movement') return 'movement';
+        return 'reflection';
+      }).join(' and ');
+
+      const discussedText = discussedList ? `we already discussed ${discussedList}` : 'that';
+      return `Certainly! Since ${discussedText}, another excellent addition would be **${selectedSuggestion.text}**.\n\nAdding habits sequentially ensures they stick. Try doing this for just a few days before scaling it up!`;
     }
 
     if (lastAssistantMessageTopic === 'timing') {
