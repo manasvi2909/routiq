@@ -6,7 +6,8 @@
   border: 1px solid rgba(10, 51, 35, 0.08);
   border-radius: 1.8rem;
   padding: 1.35rem;
-  min-width: 100%;
+  min-width: 300px;
+  width: 300px;
   box-sizing: border-box;
   scroll-snap-align: center;
   flex: 0 0 auto;

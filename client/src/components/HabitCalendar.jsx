@@ -50,11 +50,11 @@ function HabitCalendar({ habit, logs, currentMonth }) {
           const isCurrentMonth = isSameMonth(day, monthStart);
           const completion = logMap[dateKey] || 0;
           
-          // Calculate visual intensity based on completion (0 to 100)
+          // Calculate visual intensity based on completion (0 to 3)
           // 0 = transparent/empty circle
-          // 100 = solid moss green
+          // 3 = solid moss green
           const hasLog = completion > 0;
-          const opacity = hasLog ? 0.4 + (completion / 100) * 0.6 : 0;
+          const opacity = hasLog ? 0.4 + (completion / 3) * 0.6 : 0;
           
           return (
             <div 
