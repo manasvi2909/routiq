@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Check, Flame, ShieldAlert, Sparkles, Heart, BrainCircuit } from 'lucide-react';
+import { Check, Flame, ShieldAlert, Sparkles, Heart, BrainCircuit, Eye, EyeOff } from 'lucide-react';
 import './Settings.css';
 
 function Settings() {
@@ -17,6 +17,9 @@ function Settings() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [pwLoading, setPwLoading] = useState(false);
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState(false);
@@ -287,41 +290,68 @@ function Settings() {
             
             <div className="setting-item password-field">
               <label className="time-label">Current Password</label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className="text-input"
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
-              />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  className="text-input"
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '0.75rem 2.8rem 0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', padding: '4px', cursor: 'pointer' }}
+                >
+                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="setting-item password-field">
               <label className="time-label">New Password</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                className="text-input"
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
-              />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  className="text-input"
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '0.75rem 2.8rem 0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', padding: '4px', cursor: 'pointer' }}
+                >
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <div className="setting-item password-field">
               <label className="time-label">Confirm New Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="text-input"
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
-              />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="text-input"
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '0.75rem 2.8rem 0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', padding: '4px', cursor: 'pointer' }}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button
