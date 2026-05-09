@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { subMonths, format } from 'date-fns';
 import api from '../services/api';
+import HabitCalendar from '../components/HabitCalendar';
 import './Reports.css';
 
 const BOTANICAL_COLORS = {
@@ -25,6 +27,9 @@ const formatWeekLabel = (dateString) =>
 function Reports() {
   const [currentWeekReport, setCurrentWeekReport] = useState(null);
   const [weeklyComparison, setWeeklyComparison] = useState([]);
+  const [allHabits, setAllHabits] = useState([]);
+  const [allLogs, setAllLogs] = useState([]);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(0);
 
@@ -34,13 +39,17 @@ function Reports() {
 
   const fetchReports = async () => {
     try {
-      const [currentRes, compareRes] = await Promise.all([
+      const [currentRes, compareRes, habitsRes, logsRes] = await Promise.all([
         api.get('/reports/weekly'),
-        api.get('/reports/weekly/compare?weeks=4')
+        api.get('/reports/weekly/compare?weeks=4'),
+        api.get('/habits'),
+        api.get('/logs')
       ]);
 
       setCurrentWeekReport(currentRes.data);
       setWeeklyComparison(compareRes.data);
+      setAllHabits(habitsRes.data);
+      setAllLogs(logsRes.data);
     } catch (error) {
       console.error('Error fetching reports:', error);
     } finally {
@@ -310,33 +319,71 @@ function Reports() {
           </div>
         </div>
 
-        <div className="habits-breakdown">
-          <div className="breakdown-heading">
-            <span className="reports-kicker">Close reading</span>
-            <h2>Sequence Breakdown</h2>
-          </div>
-          <div className="habits-list">
-            {Object.entries(selectedReport.habit_stats || {}).map(([id, stats]) => {
-              const mastery = stats.totalDays > 0 ? Math.round((stats.completions / stats.totalDays) * 100) : 0;
-              return (
-                <div key={id} className="habit-breakdown-card">
-                  <h3>{stats.name}</h3>
-                  <div className="breakdown-stats">
-                    <span>{stats.completions} successful archivals</span>
-                    <span>{stats.totalDays} day registry window</span>
-                    <span>{mastery}% mastery</span>
-                  </div>
-                  <div className="mini-meter">
-                    <i style={{ width: `${mastery}%` }} />
-                  </div>
-                  {stats.moods.length > 0 && (
-                    <div className="mood-summary">
-                      Dominant resonance: <strong>{stats.moods[0]}</strong>
+        <div className="reports-bottom-section">
+          <div className="habits-breakdown">
+            <div className="breakdown-heading">
+              <span className="reports-kicker">Close reading</span>
+              <h2>Sequence Breakdown</h2>
+            </div>
+            <div className="habits-list">
+              {Object.entries(selectedReport.habit_stats || {}).map(([id, stats]) => {
+                const mastery = stats.totalDays > 0 ? Math.round((stats.completions / stats.totalDays) * 100) : 0;
+                return (
+                  <div key={id} className="habit-breakdown-card">
+                    <h3>{stats.name}</h3>
+                    <div className="breakdown-stats">
+                      <span>{stats.completions} successful archivals</span>
+                      <span>{stats.totalDays} day registry window</span>
+                      <span>{mastery}% mastery</span>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    <div className="mini-meter">
+                      <i style={{ width: `${mastery}%` }} />
+                    </div>
+                    {stats.moods.length > 0 && (
+                      <div className="mood-summary">
+                        Dominant resonance: <strong>{stats.moods[0]}</strong>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="calendar-section">
+            <div className="breakdown-heading">
+              <span className="reports-kicker">Consistency Grid</span>
+              <div className="calendar-heading-row">
+                <h2>Monthly Logs</h2>
+                <select 
+                  className="month-selector"
+                  value={calendarMonth.toISOString()}
+                  onChange={(e) => setCalendarMonth(new Date(e.target.value))}
+                >
+                  {[0, 1, 2, 3, 4, 5].map(offset => {
+                    const d = subMonths(new Date(), offset);
+                    return (
+                      <option key={offset} value={d.toISOString()}>
+                        {format(d, 'MMMM yyyy')}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+            
+            <div className="calendar-carousel">
+              {allHabits.length > 0 ? allHabits.map(habit => (
+                <HabitCalendar 
+                  key={habit.id}
+                  habit={habit}
+                  logs={allLogs.filter(log => log.habit_id === habit.id)}
+                  currentMonth={calendarMonth}
+                />
+              )) : (
+                <div className="chart-empty">No sequences available for tracking.</div>
+              )}
+            </div>
           </div>
         </div>
       </div>

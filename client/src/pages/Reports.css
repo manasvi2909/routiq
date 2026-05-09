@@ -241,8 +241,54 @@
   line-height: 1.7;
 }
 
-.habits-breakdown {
+.reports-bottom-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
   width: min(1180px, 100%);
+  margin-top: 2rem;
+}
+
+.habits-breakdown {
+  width: 100%;
+}
+
+.calendar-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-heading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.month-selector {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(10, 51, 35, 0.15);
+  background: var(--surface-translucent);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+}
+
+.calendar-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  scrollbar-width: none; /* Firefox */
+}
+
+.calendar-carousel::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .breakdown-heading {
@@ -323,7 +369,8 @@ body[data-theme='dark'] .chart-card-bloom .chart-center-value {
 @media (max-width: 1080px) {
   .reports-header,
   .charts-section,
-  .reports-summary {
+  .reports-summary,
+  .reports-bottom-section {
     grid-template-columns: 1fr;
   }
 
