@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Upload, X, Check } from 'lucide-react';
+import { User, Mail, Upload, Check } from 'lucide-react';
 import api from '../services/api';
 import './UserProfile.css';
 
@@ -15,8 +15,9 @@ function UserProfile() {
   const [isSaving, setIsSaving] = useState(false);
   
   const fileInputRef = useRef(null);
+  const popoverRef = useRef(null);
 
-  // Initialize form values when modal opens
+  // Initialize form values when dropdown opens
   useEffect(() => {
     if (isOpen && user) {
       setUsername(user.username || '');
@@ -26,6 +27,21 @@ function UserProfile() {
       setSuccess('');
     }
   }, [isOpen, user]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (!user) return null;
 
@@ -73,11 +89,11 @@ function UserProfile() {
   const firstLetter = user.username?.charAt(0)?.toUpperCase() || 'U';
 
   return (
-    <div className="user-profile-container">
+    <div className="user-profile-container" ref={popoverRef}>
       {/* Navbar Profile Icon */}
       <button 
-        className="navbar-profile-trigger" 
-        onClick={() => setIsOpen(true)}
+        className={`navbar-profile-trigger ${isOpen ? 'active' : ''}`} 
+        onClick={() => setIsOpen(!isOpen)}
         title="My Profile"
       >
         {user.avatar ? (
@@ -89,96 +105,90 @@ function UserProfile() {
         )}
       </button>
 
-      {/* Profile Edit Modal */}
+      {/* Profile Edit Popover (Small Dropdown Window) */}
       {isOpen && (
-        <div className="profile-modal-overlay">
-          <div className="profile-modal-content glass-panel">
-            <button className="profile-modal-close" onClick={() => setIsOpen(false)}>
-              <X size={20} />
-            </button>
+        <div className="profile-dropdown-window">
+          <div className="profile-dropdown-header">
+            <span className="eyebrow">My Identity</span>
+            <h3>Edit Profile</h3>
+          </div>
 
-            <div className="profile-modal-header">
-              <span className="eyebrow">My Identity</span>
-              <h2>Edit Profile</h2>
-            </div>
-
-            <form onSubmit={handleSave} className="profile-modal-form">
-              {/* Profile Avatar Upload Block */}
-              <div className="profile-avatar-upload-section">
-                <div className="avatar-preview-wrapper">
-                  {avatar ? (
-                    <img src={avatar} className="avatar-preview-img" alt="Preview" />
-                  ) : (
-                    <div className="avatar-preview-letter">{firstLetter}</div>
-                  )}
-                  <button 
-                    type="button" 
-                    className="avatar-upload-overlay-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload size={16} />
-                  </button>
-                </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  accept="image/*" 
-                  style={{ display: 'none' }}
-                />
-                <span className="upload-tip-text">Click icon to upload custom image (max 2MB)</span>
-              </div>
-
-              {/* Error and Success States */}
-              {error && <div className="profile-form-error">{error}</div>}
-              {success && (
-                <div className="profile-form-success">
-                  <Check size={16} style={{ marginRight: '0.4rem' }} /> {success}
-                </div>
-              )}
-
-              {/* Form Inputs */}
-              <div className="profile-form-group">
-                <label><User size={14} style={{ marginRight: '0.4rem' }} /> Name</label>
-                <input 
-                  type="text" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  placeholder="Enter your name"
-                />
-              </div>
-
-              <div className="profile-form-group">
-                <label><Mail size={14} style={{ marginRight: '0.4rem' }} /> Email Address</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="Enter your email"
-                />
-              </div>
-
-              <div className="profile-form-actions">
+          <form onSubmit={handleSave} className="profile-dropdown-form">
+            {/* Profile Avatar Upload Block */}
+            <div className="profile-avatar-upload-section">
+              <div className="avatar-preview-wrapper">
+                {avatar ? (
+                  <img src={avatar} className="avatar-preview-img" alt="Preview" />
+                ) : (
+                  <div className="avatar-preview-letter">{firstLetter}</div>
+                )}
                 <button 
                   type="button" 
-                  className="profile-btn-cancel" 
-                  onClick={() => setIsOpen(false)}
-                  disabled={isSaving}
+                  className="avatar-upload-overlay-btn"
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="profile-btn-save"
-                  disabled={isSaving}
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
+                  <Upload size={14} />
                 </button>
               </div>
-            </form>
-          </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept="image/*" 
+                style={{ display: 'none' }}
+              />
+              <span className="upload-tip-text">Click image to upload (max 2MB)</span>
+            </div>
+
+            {/* Error and Success States */}
+            {error && <div className="profile-form-error">{error}</div>}
+            {success && (
+              <div className="profile-form-success">
+                <Check size={14} style={{ marginRight: '0.3rem' }} /> {success}
+              </div>
+            )}
+
+            {/* Form Inputs */}
+            <div className="profile-form-group">
+              <label><User size={12} style={{ marginRight: '0.3rem' }} /> Name</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Enter your name"
+              />
+            </div>
+
+            <div className="profile-form-group">
+              <label><Mail size={12} style={{ marginRight: '0.3rem' }} /> Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="profile-form-actions">
+              <button 
+                type="button" 
+                className="profile-btn-cancel" 
+                onClick={() => setIsOpen(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="profile-btn-save"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

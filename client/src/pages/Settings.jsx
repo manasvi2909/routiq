@@ -13,6 +13,47 @@ function Settings() {
   const [saved, setSaved] = useState(false);
   const [coachingSaved, setCoachingSaved] = useState(false);
 
+  // Password change states
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState('');
+  const [pwSuccess, setPwSuccess] = useState(false);
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPwError('');
+    setPwSuccess(false);
+
+    if (newPassword !== confirmPassword) {
+      setPwError('New passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPwError('Password must be at least 6 characters long');
+      return;
+    }
+
+    setPwLoading(true);
+    try {
+      await api.put('/auth/change-password', {
+        currentPassword,
+        newPassword
+      });
+      setPwSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      console.error('Password change error:', err);
+      setPwError(err.response?.data?.error || 'Failed to update password');
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -222,6 +263,75 @@ function Settings() {
               </>
             ) : 'Update Oracle Settings'}
           </button>
+        </div>
+      </div>
+
+      {/* Security & Access Card */}
+      <div className="settings-card">
+        <div className="settings-header">
+          <div className="settings-ornament settings-ornament-alt" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <div>
+            <h2>Security & Access</h2>
+            <p>Modify your security keys for this archive</p>
+          </div>
+        </div>
+
+        <div className="settings-content">
+          <form onSubmit={handleChangePassword} className="password-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {pwError && <div className="pw-error-msg" style={{ background: 'rgba(220, 53, 69, 0.08)', border: '1px solid rgba(220, 53, 69, 0.15)', color: '#dc3545', padding: '0.6rem 0.9rem', borderRadius: '8px', fontSize: '0.78rem' }}>{pwError}</div>}
+            {pwSuccess && <div className="pw-success-msg" style={{ background: 'rgba(40, 167, 69, 0.08)', border: '1px solid rgba(40, 167, 69, 0.15)', color: '#28a745', padding: '0.6rem 0.9rem', borderRadius: '8px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Check size={16} /> Password updated successfully!</div>}
+            
+            <div className="setting-item password-field">
+              <label className="time-label">Current Password</label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                className="text-input"
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+              />
+            </div>
+
+            <div className="setting-item password-field">
+              <label className="time-label">New Password</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                className="text-input"
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+              />
+            </div>
+
+            <div className="setting-item password-field">
+              <label className="time-label">Confirm New Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="text-input"
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--surface-subtle)' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={pwLoading}
+              className="save-btn"
+            >
+              {pwLoading ? 'Calibrating Security...' : 'Update Password'}
+            </button>
+          </form>
         </div>
       </div>
 
