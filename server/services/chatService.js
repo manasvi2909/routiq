@@ -322,6 +322,57 @@ async function generateInsights(userId) {
     });
   }
 
+  // ── Early-stage insights (for users with some data but below other thresholds) ──
+  if (insights.length === 0 && ctx.totalLogs > 0) {
+    // Active habit summary
+    if (ctx.activeHabits.length > 0) {
+      const names = ctx.activeHabits.map(h => `"${h.name}"`).join(', ');
+      const totalCompletions = ctx.activeHabits.reduce((sum, h) => sum + (h.total_completions || 0), 0);
+      insights.push({
+        type: 'progress',
+        iconName: 'sprout',
+        title: 'Your Growth So Far',
+        body: `You're actively tracking ${ctx.activeHabits.length} habit${ctx.activeHabits.length > 1 ? 's' : ''}: ${names}. ${totalCompletions} total completion${totalCompletions !== 1 ? 's' : ''} logged. Every entry builds your behavioral fingerprint.`,
+        priority: 'medium',
+      });
+    }
+
+    // Any streak at all
+    const anyStreak = ctx.activeHabits.find(h => (h.consecutive_days || 0) >= 1);
+    if (anyStreak) {
+      insights.push({
+        type: 'streak',
+        iconName: 'flame',
+        title: 'Streak Building',
+        body: `"${anyStreak.name}" has a ${anyStreak.consecutive_days}-day streak. The first few days are the hardest — you're laying the foundation right now.`,
+        priority: 'medium',
+      });
+    }
+
+    // Mood snapshot
+    if (Object.keys(ctx.moodDistribution).length > 0) {
+      const topMoodEntry = Object.entries(ctx.moodDistribution).sort((a, b) => b[1] - a[1])[0];
+      insights.push({
+        type: 'emotional',
+        iconName: 'heart-pulse',
+        title: 'Mood Snapshot',
+        body: `Your most logged mood so far is "${topMoodEntry[0]}". As more data flows in, I'll map how your emotional state correlates with habit performance.`,
+        priority: 'low',
+      });
+    }
+
+    // Average stress if present
+    if (ctx.avgStress !== null) {
+      insights.push({
+        type: 'pattern',
+        iconName: 'brain',
+        title: 'Stress Baseline',
+        body: `Your average stress level sits at ${ctx.avgStress}/5. I'm tracking this — in a few more days I can tell you exactly how stress impacts your consistency.`,
+        priority: 'low',
+      });
+    }
+  }
+
   const priorityOrder = { high: 0, medium: 1, low: 2 };
   insights.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
@@ -407,35 +458,90 @@ CORE PROTOCOL RULES:
 }
 
 /**
- * Deterministic local reflection engine fallback
+ * Deterministic local reflection engine fallback — data-driven, never generic.
  */
 async function generateLocalResponse(userId, message, history) {
   const msg = message.toLowerCase();
   const ctx = await getUserContext(userId);
+  const habitNames = ctx.activeHabits.map(h => h.name);
 
-  // Fallback heuristic templates matching keyword triggers
-  if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much)/)) {
+  // ── Burnout / Stress ──
+  if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much|fatigue|drained)/)) {
     if (ctx.burnoutStatus.preBurnout) {
-      return `I notice your average stress is high (${ctx.burnoutStatus.score}/5). Burnout isn't a failure of willpower, it's a signal. I strongly suggest reducing difficulty or time commitment on your habits immediately. Showing up for 2 minutes is infinitely better than skipping entirely.`;
+      return `Your recent data confirms elevated fatigue — average stress at **${ctx.burnoutStatus.score}/5** over the last week. That's a clear pre-burnout signal.\n\nHere's what I'd recommend based on your patterns:\n- Scale back to **2-minute micro-versions** of your hardest habits\n- ${ctx.dips.length > 0 ? `Give yourself a full rest day on **${ctx.dips[0].day}s** (your lowest completion day at ${ctx.dips[0].rate}%)` : 'Pick one day this week as a deliberate rest day'}\n- Your streak won't break from adapting — it breaks from quitting entirely`;
     }
-    return `Your recent logs look stable, but if you're feeling exhausted, please protect your mental space. Let's focus on small, low-friction routines today.`;
+    return `Your stress levels are currently at ${ctx.avgStress !== null ? ctx.avgStress + '/5' : 'a moderate baseline'}. No burnout flags yet, but I'm watching.\n\nIf you're feeling the weight, try this: pick your **easiest habit** and do only that today. ${habitNames.length > 0 ? `For you, that might be "${habitNames[habitNames.length - 1]}".` : ''} Protecting momentum is more important than perfecting every day.`;
   }
 
-  if (msg.match(/(when|time|productive|peak|best day|worst day|dip)/)) {
+  // ── Timing / Productivity / Day patterns ──
+  if (msg.match(/(when|time|productive|peak|best day|worst day|dip|schedule|morning|evening|night)/)) {
     if (ctx.dips.length > 0) {
-      return `Based on your logs, you experience willpower dips on **${ctx.dips.map(d => d.day).join(', ')}s** (under 60% completion). Plan lighter routines on those days, and save your most productive habits for your peak days!`;
+      const dipDays = ctx.dips.map(d => `**${d.day}s** (${d.rate}%)`).join(', ');
+      return `Your data reveals clear willpower dips on ${dipDays}.\n\n**Strategy**: On dip days, schedule only your easiest habits or reduce them to 2-minute micro-versions. Save demanding habits for your high-performance days. ${ctx.activeHabits.some(h => h.habit_time) ? `\n\nYou currently have habits scheduled at: ${ctx.activeHabits.filter(h => h.habit_time).map(h => `${h.name} at ${h.habit_time}`).join(', ')}.` : ''}`;
     }
-    return `Your completions are fairly balanced across the week right now. Keep logging and I will isolate your high-performance peaks!`;
+    return `With ${ctx.totalLogs} log entries so far, your completions are fairly balanced across the week. A few more days of data and I'll be able to pinpoint your exact high-performance windows and willpower valleys.${ctx.activeHabits.some(h => h.habit_time) ? `\n\nCurrent schedule: ${ctx.activeHabits.filter(h => h.habit_time).map(h => `${h.name} at ${h.habit_time}`).join(', ')}.` : ''}`;
   }
 
-  if (msg.match(/(complement|next|add|new habit|recommend)/)) {
+  // ── Recommendations / New habits ──
+  if (msg.match(/(recommend|suggest|add|new habit|complement|what.*should|what.*next|start|begin)/)) {
     if (ctx.activeHabits.length >= 5) {
-      return `You already have ${ctx.activeHabits.length} active habits. Adding more right now might cause willpower dilution. Focus on growing your current plants first!`;
+      return `You currently have **${ctx.activeHabits.length} active habits** — that's approaching cognitive overload territory. Research shows willpower dilutes beyond 3-5 concurrent habits.\n\nBefore adding more, I'd focus on getting at least 3 of your current habits to a **70%+ consistency rate** over 14 days. ${Object.values(ctx.habitStats).some(s => s.completionRate < 50) ? `Right now, some of your habits are below 50% completion.` : 'You\'re doing well on consistency — almost ready to expand.'}`;
     }
-    return `Looking at your routine, adding **a hydration habit (like drinking water first thing in the morning)** or **a mindfulness habit (like 2 minutes of journaling)** would perfectly complement your existing plant catalog.`;
+    const existing = habitNames.join(', ');
+    return `You're currently tracking: **${existing || 'nothing yet'}**.\n\nBased on your profile, here are complementary additions that create **habit stacking synergy**:\n- **Morning hydration** (30 seconds, zero friction — anchors your day)\n- **2-minute journaling** before bed (processes the day, reduces next-day stress)\n- **5-minute movement** (walking, stretching — catalyzes energy for other habits)\n\nThe key: pick one that you can attach to an existing routine. What feels most natural?`;
   }
 
-  return `I am focused specifically on analyzing your habit data, stress patterns, and consistency.\n\nCould you rephrase your question? Try asking me about:\n- Your consistency patterns\n- Signs of burnout\n- Your most productive days\n- What habit to add next`;
+  // ── Consistency / Progress / How am I doing ──
+  if (msg.match(/(consistency|progress|how.*doing|how.*am.*i|streak|performance|track|status|overview|summary)/)) {
+    const statLines = ctx.activeHabits.map(h => {
+      const s = ctx.habitStats[h.id] || {};
+      return `- **${h.name}**: ${s.completionRate || 0}% (14-day), ${h.consecutive_days || 0}-day streak, growth stage ${h.growth_stage || 0}`;
+    });
+    return `Here's your performance snapshot:\n\n${statLines.length > 0 ? statLines.join('\n') : 'No active habits yet.'}\n\n${ctx.avgStress !== null ? `Average stress: **${ctx.avgStress}/5**` : ''}${ctx.correlation !== null ? ` | Stress-performance correlation: **${ctx.correlation}**` : ''}\n\n${ctx.burnoutStatus.preBurnout ? '**Warning**: Pre-burnout signals detected. Consider scaling back.' : 'No burnout flags — keep building.'}`;
+  }
+
+  // ── Mood / Feelings / Emotional ──
+  if (msg.match(/(mood|feeling|emotion|happy|sad|anxious|angry|calm|motivated|neutral)/)) {
+    const moodEntries = Object.entries(ctx.moodDistribution);
+    if (moodEntries.length > 0) {
+      const moodSummary = moodEntries.sort((a, b) => b[1] - a[1]).map(([m, c]) => `${m}: ${c} logs`).join(', ');
+      return `Your emotional landscape over the last 30 days:\n\n${moodSummary}\n\n${ctx.avgStress !== null ? `Average stress sits at **${ctx.avgStress}/5**.` : ''} ${ctx.correlation !== null && ctx.correlation <= -0.3 ? `I'm seeing a negative correlation (${ctx.correlation}) between stress and habit completion — on high-stress days, your consistency drops noticeably.` : 'Your mood and performance seem relatively independent, which is a sign of solid routine resilience.'}`;
+    }
+    return `I don't have enough mood data yet to draw patterns. When you log habits, try recording your mood too — it unlocks powerful emotional-performance correlations.`;
+  }
+
+  // ── Specific habit mentioned by name ──
+  const mentionedHabit = ctx.activeHabits.find(h => msg.includes(h.name.toLowerCase()));
+  if (mentionedHabit) {
+    const s = ctx.habitStats[mentionedHabit.id] || {};
+    return `Here's what I know about **"${mentionedHabit.name}"**:\n\n- Streak: **${mentionedHabit.consecutive_days || 0} days**\n- 14-day completion rate: **${s.completionRate || 0}%**\n- Total completions: **${mentionedHabit.total_completions || 0}**\n- Growth stage: **${mentionedHabit.growth_stage || 0}** (plant: ${mentionedHabit.selected_plant_type || 'fern'})\n- Most common mood when logging: **${s.mostCommonMood || 'not enough data'}**\n${mentionedHabit.what_motivating ? `- Your motivation: "${mentionedHabit.what_motivating}"` : ''}\n${mentionedHabit.what_hindering ? `- What hinders you: "${mentionedHabit.what_hindering}"` : ''}\n\n${s.completionRate >= 70 ? 'Strong consistency — this habit is becoming automatic.' : s.completionRate >= 40 ? 'Building momentum. Try anchoring this to an existing daily routine to push past 70%.' : 'This one needs attention. Can you reduce it to a 2-minute micro-version?'}`;
+  }
+
+  // ── Garden / Plants ──
+  if (msg.match(/(garden|plant|grow|bloom|flower|fern|tree|seed)/)) {
+    const gardenCount = ctx.gardenPlants.length;
+    return `Your garden has **${gardenCount} fully grown plant${gardenCount !== 1 ? 's' : ''}**.\n\n${ctx.activeHabits.map(h => {
+      const gt = getPlantById(h.selected_plant_type || 'fern').growthTarget || 12;
+      const pct = Math.round(((h.growth_stage || 0) / gt) * 100);
+      return `- **${h.name}** (${h.selected_plant_type || 'fern'}): ${pct}% grown (stage ${h.growth_stage || 0}/${gt})`;
+    }).join('\n')}\n\n${gardenCount > 0 ? `Lifetime plants fully grown: **${ctx.user.plants_fully_grown || 0}**. Each one represents a real behavioral transformation.` : 'Keep logging consistently to grow your first plant!'}`;
+  }
+
+  // ── Failure / Struggling / Help ──
+  if (msg.match(/(fail|struggling|can't|cant|hard|difficult|giving up|quit|stop|miss|skip)/)) {
+    const weakest = Object.values(ctx.habitStats).sort((a, b) => a.completionRate - b.completionRate)[0];
+    return `Struggling is not failing — it's data.\n\n${weakest ? `Your hardest habit right now is **"${weakest.name}"** at ${weakest.completionRate}% completion. ` : ''}Here's what the science says works:\n\n1. **Shrink it**: Make the habit so small it's impossible to skip (2 minutes max)\n2. **Stack it**: Attach it to something you already do daily\n3. **Track it**: Just showing up and logging "partial" counts — ${ctx.activeHabits.length > 0 ? 'your plant still grows' : 'momentum still builds'}\n\n${ctx.dips.length > 0 ? `Also: your data shows you dip on **${ctx.dips[0].day}s**. Maybe give yourself permission to skip that day entirely.` : 'You\'re still early — patterns will emerge as you log more.'}`;
+  }
+
+  // ── Catch-all: always use real data, never a dead end ──
+  const summary = [];
+  if (ctx.activeHabits.length > 0) summary.push(`You're tracking **${ctx.activeHabits.length} active habit${ctx.activeHabits.length > 1 ? 's' : ''}**: ${habitNames.join(', ')}`);
+  if (ctx.totalLogs > 0) summary.push(`**${ctx.totalLogs} log entries** in the last 30 days`);
+  if (ctx.avgStress !== null) summary.push(`Average stress: **${ctx.avgStress}/5**`);
+  const bestHabit = ctx.activeHabits.sort((a, b) => (b.consecutive_days || 0) - (a.consecutive_days || 0))[0];
+  if (bestHabit) summary.push(`Best current streak: **"${bestHabit.name}"** at ${bestHabit.consecutive_days || 0} days`);
+
+  return `Here's a quick read on where you stand:\n\n${summary.length > 0 ? summary.map(s => `- ${s}`).join('\n') : 'Start by adding and logging a habit — I need data to give you real insights.'}\n\nI can dive deeper into any of these areas. Try asking me:\n- "How is my consistency?"\n- "Am I close to burnout?"\n- "Which days am I weakest?"\n- ${habitNames.length > 0 ? `"Tell me about ${habitNames[0]}"` : '"What habit should I start with?"'}`;
 }
 
 module.exports = { getUserContext, generateInsights, generateLocalResponse: generateResponse };
