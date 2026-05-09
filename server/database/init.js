@@ -13,6 +13,15 @@ const pool = process.env.DATABASE_URL
       port: process.env.DB_PORT || 5432,
     });
 
+// Run live schema alterations immediately upon pool instantiation to support Vercel serverless
+pool.query(`
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT NULL;
+`).then(() => {
+  console.log('Self-healing database migration completed successfully');
+}).catch(err => {
+  console.error('Asynchronous pool self-healing migration error:', err);
+});
+
 async function initDatabase() {
   console.log('Starting database initialization...');
   try {

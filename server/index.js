@@ -42,6 +42,7 @@ app.get('/api/fix-db', async (req, res) => {
   try {
     const { pool } = require('./database/init');
     await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT NULL;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS coaching_personality VARCHAR(30) DEFAULT 'analytical';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS friction_threshold INTEGER DEFAULT 3;
       CREATE TABLE IF NOT EXISTS oracle_memories (
