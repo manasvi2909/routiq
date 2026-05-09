@@ -96,7 +96,7 @@ function Landing() {
             <div className="hero-proof reveal-stagger">
               <div className="proof-item">
                 <span className="proof-value">Mood-aware</span>
-                <span className="proof-label">Reflection woven into every streak</span>
+                <span className="proof-label">Reflection woven into every growth vine</span>
               </div>
               <div className="proof-item">
                 <span className="proof-value">Visual growth</span>

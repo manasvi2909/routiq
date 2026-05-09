@@ -345,7 +345,7 @@ function Chat() {
                 </button>
               </div>
               <span className="chat-disclaimer">
-                Responses are grounded in your real habits, streaks, and logged patterns.
+                Responses are grounded in your real habits, growth vines, and logged patterns.
               </span>
             </div>
           </div>

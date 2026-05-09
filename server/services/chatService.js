@@ -167,7 +167,7 @@ function buildContextString(ctx) {
   ctx.activeHabits.forEach(h => {
     const stats = ctx.habitStats[h.id] || {};
     lines.push(`- ${h.name}`);
-    lines.push(`  Streak: ${h.consecutive_days || 0} consecutive days`);
+    lines.push(`  Growth Vine: ${h.consecutive_days || 0} consecutive days`);
     lines.push(`  Total completions: ${h.total_completions || 0}`);
     lines.push(`  14-day completion rate: ${stats.completionRate || 0}%`);
     lines.push(`  Growth stage: ${h.growth_stage || 0}, Milestones: ${h.milestones_achieved || 0}`);
@@ -209,16 +209,16 @@ async function generateInsights(userId) {
   const ctx = await getUserContext(userId);
   const insights = [];
 
-  // ── Streak champion ──────────────────────────────────────────────
+  // ── Vine champion ──────────────────────────────────────────────
   const bestStreak = [...ctx.activeHabits].sort(
     (a, b) => (b.consecutive_days || 0) - (a.consecutive_days || 0)
   )[0];
   if (bestStreak && (bestStreak.consecutive_days || 0) >= 3) {
     insights.push({
-      type: 'streak',
+      type: 'vine',
       iconName: 'flame',
-      title: 'Streak Champion',
-      body: `"${bestStreak.name}" is on a ${bestStreak.consecutive_days}-day streak. This level of consistency rewires neural pathways — keep the chain alive.`,
+      title: 'Vine Champion',
+      body: `"${bestStreak.name}" has grown a ${bestStreak.consecutive_days}-day vine. This level of consistency rewires neural pathways — keep it growing.`,
       priority: bestStreak.consecutive_days >= 7 ? 'high' : 'medium',
     });
   }
@@ -337,14 +337,14 @@ async function generateInsights(userId) {
       });
     }
 
-    // Any streak at all
+    // Any vine at all
     const anyStreak = ctx.activeHabits.find(h => (h.consecutive_days || 0) >= 1);
     if (anyStreak) {
       insights.push({
-        type: 'streak',
+        type: 'vine',
         iconName: 'flame',
-        title: 'Streak Building',
-        body: `"${anyStreak.name}" has a ${anyStreak.consecutive_days}-day streak. The first few days are the hardest — you're laying the foundation right now.`,
+        title: 'Vine Growing',
+        body: `"${anyStreak.name}" has grown a ${anyStreak.consecutive_days}-day vine. The first few days are the hardest — you're laying the root foundation right now.`,
         priority: 'medium',
       });
     }
@@ -480,7 +480,7 @@ async function generateLocalResponse(userId, message, history) {
   // ── Burnout / Stress ──
   if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much|fatigue|drained)/)) {
     if (ctx.burnoutStatus.preBurnout) {
-      return `Your recent data confirms elevated fatigue — average stress at **${ctx.burnoutStatus.score}/5** over the last week. That's a clear pre-burnout signal.\n\nHere's what I'd recommend based on your patterns:\n- Scale back to **2-minute micro-versions** of your hardest habits\n- ${ctx.dips.length > 0 ? `Give yourself a full rest day on **${ctx.dips[0].day}s** (your lowest completion day at ${ctx.dips[0].rate}%)` : 'Pick one day this week as a deliberate rest day'}\n- Your streak won't break from adapting — it breaks from quitting entirely`;
+      return `Your recent data confirms elevated fatigue — average stress at **${ctx.burnoutStatus.score}/5** over the last week. That's a clear pre-burnout signal.\n\nHere's what I'd recommend based on your patterns:\n- Scale back to **2-minute micro-versions** of your hardest habits\n- ${ctx.dips.length > 0 ? `Give yourself a full rest day on **${ctx.dips[0].day}s** (your lowest completion day at ${ctx.dips[0].rate}%)` : 'Pick one day this week as a deliberate rest day'}\n- Your growth vine won't wither from adapting — it withers from quitting entirely`;
     }
     return `Your stress levels are currently at ${ctx.avgStress !== null ? ctx.avgStress + '/5' : 'a moderate baseline'}. No burnout flags yet, but I'm watching.\n\nIf you're feeling the weight, try this: pick your **easiest habit** and do only that today. ${habitNames.length > 0 ? `For you, that might be "${habitNames[habitNames.length - 1]}".` : ''} Protecting momentum is more important than perfecting every day.`;
   }
@@ -507,7 +507,7 @@ async function generateLocalResponse(userId, message, history) {
   if (msg.match(/(consistency|progress|how.*doing|how.*am.*i|streak|performance|track|status|overview|summary)/)) {
     const statLines = ctx.activeHabits.map(h => {
       const s = ctx.habitStats[h.id] || {};
-      return `- **${h.name}**: ${s.completionRate || 0}% (14-day), ${h.consecutive_days || 0}-day streak, growth stage ${h.growth_stage || 0}`;
+      return `- **${h.name}**: ${s.completionRate || 0}% (14-day), ${h.consecutive_days || 0}-day vine, growth stage ${h.growth_stage || 0}`;
     });
     return `Here's your performance snapshot:\n\n${statLines.length > 0 ? statLines.join('\n') : 'No active habits yet.'}\n\n${ctx.avgStress !== null ? `Average stress: **${ctx.avgStress}/5**` : ''}${ctx.correlation !== null ? ` | Stress-performance correlation: **${ctx.correlation}**` : ''}\n\n${ctx.burnoutStatus.preBurnout ? '**Warning**: Pre-burnout signals detected. Consider scaling back.' : 'No burnout flags — keep building.'}`;
   }
@@ -526,7 +526,7 @@ async function generateLocalResponse(userId, message, history) {
   const mentionedHabit = ctx.activeHabits.find(h => msg.includes(h.name.toLowerCase()));
   if (mentionedHabit) {
     const s = ctx.habitStats[mentionedHabit.id] || {};
-    return `Here's what I know about **"${mentionedHabit.name}"**:\n\n- Streak: **${mentionedHabit.consecutive_days || 0} days**\n- 14-day completion rate: **${s.completionRate || 0}%**\n- Total completions: **${mentionedHabit.total_completions || 0}**\n- Growth stage: **${mentionedHabit.growth_stage || 0}** (plant: ${mentionedHabit.selected_plant_type || 'fern'})\n- Most common mood when logging: **${s.mostCommonMood || 'not enough data'}**\n${mentionedHabit.what_motivating ? `- Your motivation: "${mentionedHabit.what_motivating}"` : ''}\n${mentionedHabit.what_hindering ? `- What hinders you: "${mentionedHabit.what_hindering}"` : ''}\n\n${s.completionRate >= 70 ? 'Strong consistency — this habit is becoming automatic.' : s.completionRate >= 40 ? 'Building momentum. Try anchoring this to an existing daily routine to push past 70%.' : 'This one needs attention. Can you reduce it to a 2-minute micro-version?'}`;
+    return `Here's what I know about **"${mentionedHabit.name}"**:\n\n- Vine Length: **${mentionedHabit.consecutive_days || 0} days**\n- 14-day completion rate: **${s.completionRate || 0}%**\n- Total completions: **${mentionedHabit.total_completions || 0}**\n- Growth stage: **${mentionedHabit.growth_stage || 0}** (plant: ${mentionedHabit.selected_plant_type || 'fern'})\n- Most common mood when logging: **${s.mostCommonMood || 'not enough data'}**\n${mentionedHabit.what_motivating ? `- Your motivation: "${mentionedHabit.what_motivating}"` : ''}\n${mentionedHabit.what_hindering ? `- What hinders you: "${mentionedHabit.what_hindering}"` : ''}\n\n${s.completionRate >= 70 ? 'Strong consistency — this habit is becoming automatic.' : s.completionRate >= 40 ? 'Building momentum. Try anchoring this to an existing daily routine to push past 70%.' : 'This one needs attention. Can you reduce it to a 2-minute micro-version?'}`;
   }
 
   // ── Garden / Plants ──
@@ -551,7 +551,7 @@ async function generateLocalResponse(userId, message, history) {
   if (ctx.totalLogs > 0) summary.push(`**${ctx.totalLogs} log entries** in the last 30 days`);
   if (ctx.avgStress !== null) summary.push(`Average stress: **${ctx.avgStress}/5**`);
   const bestHabit = ctx.activeHabits.sort((a, b) => (b.consecutive_days || 0) - (a.consecutive_days || 0))[0];
-  if (bestHabit) summary.push(`Best current streak: **"${bestHabit.name}"** at ${bestHabit.consecutive_days || 0} days`);
+  if (bestHabit) summary.push(`Longest current vine: **"${bestHabit.name}"** at ${bestHabit.consecutive_days || 0} days`);
 
   return `Here's a quick read on where you stand:\n\n${summary.length > 0 ? summary.map(s => `- ${s}`).join('\n') : 'Start by adding and logging a habit — I need data to give you real insights.'}\n\nI can dive deeper into any of these areas. Try asking me:\n- "How is my consistency?"\n- "Am I close to burnout?"\n- "Which days am I weakest?"\n- ${habitNames.length > 0 ? `"Tell me about ${habitNames[0]}"` : '"What habit should I start with?"'}`;
 }
