@@ -378,7 +378,12 @@ CORE PROTOCOL RULES:
   // 4. Generate response using Gemini 1.5 Flash
   if (genAI) {
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        systemInstruction: {
+          parts: [{ text: systemInstructions }]
+        }
+      });
       
       // Format history into Gemini's expected format
       const formattedHistory = history.map(h => ({
@@ -387,8 +392,7 @@ CORE PROTOCOL RULES:
       }));
 
       const chat = model.startChat({
-        history: formattedHistory,
-        systemInstruction: systemInstructions
+        history: formattedHistory
       });
 
       const result = await chat.sendMessage(message);
