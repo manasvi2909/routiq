@@ -64,7 +64,7 @@ function HabitCalendar({ habit, logs, currentMonth }) {
               <div 
                 className={`calendar-circle ${hasLog ? 'filled' : 'empty'}`}
                 style={{ 
-                  backgroundColor: hasLog ? '#124d39' : 'transparent', // deeply saturated green
+                  backgroundColor: hasLog ? 'var(--color-accent)' : 'transparent',
                   opacity: hasLog ? opacity : 1,
                 }}
               >
