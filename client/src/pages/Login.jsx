@@ -20,7 +20,9 @@ function Login() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registry access denied');
+      const apiErr = err.response?.data?.error;
+      const parsedErr = typeof apiErr === 'object' && apiErr !== null ? (apiErr.message || JSON.stringify(apiErr)) : apiErr;
+      setError(parsedErr || 'Registry access denied');
     } finally {
       setLoading(false);
     }
@@ -41,7 +43,11 @@ function Login() {
           <p className="subtitle">Re-enter your botanical archive</p>
         </div>
         
-        {error && <div className="error-message">{error}</div>}
+        {error && (
+          <div className="error-message">
+            {typeof error === 'object' ? error.message || JSON.stringify(error) : error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">

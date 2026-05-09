@@ -23,7 +23,9 @@ function Register() {
       alert('Your registry spot has been reserved. Please sign in.');
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registry failed');
+      const apiErr = err.response?.data?.error;
+      const parsedErr = typeof apiErr === 'object' && apiErr !== null ? (apiErr.message || JSON.stringify(apiErr)) : apiErr;
+      setError(parsedErr || 'Registry failed');
     } finally {
       setLoading(false);
     }
@@ -44,7 +46,11 @@ function Register() {
           <p className="subtitle">Join the botanical registry</p>
         </div>
         
-        {error && <div className="error-message">{error}</div>}
+        {error && (
+          <div className="error-message">
+            {typeof error === 'object' ? error.message || JSON.stringify(error) : error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
