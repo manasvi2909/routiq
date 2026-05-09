@@ -465,6 +465,18 @@ async function generateLocalResponse(userId, message, history) {
   const ctx = await getUserContext(userId);
   const habitNames = ctx.activeHabits.map(h => h.name);
 
+  // ── Context-aware follow-ups (History) ──
+  if (history && history.length > 0) {
+    const lastMsg = history[history.length - 1];
+    if (lastMsg.role === 'assistant' && lastMsg.content.toLowerCase().includes('what feels most natural')) {
+      // User is responding to a new habit recommendation
+      const anchorInfo = ctx.activeHabits.filter(h => h.habit_time).map(h => `${h.name} at ${h.habit_time}`).join(', ');
+      const fallbackAnchor = habitNames.length > 0 ? `"${habitNames[0]}"` : 'your morning coffee or waking up';
+      
+      return `Excellent choice! The science of habit formation says "${message}" will fail if it relies on willpower alone. It needs an **anchor**.\n\nTo make it stick, stack it onto an existing routine. ${anchorInfo ? `Since you already do ${anchorInfo}, try anchoring this new habit immediately before or after it.` : `Try anchoring this immediately before or after ${fallbackAnchor}.`}\n\n**Next step:** Go to the Registry tab and add "${message}" as a new habit. Set the initial goal to just 2 minutes to minimize starting friction.`;
+    }
+  }
+
   // ── Burnout / Stress ──
   if (msg.match(/(burnout|stress|exhausted|tired|overwhelmed|too much|fatigue|drained)/)) {
     if (ctx.burnoutStatus.preBurnout) {
