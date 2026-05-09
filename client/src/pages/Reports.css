@@ -260,7 +260,7 @@
   flex-direction: column;
 }
 
-.calendar-heading-row {
+.breakdown-heading.calendar-heading-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
