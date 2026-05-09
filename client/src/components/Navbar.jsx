@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LogOut } from 'lucide-react';
 import LiveClock from './LiveClock';
-import NotificationBell from './NotificationBell';
+import UserProfile from './UserProfile';
 import './Navbar.css';
 
 function Navbar() {
@@ -46,7 +46,7 @@ function Navbar() {
           <Link to="/settings" className={isActive('/settings') ? 'active' : ''}>
             <span>Refinement</span>
           </Link>
-          <NotificationBell />
+          <UserProfile />
           <button onClick={handleLogout} className="logout-btn-premium" title="Exit Archive">
             <LogOut size={18} />
           </button>

@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reminder_time TIME DEFAULT '09:00:00',
     reminder_enabled BOOLEAN DEFAULT true,
-    plants_fully_grown INTEGER DEFAULT 0
+    plants_fully_grown INTEGER DEFAULT 0,
+    avatar TEXT DEFAULT NULL
 );
 
 -- Habits table

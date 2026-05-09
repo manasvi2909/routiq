@@ -21,6 +21,12 @@ async function initDatabase() {
     const schema = fs.readFileSync(schemaPath, 'utf8');
     
     await pool.query(schema);
+    
+    // Dynamically alter existing tables to add avatar column if missing
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT NULL;
+    `);
+    
     console.log('Database schema initialized successfully');
   } catch (error) {
     console.error('CRITICAL: Database initialization failed:', error.message);

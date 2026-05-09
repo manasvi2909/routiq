@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, reminder_time, reminder_enabled, plants_fully_grown',
+      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, reminder_time, reminder_enabled, plants_fully_grown, avatar',
       [username, email, passwordHash]
     );
 
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
 
     // Find user
     const result = await pool.query(
-      'SELECT id, username, email, password_hash, reminder_time, reminder_enabled, plants_fully_grown FROM users WHERE email = $1',
+      'SELECT id, username, email, password_hash, reminder_time, reminder_enabled, plants_fully_grown, avatar FROM users WHERE email = $1',
       [email]
     );
 
@@ -89,7 +89,8 @@ router.post('/login', async (req, res) => {
         email: user.email,
         reminder_time: user.reminder_time,
         reminder_enabled: user.reminder_enabled,
-        plants_fully_grown: user.plants_fully_grown
+        plants_fully_grown: user.plants_fully_grown,
+        avatar: user.avatar
       },
       token
     });
@@ -134,6 +135,37 @@ router.put('/coaching-settings', authenticate, async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Update coaching settings error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update user profile
+router.put('/profile', authenticate, async (req, res) => {
+  try {
+    const { username, email, avatar } = req.body;
+
+    if (!username || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    // Check if username or email is already taken by another user
+    const checkUser = await pool.query(
+      'SELECT id FROM users WHERE (username = $1 OR email = $2) AND id != $3',
+      [username, email, req.user.id]
+    );
+
+    if (checkUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Name or Email is already in use' });
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET username = $1, email = $2, avatar = $3 WHERE id = $4 RETURNING id, username, email, reminder_time, reminder_enabled, plants_fully_grown, avatar',
+      [username, email, avatar, req.user.id]
+    );
+
+    res.json({ user: result.rows[0] });
+  } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
