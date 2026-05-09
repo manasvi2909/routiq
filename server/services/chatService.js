@@ -454,7 +454,37 @@ CORE PROTOCOL RULES:
   }
 
   // 5. Fallback to highly detailed deterministic Local Response Generator
-  return generateLocalResponse(userId, message, history);
+  const rawReply = await generateLocalResponse(userId, message, history);
+  return wrapLocalResponse(userId, rawReply);
+}
+
+/**
+ * Wrap local responses dynamically according to active coaching personality tones.
+ */
+async function wrapLocalResponse(userId, rawText) {
+  const ctx = await getUserContext(userId);
+  const personality = ctx.user.coaching_personality || 'analytical';
+  
+  const prefixes = {
+    strict: `**[STRICT ACCOUNTABILITY ORACLE ACTIVE]**\nDiscipline is doing what needs to be done even when you feel lazy. Tough love is how we grow:`,
+    supportive: `**[SUPPORTIVE COMPASSION ORACLE ACTIVE]**\nBe gentle with yourself. Feeling lazy or tired is a natural signal to recover:`,
+    calm: `**[ZEN ORACLE ACTIVE]**\nBreathe in. A quiet mind does not rush. Let us observe your patterns with peaceful reflection:`,
+    mentor: `**[STRATEGIC MENTOR ORACLE ACTIVE]**\nLet's optimize your behavioral architecture. Here is your strategic review:`,
+    analytical: `**[ANALYTICAL ORACLE ACTIVE]**\nDatabase record parsed. Initiating data-driven review of your behavioral metrics:`
+  };
+
+  const suffixes = {
+    strict: `\n\n*The secret to consistency is simple: eliminate options, increase friction for distractions, and execute. No excuses.*`,
+    supportive: `\n\n*You are doing wonderful. Celebrate yourself for showing up today, even for a single minute. Take care.*`,
+    calm: `\n\n*Nourish your inner stillness. Like your plants, your habits grow silently in their own perfect timing.*`,
+    mentor: `\n\n*Strategic action item: stack your hardest habit immediately after a reliable daily cue. Let's make it automatic.*`,
+    analytical: `\n\n*Data analysis complete. Aim to increase weekly completion margins by 15% to optimize consistency.*`
+  };
+
+  const prefix = prefixes[personality] || prefixes.analytical;
+  const suffix = suffixes[personality] || suffixes.analytical;
+  
+  return `${prefix}\n\n${rawText}\n\n${suffix}`;
 }
 
 /**
@@ -464,6 +494,37 @@ async function generateLocalResponse(userId, message, history) {
   const msg = message.toLowerCase();
   const ctx = await getUserContext(userId);
   const habitNames = ctx.activeHabits.map(h => h.name);
+  const personality = ctx.user.coaching_personality || 'analytical';
+
+  // ── Intercept persona inquiries ──
+  if (msg.match(/(are you|current|your|what is|set to.*)persona/)) {
+    if (personality === 'strict') {
+      return `Yes, I am currently in the **Strict Accountability Persona**. I am here to hold you high, slice through excuses, and make sure you stay disciplined to your growth vines. No shortcuts. What habit are we locking down today?`;
+    } else if (personality === 'supportive') {
+      return `Yes, I am currently in the **Supportive Compassion Persona**. I am here to provide a safe, empathetic space for your growth, focusing on mindfulness, self-compassion, and gentle recovery. How can I support you today?`;
+    } else if (personality === 'calm') {
+      return `Yes, I am currently in the **Calm Zen Persona**. Let us breathe, align your routines with your core self, and watch your botanical sanctuary flourish in its own perfect timing. What is on your mind?`;
+    } else if (personality === 'mentor') {
+      return `Yes, I am currently in the **Strategic Mentor Persona**. I am ready to help you optimize your physical environments, design habit-stacking cues, and decompose complex behaviors into manageable actions. Let's build.`;
+    } else {
+      return `Yes, I am currently in the **Analytical Data Persona**. I parse your database entries, track statistical correlations, and deliver objective, metric-driven recommendations based on your logs. Let's look at the numbers.`;
+    }
+  }
+
+  // ── Intercept lazy mentions ──
+  if (msg.match(/(lazy|feel lazy|procrastinat|can't be bothered)/)) {
+    if (personality === 'strict') {
+      return `Feeling lazy is an emotion, not a physical barrier. The Strict Accountability framework doesn't recognize excuses. Your active plant needs nourishment, and skipping today recedes your vine. Shut down the distractions, commit to just **2 minutes of action right now**, and execute. No shortcuts.`;
+    } else if (personality === 'supportive') {
+      return `It's completely okay to feel lazy or exhausted. Your body might be calling for a gentle pause. Instead of forcing a full routine, try the 2-Minute Rule -- do a micro-version of your habit just to keep the touchpoint alive, with zero judgment. Be compassionate to yourself today.`;
+    } else if (personality === 'calm') {
+      return `Observe this feeling of laziness without judging it. Breathe in. Routines are not heavy weights, but peaceful roots. If energy is low, sit silently with your plant, complete a single mindful breath, and let that be your seed for today.`;
+    } else if (personality === 'mentor') {
+      return `Feeling lazy is typically a sign of high starting friction. Let's design around it: reduce the steps required to start your habit. Prepare your environment the night before, and stack it onto a solid existing cue like your morning coffee. Design beats willpower every time.`;
+    } else {
+      return `Analysing lazy/fatigue states. Research shows starting friction accounts for 80% of routine failures. Statistically, committing to a 120-second entry threshold bypasses this barrier, raising your consistency probability by 42%. Let's run a 2-minute trial today.`;
+    }
+  }
 
   // ── Context-aware follow-ups (History) ──
   if (history && history.length > 0) {
