@@ -242,39 +242,44 @@
 }
 
 .reports-bottom-section {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: start;
+  gap: 3.5rem;
   width: min(1180px, 100%);
   margin-top: 2rem;
-  align-items: start;
 }
 
 .habits-breakdown {
-  width: 100%;
+  width: 300px;
+  flex-shrink: 0;
 }
 
 .calendar-section {
-  width: 100%;
+  width: 300px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
 
 .breakdown-heading.calendar-heading-row {
+  position: relative;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .month-selector {
-  padding: 0.4rem 0.8rem;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0.35rem 0.7rem;
   border-radius: 8px;
   border: 1px solid rgba(10, 51, 35, 0.15);
   background: var(--surface-translucent);
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-dark);
   cursor: pointer;
   outline: none;
@@ -377,9 +382,18 @@ body[data-theme='dark'] .chart-card-bloom .chart-center-value {
 @media (max-width: 1080px) {
   .reports-header,
   .charts-section,
-  .reports-summary,
-  .reports-bottom-section {
+  .reports-summary {
     grid-template-columns: 1fr;
+  }
+
+  .reports-bottom-section {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .habits-breakdown,
+  .calendar-section {
+    width: 100%;
   }
 
   .chart-card-bloom {
