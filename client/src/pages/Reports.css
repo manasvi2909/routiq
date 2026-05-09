@@ -247,6 +247,7 @@
   gap: 1.5rem;
   width: min(1180px, 100%);
   margin-top: 2rem;
+  align-items: start;
 }
 
 .habits-breakdown {

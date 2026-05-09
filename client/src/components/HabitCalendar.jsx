@@ -54,7 +54,7 @@ function HabitCalendar({ habit, logs, currentMonth }) {
           // 0 = transparent/empty circle
           // 100 = solid moss green
           const hasLog = completion > 0;
-          const opacity = hasLog ? 0.3 + (completion / 100) * 0.7 : 0;
+          const opacity = hasLog ? 0.4 + (completion / 100) * 0.6 : 0;
           
           return (
             <div 
@@ -64,7 +64,7 @@ function HabitCalendar({ habit, logs, currentMonth }) {
               <div 
                 className={`calendar-circle ${hasLog ? 'filled' : 'empty'}`}
                 style={{ 
-                  backgroundColor: hasLog ? BOTANICAL_COLORS.moss : 'transparent',
+                  backgroundColor: hasLog ? '#124d39' : 'transparent', // deeply saturated green
                   opacity: hasLog ? opacity : 1,
                 }}
               >

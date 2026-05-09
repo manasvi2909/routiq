@@ -1,8 +1,11 @@
 .habit-calendar-card {
-  background: var(--surface-translucent);
-  border: 1px solid var(--border-light);
-  border-radius: 1.2rem;
-  padding: 1.2rem;
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 26%),
+              linear-gradient(180deg, rgba(255, 250, 241, 0.74), rgba(248, 239, 222, 0.3));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 4px 20px rgba(10, 51, 35, 0.04);
+  border: 1px solid rgba(10, 51, 35, 0.08);
+  border-radius: 1.8rem;
+  padding: 1.35rem;
   min-width: 100%;
   box-sizing: border-box;
   scroll-snap-align: center;
@@ -10,7 +13,7 @@
 }
 
 .habit-calendar-header {
-  margin-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
   text-align: center;
 }
 
