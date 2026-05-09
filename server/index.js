@@ -36,6 +36,29 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Live Database Patch Endpoint
+app.get('/api/fix-db', async (req, res) => {
+  try {
+    const { pool } = require('./database/init');
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS coaching_personality VARCHAR(30) DEFAULT 'analytical';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS friction_threshold INTEGER DEFAULT 3;
+      CREATE TABLE IF NOT EXISTS oracle_memories (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          content TEXT NOT NULL,
+          embedding REAL[],
+          category VARCHAR(50),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    res.json({ success: true, message: 'Live database successfully patched with latest schema!' });
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Robust listen block
 const startServer = (port) => {
   console.log('Attempting to listen on', port);
