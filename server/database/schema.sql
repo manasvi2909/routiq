@@ -156,3 +156,15 @@ ALTER TABLE habits ADD COLUMN IF NOT EXISTS fully_grown_count INTEGER DEFAULT 0;
 ALTER TABLE habits ADD COLUMN IF NOT EXISTS growth_stage INTEGER DEFAULT 0;
 ALTER TABLE habits ADD COLUMN IF NOT EXISTS selected_plant_type VARCHAR(50) DEFAULT 'fern';
 ALTER TABLE habits ADD COLUMN IF NOT EXISTS last_reward_claimed_at TIMESTAMP;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS coaching_personality VARCHAR(30) DEFAULT 'analytical';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS friction_threshold INTEGER DEFAULT 3;
+
+CREATE TABLE IF NOT EXISTS oracle_memories (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    embedding REAL[],
+    category VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
