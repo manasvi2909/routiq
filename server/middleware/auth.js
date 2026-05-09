@@ -13,7 +13,7 @@ const authenticate = async (req, res, next) => {
     
     // Verify user still exists
     const result = await pool.query(
-      'SELECT id, username, email, reminder_time, reminder_enabled, plants_fully_grown FROM users WHERE id = $1',
+      'SELECT id, username, email, reminder_time, reminder_enabled, plants_fully_grown, coaching_personality, friction_threshold FROM users WHERE id = $1',
       [decoded.userId]
     );
     

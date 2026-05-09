@@ -121,4 +121,21 @@ router.put('/reminder-settings', authenticate, async (req, res) => {
   }
 });
 
+// Update coaching settings
+router.put('/coaching-settings', authenticate, async (req, res) => {
+  try {
+    const { coaching_personality, friction_threshold } = req.body;
+
+    const result = await pool.query(
+      'UPDATE users SET coaching_personality = $1, friction_threshold = $2 WHERE id = $3 RETURNING coaching_personality, friction_threshold',
+      [coaching_personality || 'analytical', friction_threshold || 3, req.user.id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Update coaching settings error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
