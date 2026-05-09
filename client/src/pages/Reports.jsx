@@ -357,13 +357,18 @@ function Reports() {
                 <h2>Monthly Logs</h2>
                 <select 
                   className="month-selector"
-                  value={calendarMonth.toISOString()}
-                  onChange={(e) => setCalendarMonth(new Date(e.target.value))}
+                  value={format(calendarMonth, 'yyyy-MM')}
+                  onChange={(e) => {
+                    const [year, month] = e.target.value.split('-');
+                    const newDate = new Date();
+                    newDate.setFullYear(parseInt(year), parseInt(month) - 1, 1);
+                    setCalendarMonth(newDate);
+                  }}
                 >
                   {[0, 1, 2, 3, 4, 5].map(offset => {
                     const d = subMonths(new Date(), offset);
                     return (
-                      <option key={offset} value={d.toISOString()}>
+                      <option key={offset} value={format(d, 'yyyy-MM')}>
                         {format(d, 'MMMM yyyy')}
                       </option>
                     );
