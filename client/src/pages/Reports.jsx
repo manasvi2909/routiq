@@ -351,13 +351,14 @@ function Reports() {
           </div>
 
           <div className="calendar-section">
-            <div className="breakdown-heading">
-              <span className="reports-kicker">Consistency Grid</span>
-              <div className="calendar-heading-row">
-                <h2>Monthly Logs</h2>
-                <select 
-                  className="month-selector"
-                  value={format(calendarMonth, 'yyyy-MM')}
+            <div className="breakdown-heading calendar-heading-row">
+              <div>
+                <span className="reports-kicker">Consistency Grid</span>
+                <h2 style={{ whiteSpace: 'nowrap' }}>Monthly Logs</h2>
+              </div>
+              <select 
+                className="month-selector"
+                value={format(calendarMonth, 'yyyy-MM')}
                   onChange={(e) => {
                     const [year, month] = e.target.value.split('-');
                     const newDate = new Date();

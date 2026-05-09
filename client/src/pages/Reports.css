@@ -263,7 +263,7 @@
 .calendar-heading-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: 1rem;
 }
 
