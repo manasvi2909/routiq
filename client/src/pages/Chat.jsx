@@ -299,8 +299,12 @@ function Chat() {
                     )}
                   </div>
                   {msg.role === 'user' && (
-                    <div className="chat-avatar user-avatar">
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                    <div className="chat-avatar user-avatar" style={{ padding: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="User Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        user?.username?.charAt(0)?.toUpperCase() || 'U'
+                      )}
                     </div>
                   )}
                 </div>
