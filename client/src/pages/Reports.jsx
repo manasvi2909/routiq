@@ -376,7 +376,6 @@ function Reports() {
                   })}
                 </select>
               </div>
-            </div>
             
             <div className="calendar-carousel">
               {allHabits.length > 0 ? allHabits.map(habit => (
