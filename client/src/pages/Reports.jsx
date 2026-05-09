@@ -353,28 +353,31 @@ function Reports() {
           <div className="calendar-section">
             <div className="breakdown-heading">
               <span className="reports-kicker">Consistency Grid</span>
-              <div className="calendar-heading-row">
-                <h2 style={{ whiteSpace: 'nowrap', margin: 0 }}>Monthly Logs</h2>
-                <select 
-                  className="month-selector"
-                  value={format(calendarMonth, 'yyyy-MM')}
-                  onChange={(e) => {
-                    const [year, month] = e.target.value.split('-');
-                    const newDate = new Date();
-                    newDate.setFullYear(parseInt(year), parseInt(month) - 1, 1);
-                    setCalendarMonth(newDate);
-                  }}
-                >
-                  {[0, 1, 2, 3, 4, 5].map(offset => {
-                    const d = subMonths(new Date(), offset);
-                    return (
-                      <option key={offset} value={format(d, 'yyyy-MM')}>
-                        {format(d, 'MMM yy')}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              <h2 style={{ lineHeight: '1.1', margin: 0 }}>
+                Monthly<br />
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Logs
+                  <select 
+                    className="month-selector"
+                    value={format(calendarMonth, 'yyyy-MM')}
+                    onChange={(e) => {
+                      const [year, month] = e.target.value.split('-');
+                      const newDate = new Date();
+                      newDate.setFullYear(parseInt(year), parseInt(month) - 1, 1);
+                      setCalendarMonth(newDate);
+                    }}
+                  >
+                    {[0, 1, 2, 3, 4, 5].map(offset => {
+                      const d = subMonths(new Date(), offset);
+                      return (
+                        <option key={offset} value={format(d, 'yyyy-MM')}>
+                          {format(d, 'MMMM yyyy')}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </span>
+              </h2>
             </div>
             
             <div className="calendar-carousel">

@@ -263,25 +263,17 @@
   flex-direction: column;
 }
 
-.calendar-heading-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
 .month-selector {
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 6px;
   border: 1px solid rgba(10, 51, 35, 0.12);
   background: var(--surface-translucent);
   font-family: var(--font-display);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--text-dark);
   cursor: pointer;
   outline: none;
-  max-width: 90px;
+  max-width: 120px;
 }
 
 .calendar-carousel {
