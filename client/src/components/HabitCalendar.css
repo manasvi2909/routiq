@@ -5,23 +5,23 @@
   box-shadow: 0 4px 20px rgba(10, 51, 35, 0.04);
   border: 1px solid rgba(10, 51, 35, 0.08);
   border-radius: 1.8rem;
-  padding: 1.35rem;
-  min-width: 300px;
-  width: 300px;
+  padding: 0.85rem;
+  min-width: 250px;
+  width: 250px;
   box-sizing: border-box;
   scroll-snap-align: center;
   flex: 0 0 auto;
 }
 
 .habit-calendar-header {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.7rem;
   text-align: center;
 }
 
 .habit-calendar-title {
   font-family: 'Playfair Display', serif;
   color: var(--text-dark);
-  font-size: 1rem;
+  font-size: 0.95rem;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -31,17 +31,17 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  max-width: 260px;
+  gap: 3px;
+  max-width: 220px;
   margin: 0 auto;
 }
 
 .calendar-day-header {
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 500;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .calendar-cell {
@@ -52,8 +52,8 @@
 }
 
 .calendar-circle {
-  width: 24px;
-  height: 24px;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -66,7 +66,7 @@
 }
 
 .calendar-date-num {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 500;
   color: var(--text-dark);
   z-index: 2;
