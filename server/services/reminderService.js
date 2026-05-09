@@ -136,30 +136,33 @@ async function sendGoalWindowPrompts() {
   }
 }
 
-cron.schedule('* * * * *', async () => {
-  await sendHabitTimeReminders();
-  await sendGoalWindowPrompts();
-});
+// Only schedule cron jobs outside Vercel serverless
+if (!process.env.VERCEL) {
+  cron.schedule('* * * * *', async () => {
+    await sendHabitTimeReminders();
+    await sendGoalWindowPrompts();
+  });
 
-cron.schedule('0 * * * *', async () => {
-  try {
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:00:00`;
+  cron.schedule('0 * * * *', async () => {
+    try {
+      const now = new Date();
+      const currentTime = `${now.getHours().toString().padStart(2, '0')}:00:00`;
 
-    const usersResult = await pool.query(
-      'SELECT id FROM users WHERE reminder_enabled = true AND reminder_time = $1',
-      [currentTime]
-    );
+      const usersResult = await pool.query(
+        'SELECT id FROM users WHERE reminder_enabled = true AND reminder_time = $1',
+        [currentTime]
+      );
 
-    if (usersResult.rows.length > 0) {
-      await sendDailyReminders();
+      if (usersResult.rows.length > 0) {
+        await sendDailyReminders();
+      }
+    } catch (error) {
+      console.error('Error in reminder cron job:', error);
     }
-  } catch (error) {
-    console.error('Error in reminder cron job:', error);
-  }
-});
+  });
 
-cron.schedule('0 9 * * *', sendDailyReminders);
+  cron.schedule('0 9 * * *', sendDailyReminders);
+}
 
 function start() {
   console.log('Reminder service started');

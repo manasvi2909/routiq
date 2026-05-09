@@ -78,10 +78,10 @@ const startServer = (port) => {
   });
 };
 
-// Initialize database and start server
+// Initialize database and start server (local only, not on Vercel serverless)
 const startApp = async () => {
   try {
-    // Start reminder service
+    // Start reminder service (cron jobs — local only)
     reminderService.start();
     
     await initDatabase();
@@ -91,11 +91,13 @@ const startApp = async () => {
     startServer(initialPort);
   } catch (error) {
     console.error('Failed to start application:', error);
-    // On Vercel, we don't want to exit(1) during cold start if possible, 
-    // but a database failure is fatal for the API.
   }
 };
 
-startApp();
+// On Vercel, don't call startApp (no listen, no cron).
+// Vercel imports `app` directly via module.exports.
+if (!process.env.VERCEL) {
+  startApp();
+}
 
 module.exports = app;
