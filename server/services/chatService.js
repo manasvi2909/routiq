@@ -3,6 +3,7 @@ const { pool } = require('../database/init');
 const { getPlantById } = require('./plantCatalog');
 const AnalysisEngine = require('./analysisEngine');
 const MemoryService = require('./memoryService');
+const { analyzeHabitConsistency } = require('./consistencyService');
 require('dotenv').config();
 
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
@@ -270,7 +271,18 @@ async function generateInsights(userId) {
   }
 
   // ── Inconsistent habit warning ───────────────────────────────────
-  const inconsistentHabits = ctx.activeHabits.filter(h => h.is_inconsistent);
+  // Dynamically recalculate to guarantee absolute data freshness
+  const inconsistentHabits = [];
+  for (const h of ctx.activeHabits) {
+    try {
+      const analysis = await analyzeHabitConsistency(h.id, userId);
+      if (analysis.isInconsistent) {
+        inconsistentHabits.push(h);
+      }
+    } catch (e) {
+      if (h.is_inconsistent) inconsistentHabits.push(h); // fallback to cache on error
+    }
+  }
   if (inconsistentHabits.length > 0) {
     const names = inconsistentHabits.map(h => `"${h.name}"`).join(', ');
     insights.push({
