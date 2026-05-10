@@ -128,22 +128,8 @@ function Reports() {
                 strokeWidth="1.2"
               />
               <circle cx={tip.x} cy={tip.y} r={5 + consistency / 32} fill={BOTANICAL_COLORS.moss} opacity="0.85" />
-              <text
-                x={labelPoint.x}
-                y={labelPoint.y}
-                textAnchor="middle"
-                className="chart-label"
-              >
-                {item.name}
-              </text>
-              <text
-                x={labelPoint.x}
-                y={labelPoint.y + 16}
-                textAnchor="middle"
-                className="chart-value"
-              >
-                {consistency}%
-              </text>
+              <text x={labelPoint.x} y={labelPoint.y} textAnchor="middle" className="chart-label">{item.name}</text>
+              <text x={labelPoint.x} y={labelPoint.y + 16} textAnchor="middle" className="chart-value">{consistency}%</text>
             </g>
           );
         })}
@@ -157,7 +143,7 @@ function Reports() {
 
   const MoodRibbonChart = ({ distribution }) => {
     if (!distribution || distribution.length === 0) {
-      return <div className="chart-empty">No emotional notes were logged this week.</div>;
+      return <div className="chart-empty">No emotional notes logged.</div>;
     }
 
     const maxValue = Math.max(...distribution.map((item) => item.value), 1);
@@ -175,22 +161,10 @@ function Reports() {
 
           return (
             <g key={item.name}>
-              <rect
-                x={x}
-                y={y}
-                width={barWidth}
-                height={height}
-                rx="26"
-                fill={color}
-                opacity={0.18 + item.value / (maxValue * 1.4)}
-              />
+              <rect x={x} y={y} width={barWidth} height={height} rx="26" fill={color} opacity={0.18 + item.value / (maxValue * 1.4)} />
               <circle cx={x + barWidth / 2} cy={y + 18} r="8" fill={color} opacity="0.8" />
-              <text x={x + barWidth / 2} y="270" textAnchor="middle" className="chart-label">
-                {item.name}
-              </text>
-              <text x={x + barWidth / 2} y="288" textAnchor="middle" className="chart-value">
-                {item.value}
-              </text>
+              <text x={x + barWidth / 2} y="270" textAnchor="middle" className="chart-label">{item.name}</text>
+              <text x={x + barWidth / 2} y="288" textAnchor="middle" className="chart-value">{item.value}</text>
             </g>
           );
         })}
@@ -198,62 +172,110 @@ function Reports() {
     );
   };
 
-  const WeeklyPulseChart = ({ weeks }) => {
-    if (!weeks || weeks.length === 0) {
-      return null;
-    }
-
-    const width = 420;
-    const height = 220;
-    const paddingX = 34;
-    const baseline = 160;
-    const maxValue = Math.max(...weeks.map((week) => week.total_completions || 0), 1);
-    const step = weeks.length > 1 ? (width - paddingX * 2) / (weeks.length - 1) : 0;
-
-    const points = weeks.map((week, index) => {
-      const x = paddingX + step * index;
-      const value = week.total_completions || 0;
-      const y = baseline - (value / maxValue) * 88;
-      return { x, y, label: formatWeekLabel(week.week_start), value };
+  const DayHeatmapChart = ({ logs }) => {
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const idxMap = [1, 2, 3, 4, 5, 6, 0]; // JS Day indices to order Mon-Sun
+    
+    const metrics = idxMap.map(idx => {
+      const dayLogs = logs.filter(l => new Date(l.log_date).getDay() === idx);
+      const sum = dayLogs.reduce((acc, log) => acc + (log.completion_percentage || 0), 0);
+      const maxPossible = dayLogs.length > 0 ? dayLogs.length * 3 : 1;
+      const avg = dayLogs.length > 0 ? sum / maxPossible : 0;
+      return avg;
     });
 
-    const linePath = points
-      .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
-      .join(' ');
+    return (
+      <div className="day-heatmap-container">
+        {labels.map((label, i) => (
+          <div className="heatmap-day" key={label}>
+            <div 
+              className="heat-block" 
+              style={{ 
+                height: `${Math.max(10, metrics[i] * 100)}%`, 
+                opacity: 0.2 + metrics[i] * 0.8 
+              }} 
+            />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
-    const areaPath = `${linePath} L ${points[points.length - 1].x} ${baseline} L ${points[0].x} ${baseline} Z`;
+  const StressCorrelationChart = ({ weeks }) => {
+    if (!weeks || weeks.length === 0) return null;
+    
+    const width = 420;
+    const height = 220;
+    const padding = 38;
+    const base = 165;
+    
+    // Data normalized from oldest to newest
+    const sortedWeeks = [...weeks].reverse();
+    
+    const maxCompletions = Math.max(...sortedWeeks.map(w => w.total_completions || 0), 1);
+    const step = sortedWeeks.length > 1 ? (width - padding * 2) / (sortedWeeks.length - 1) : 0;
+    
+    const points = sortedWeeks.map((w, index) => {
+      const x = padding + step * index;
+      // Convert completion and stress to Y coordinate percentages
+      // Comps are green path. Stress is orange overlay line.
+      const cVal = w.total_completions || 0;
+      const sVal = w.average_stress || 0;
+      
+      return {
+        x,
+        cY: base - (cVal / maxCompletions) * 100,
+        sY: base - (sVal / 5) * 100,
+        label: formatWeekLabel(w.week_start)
+      };
+    });
+
+    const compPath = points.map((p, i) => `${i===0?'M':'L'} ${p.x} ${p.cY}`).join(' ');
+    const stressPath = points.map((p, i) => `${i===0?'M':'L'} ${p.x} ${p.sY}`).join(' ');
 
     return (
       <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} className="premium-chart-svg">
         <defs>
-          <linearGradient id="pulseFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(31,121,96,0.26)" />
+          <linearGradient id="cGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(31,121,96,0.18)" />
             <stop offset="100%" stopColor="rgba(31,121,96,0)" />
           </linearGradient>
         </defs>
-
-        <path d={areaPath} fill="url(#pulseFill)" />
-        <path d={linePath} fill="none" stroke={BOTANICAL_COLORS.moss} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-
-        {points.map((point) => (
-          <g key={point.label}>
-            <circle cx={point.x} cy={point.y} r="7" fill={BOTANICAL_COLORS.rosy} />
-            <text x={point.x} y={186} textAnchor="middle" className="chart-label">{point.label}</text>
-            <text x={point.x} y={202} textAnchor="middle" className="chart-value">{point.value}</text>
+        {/* Area for Completions */}
+        <path d={`${compPath} L ${points[points.length-1].x} ${base} L ${points[0].x} ${base} Z`} fill="url(#cGradient)" />
+        
+        {/* Line for Completions */}
+        <path d={compPath} fill="none" stroke={BOTANICAL_COLORS.moss} strokeWidth="3" strokeLinecap="round" />
+        {/* Line for Stress */}
+        <path d={stressPath} fill="none" stroke={BOTANICAL_COLORS.rosy} strokeWidth="2.5" strokeDasharray="4 2" strokeLinecap="round" />
+        
+        {points.map(p => (
+          <g key={p.label}>
+            <circle cx={p.x} cy={p.cY} r="5" fill={BOTANICAL_COLORS.moss} />
+            <circle cx={p.x} cy={p.sY} r="4" fill="#fff" stroke={BOTANICAL_COLORS.rosy} strokeWidth="2" />
+            <text x={p.x} y={194} textAnchor="middle" className="chart-label">{p.label}</text>
           </g>
         ))}
       </svg>
     );
   };
 
+  // Derive Reflection Logs (filter those with notes)
+  const reflectionLogs = allLogs
+    .filter(l => l.notes && l.notes.trim().length > 0)
+    .sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+
+  const totalMilestones = allHabits.reduce((acc, h) => acc + (h.milestones_achieved || 0), 0);
+
   return (
     <div className="reports-page">
       <div className="reports-width">
         <div className="reports-header">
           <div className="header-left">
-            <span className="reports-kicker">Weekly archive</span>
-            <h1>Registry Review</h1>
-            <p className="reports-subtitle">A botanical distillation of your weekly evolution</p>
+            <span className="reports-kicker">System Archive</span>
+            <h1>Visual Mathematics</h1>
+            <p className="reports-subtitle">A detailed synthesis of your growth architecture and psychological logs.</p>
           </div>
           <div className="week-selector">
             {weeklyComparison.map((week, index) => (
@@ -270,27 +292,31 @@ function Reports() {
 
         <div className="reports-summary">
           <div className="summary-card">
-            <h3>Sequences</h3>
+            <h3>Sequences Active</h3>
             <p className="summary-value">{selectedReport.total_habits}</p>
           </div>
           <div className="summary-card">
-            <h3>Consistency</h3>
+            <h3>Stable Routines</h3>
             <p className="summary-value">{selectedReport.consistent_habits}</p>
           </div>
           <div className="summary-card">
-            <h3>Total Bloom</h3>
-            <p className="summary-value">{selectedReport.total_completions}</p>
+            <h3>Milestones Reached</h3>
+            <p className="summary-value">{totalMilestones}</p>
           </div>
           <div className="summary-card">
-            <h3>Dominant Mood</h3>
-            <p className="summary-value mood-value">{selectedReport.average_mood || 'Serene'}</p>
+            <h3>Avg. Stress Load</h3>
+            <p className="summary-value">{selectedReport.average_stress || 'N/A'}</p>
+          </div>
+          <div className="summary-card">
+            <h3>Dominant Tone</h3>
+            <p className="summary-value mood-value">{selectedReport.average_mood || 'N/A'}</p>
           </div>
         </div>
 
         <div className="charts-section">
           <div className="chart-card chart-card-bloom">
             <div className="chart-heading">
-              <span className="chart-kicker">Signature bloom</span>
+              <span className="chart-kicker">Habit Consistency Matrix</span>
               <h2>Mastery Bloom</h2>
             </div>
             <div className="svg-chart-container">
@@ -300,83 +326,82 @@ function Reports() {
 
           <div className="chart-card">
             <div className="chart-heading">
-              <span className="chart-kicker">Emotional texture</span>
-              <h2>Mood Ribbons</h2>
+              <span className="chart-kicker">Frequency Heatmap</span>
+              <h2>Day-of-Week Weight</h2>
             </div>
             <div className="svg-chart-container compact">
-              <MoodRibbonChart distribution={selectedReport.mood_distribution} />
+              <DayHeatmapChart logs={allLogs} />
             </div>
           </div>
 
           <div className="chart-card">
             <div className="chart-heading">
-              <span className="chart-kicker">Momentum over time</span>
-              <h2>Weekly Pulse</h2>
+              <span className="chart-kicker">Stress vs. Completion Correlation</span>
+              <h2>Stress Trend Curve</h2>
             </div>
             <div className="svg-chart-container compact">
-              <WeeklyPulseChart weeks={[...weeklyComparison].reverse()} />
+              <StressCorrelationChart weeks={weeklyComparison} />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', marginTop: '-10px' }}>
+              <span style={{ color: BOTANICAL_COLORS.moss }}>- Completions</span>
+              <span style={{ color: BOTANICAL_COLORS.rosy }}>-- Stress Level</span>
+            </div>
+          </div>
+
+          <div className="chart-card full-width-chart">
+             <div className="chart-heading">
+              <span className="chart-kicker">Emotional Spectrum</span>
+              <h2>Mood Distribution Chart</h2>
+            </div>
+            <div className="svg-chart-container compact" style={{ minHeight: '16rem' }}>
+              <MoodRibbonChart distribution={selectedReport.mood_distribution} />
             </div>
           </div>
         </div>
 
         <div className="reports-bottom-section">
-          <div className="habits-breakdown">
+          <div className="habits-breakdown" style={{ flex: 1 }}>
             <div className="breakdown-heading">
-              <span className="reports-kicker">Close reading</span>
-              <h2>Sequence Breakdown</h2>
+              <span className="reports-kicker">Plant Growth Indicators</span>
+              <h2>Sequence Health</h2>
             </div>
-            <div className="habits-list">
+            <div className="habits-list" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
               {Object.entries(selectedReport.habit_stats || {}).map(([id, stats]) => {
                 const mastery = stats.totalDays > 0 ? Math.round((stats.completions / stats.totalDays) * 100) : 0;
                 return (
                   <div key={id} className="habit-breakdown-card">
                     <h3>{stats.name}</h3>
                     <div className="breakdown-stats">
-                      <span>{stats.completions} successful archivals</span>
-                      <span>{stats.totalDays} day registry window</span>
-                      <span>{mastery}% mastery</span>
+                      <span>{stats.completions} executions</span>
+                      <span>{mastery}% consistency</span>
                     </div>
-                    <div className="mini-meter">
-                      <i style={{ width: `${mastery}%` }} />
-                    </div>
-                    {stats.moods.length > 0 && (
-                      <div className="mood-summary">
-                        Dominant resonance: <strong>{stats.moods[0]}</strong>
-                      </div>
-                    )}
+                    <div className="mini-meter"><i style={{ width: `${mastery}%` }} /></div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="calendar-section">
+          <div className="calendar-section" style={{ width: '320px', flexShrink: 0 }}>
             <div className="breakdown-heading">
-              <span className="reports-kicker">Consistency Grid</span>
-              <h2 style={{ lineHeight: '1.1', margin: 0 }}>
-                Monthly<br />
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Logs
-                  <select 
-                    className="month-selector"
-                    value={format(calendarMonth, 'yyyy-MM')}
-                    onChange={(e) => {
-                      const [year, month] = e.target.value.split('-');
-                      const newDate = new Date();
-                      newDate.setFullYear(parseInt(year), parseInt(month) - 1, 1);
-                      setCalendarMonth(newDate);
-                    }}
-                  >
-                    {[0, 1, 2, 3, 4, 5].map(offset => {
-                      const d = subMonths(new Date(), offset);
-                      return (
-                        <option key={offset} value={format(d, 'yyyy-MM')}>
-                          {format(d, 'MMMM yyyy')}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </span>
+              <span className="reports-kicker">Intensity Grid</span>
+              <h2 style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                Logs
+                <select 
+                  className="month-selector"
+                  value={format(calendarMonth, 'yyyy-MM')}
+                  onChange={(e) => {
+                    const [year, month] = e.target.value.split('-');
+                    const newDate = new Date();
+                    newDate.setFullYear(parseInt(year), parseInt(month) - 1, 1);
+                    setCalendarMonth(newDate);
+                  }}
+                >
+                  {[0, 1, 2, 3, 4].map(offset => {
+                    const d = subMonths(new Date(), offset);
+                    return <option key={offset} value={format(d, 'yyyy-MM')}>{format(d, 'MMM yy')}</option>;
+                  })}
+                </select>
               </h2>
             </div>
             
@@ -389,11 +414,42 @@ function Reports() {
                   currentMonth={calendarMonth}
                 />
               )) : (
-                <div className="chart-empty">No sequences available for tracking.</div>
+                <div className="chart-empty">No habits defined.</div>
               )}
             </div>
           </div>
         </div>
+
+        {/* NEW: Notes Reflection View */}
+        <div className="reports-full-section">
+          <div className="breakdown-heading">
+            <span className="reports-kicker">Qualitative Archive</span>
+            <h2>Notes Reflection Feed</h2>
+          </div>
+          {reflectionLogs.length > 0 ? (
+            <div className="reflections-grid">
+              {reflectionLogs.slice(0, 6).map((log, i) => {
+                const habitName = allHabits.find(h => h.id === log.habit_id)?.name || 'General Log';
+                return (
+                  <div className="reflection-card" key={i}>
+                    <div className="reflection-header">
+                      <span className="reflection-date">{new Date(log.log_date).toLocaleDateString()}</span>
+                      <span className="reflection-habit">{habitName}</span>
+                    </div>
+                    <p className="reflection-text">"{log.notes}"</p>
+                    <div className="reflection-metadata">
+                      {log.mood && <span>Mood: {log.mood}</span>}
+                      {log.stress_level && <span>Stress: {log.stress_level}/5</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="no-data">No written reflections archived yet. Add notes while logging your habits to see them here.</div>
+          )}
+        </div>
+
       </div>
     </div>
   );
