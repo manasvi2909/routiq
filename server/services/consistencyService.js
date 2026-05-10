@@ -42,7 +42,7 @@ async function analyzeHabitConsistency(habitId, userId) {
     const completionRate = (completedDays / totalDays) * 100;
 
     // Check for gaps (missing days)
-    const logDates = new Set(logs.map(log => log.log_date));
+    const logDates = new Set(logs.map(log => new Date(log.log_date).toISOString().split('T')[0]));
     
     let missingDays = 0;
     for (let i = 0; i < totalDays; i++) {

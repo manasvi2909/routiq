@@ -534,3 +534,64 @@ body[data-theme='dark'] .reflection-habit {
     justify-content: flex-start;
   }
 }
+
+/* Carousel Navigation Overlay controls */
+.carousel-container {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(10, 51, 35, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  color: var(--forest-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.carousel-nav-btn:hover {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.carousel-nav-btn.left {
+  left: -1rem;
+}
+
+.carousel-nav-btn.right {
+  right: -1rem;
+}
+
+body[data-theme='dark'] .carousel-nav-btn {
+  background: rgba(25, 35, 30, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e5e2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+body[data-theme='dark'] .carousel-nav-btn:hover {
+  background: #2a3d35;
+}
+
+@media (max-width: 720px) {
+  .carousel-nav-btn.left {
+    left: -0.5rem;
+  }
+  .carousel-nav-btn.right {
+    right: -0.5rem;
+  }
+}
+

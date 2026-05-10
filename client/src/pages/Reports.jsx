@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { subMonths, format } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../services/api';
 import HabitCalendar from '../components/HabitCalendar';
 import './Reports.css';
@@ -32,6 +33,14 @@ function Reports() {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(0);
+  const carouselRef = useRef(null);
+
+  const scrollCarousel = (dir) => {
+    if (carouselRef.current) {
+      const amount = 266; // 250 width + 16 gap
+      carouselRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     fetchReports();
@@ -409,17 +418,29 @@ function Reports() {
               </h2>
             </div>
             
-            <div className="calendar-carousel">
-              {allHabits.length > 0 ? allHabits.map(habit => (
-                <HabitCalendar 
-                  key={habit.id}
-                  habit={habit}
-                  logs={allLogs.filter(log => log.habit_id === habit.id)}
-                  currentMonth={calendarMonth}
-                />
-              )) : (
-                <div className="chart-empty">No habits defined.</div>
+            <div className="carousel-container">
+              {allHabits.length > 1 && (
+                <>
+                  <button className="carousel-nav-btn left" onClick={() => scrollCarousel('left')} aria-label="Previous habit">
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button className="carousel-nav-btn right" onClick={() => scrollCarousel('right')} aria-label="Next habit">
+                    <ChevronRight size={16} />
+                  </button>
+                </>
               )}
+              <div className="calendar-carousel" ref={carouselRef}>
+                {allHabits.length > 0 ? allHabits.map(habit => (
+                  <HabitCalendar 
+                    key={habit.id}
+                    habit={habit}
+                    logs={allLogs.filter(log => log.habit_id === habit.id)}
+                    currentMonth={calendarMonth}
+                  />
+                )) : (
+                  <div className="chart-empty">No habits defined.</div>
+                )}
+              </div>
             </div>
           </div>
         </div>

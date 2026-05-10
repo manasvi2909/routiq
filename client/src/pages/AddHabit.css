@@ -233,3 +233,49 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Dark Mode Patch for Habit Creation */
+body[data-theme='dark'] .add-habit-container {
+  background: 
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent 28%),
+    linear-gradient(180deg, rgba(25, 36, 32, 0.94), rgba(18, 26, 23, 0.7));
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme='dark'] .add-habit-subtitle,
+body[data-theme='dark'] .add-habit-page .step-description,
+body[data-theme='dark'] .add-habit-page .form-step > p,
+body[data-theme='dark'] .plant-option-card p {
+  color: #a3b9b0;
+}
+
+body[data-theme='dark'] .add-habit-page .progress-step,
+body[data-theme='dark'] .plant-option-card,
+body[data-theme='dark'] .plant-selector-loading {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.04);
+  color: #cde0d7;
+}
+
+body[data-theme='dark'] .add-habit-page .progress-step.active {
+  background: linear-gradient(135deg, #1f7960, #124d39);
+  color: #ffffff;
+}
+
+body[data-theme='dark'] .plant-option-card span {
+  color: #8ab3a0;
+}
+
+body[data-theme='dark'] .plant-option-card.selected {
+  background: rgba(31, 121, 96, 0.2);
+  border-color: rgba(31, 121, 96, 0.5);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme='dark'] .add-habit-page .back-btn {
+  background: rgba(255, 255, 255, 0.07);
+  color: #dceae3;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
