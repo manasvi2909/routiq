@@ -88,3 +88,25 @@ body[data-theme='dark'] .habit-calendar-card {
   opacity: 0.3;
   pointer-events: none;
 }
+
+/* Dark Mode Visibility Enhancements */
+body[data-theme='dark'] .calendar-date-num {
+  color: #dceae3;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+body[data-theme='dark'] .calendar-day-header {
+  color: #8eb3a3;
+}
+
+body[data-theme='dark'] .calendar-circle.empty {
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+body[data-theme='dark'] .calendar-circle.filled .calendar-date-num {
+  color: #ffffff;
+  opacity: 1;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+}
+
