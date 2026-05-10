@@ -483,3 +483,100 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Full Dark Mode Support Suite for Dashboard */
+body[data-theme='dark'] .header-note,
+body[data-theme='dark'] .dashboard-signal-card,
+body[data-theme='dark'] .stat-card-premium,
+body[data-theme='dark'] .tree-section-premium,
+body[data-theme='dark'] .habits-section-premium,
+body[data-theme='dark'] .habit-item-premium,
+body[data-theme='dark'] .empty-state-premium {
+  background: 
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04), transparent 28%),
+    linear-gradient(180deg, rgba(25, 38, 34, 0.88), rgba(18, 28, 25, 0.5));
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme='dark'] .stat-value-serif {
+  color: #ffffff;
+}
+
+body[data-theme='dark'] .dashboard-kicker,
+body[data-theme='dark'] .section-kicker,
+body[data-theme='dark'] .completion-percentage {
+  color: #35b28d;
+}
+
+body[data-theme='dark'] .motivational-italic,
+body[data-theme='dark'] .dashboard-signal-card p,
+body[data-theme='dark'] .featured-plant-copy p,
+body[data-theme='dark'] .habit-meta span,
+body[data-theme='dark'] .empty-state-premium p {
+  color: #a5bcaf;
+}
+
+body[data-theme='dark'] .date-display span {
+  background: rgba(255, 255, 255, 0.06);
+  color: #9eb6a8;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme='dark'] .stat-label,
+body[data-theme='dark'] .signal-label,
+body[data-theme='dark'] .header-note span {
+  color: #7f9c8c;
+}
+
+body[data-theme='dark'] .view-all-link {
+  color: #a8c7b6;
+}
+
+body[data-theme='dark'] .view-all-link:hover {
+  color: #ffffff;
+}
+
+body[data-theme='dark'] .arboretum-tab {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #8fa89c;
+}
+
+body[data-theme='dark'] .arboretum-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body[data-theme='dark'] .arboretum-tab.active {
+  background: rgba(31, 121, 96, 0.15);
+  border-color: rgba(31, 121, 96, 0.5);
+  color: #45dfb0;
+}
+
+body[data-theme='dark'] .featured-plant-strip,
+body[data-theme='dark'] .garden-preview-card,
+body[data-theme='dark'] .garden-preview-empty {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+body[data-theme='dark'] .garden-preview-empty {
+  color: #9eb7a8;
+}
+
+body[data-theme='dark'] .garden-preview-card span {
+  color: #8eb5a2;
+}
+
+body[data-theme='dark'] .log-link {
+  color: #38cfa3;
+}
+
+body[data-theme='dark'] .log-link.logged {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+body[data-theme='dark'] .loader {
+  border-color: rgba(255, 255, 255, 0.06);
+  border-top-color: #1f7960;
+}
+
