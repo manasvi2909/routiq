@@ -273,9 +273,9 @@ function Reports() {
       <div className="reports-width">
         <div className="reports-header">
           <div className="header-left">
-            <span className="reports-kicker">System Archive</span>
-            <h1>Visual Mathematics</h1>
-            <p className="reports-subtitle">A detailed synthesis of your growth architecture and psychological logs.</p>
+            <span className="reports-kicker">Weekly archive</span>
+            <h1>Registry Review</h1>
+            <p className="reports-subtitle">A botanical distillation of your weekly evolution.</p>
           </div>
           <div className="week-selector">
             {weeklyComparison.map((week, index) => (
