@@ -282,3 +282,71 @@
     flex-direction: column;
   }
 }
+
+/* Dark Mode Overrides for Visibility */
+body[data-theme='dark'] .log-container {
+  background: 
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent 28%),
+    linear-gradient(180deg, rgba(25, 36, 32, 0.94), rgba(18, 26, 23, 0.7));
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme='dark'] .log-subtitle,
+body[data-theme='dark'] .log-step p {
+  color: #a3b9b0;
+}
+
+body[data-theme='dark'] .log-goal-strip span {
+  background: rgba(255, 255, 255, 0.05);
+  color: #8bb3a2;
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body[data-theme='dark'] .progress-step {
+  background: rgba(255, 255, 255, 0.04);
+  color: #6f9585;
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+body[data-theme='dark'] .progress-step.active {
+  background: linear-gradient(135deg, #1f7960, #124d39);
+  color: #ffffff;
+}
+
+body[data-theme='dark'] .scale-option,
+body[data-theme='dark'] .stress-option {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.04);
+  color: #cde0d7;
+}
+
+body[data-theme='dark'] .scale-option:hover,
+body[data-theme='dark'] .stress-option:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+body[data-theme='dark'] .scale-value {
+  color: #ffffff;
+}
+
+body[data-theme='dark'] .scale-desc {
+  color: #95a99f;
+}
+
+body[data-theme='dark'] .scale-option.checked {
+  background: linear-gradient(135deg, rgba(31, 121, 96, 0.45), rgba(31, 121, 96, 0.15));
+  border-color: rgba(31, 121, 96, 0.6);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme='dark'] .log-habit-page .back-btn {
+  background: rgba(255, 255, 255, 0.07);
+  color: #dceae3;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+body[data-theme='dark'] .log-habit-page .back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
