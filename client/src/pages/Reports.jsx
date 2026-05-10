@@ -318,6 +318,7 @@ function Reports() {
             <div className="chart-heading">
               <span className="chart-kicker">Habit Consistency Matrix</span>
               <h2>Mastery Bloom</h2>
+              <p className="chart-description">Visualizes per-habit activity and determines which routines are stable or fragile.</p>
             </div>
             <div className="svg-chart-container">
               <BloomChart data={selectedReport.habit_completion_data} />
@@ -328,6 +329,7 @@ function Reports() {
             <div className="chart-heading">
               <span className="chart-kicker">Frequency Heatmap</span>
               <h2>Day-of-Week Weight</h2>
+              <p className="chart-description">Aggregates completion intensity across Mon-Sun to identify naturally strong weekdays.</p>
             </div>
             <div className="svg-chart-container compact">
               <DayHeatmapChart logs={allLogs} />
@@ -338,6 +340,7 @@ function Reports() {
             <div className="chart-heading">
               <span className="chart-kicker">Stress vs. Completion Correlation</span>
               <h2>Stress Trend Curve</h2>
+              <p className="chart-description">Correlates execution frequency against internal stress loads to spot fatigue interference.</p>
             </div>
             <div className="svg-chart-container compact">
               <StressCorrelationChart weeks={weeklyComparison} />
@@ -352,6 +355,7 @@ function Reports() {
              <div className="chart-heading">
               <span className="chart-kicker">Emotional Spectrum</span>
               <h2>Mood Distribution Chart</h2>
+              <p className="chart-description">Tracks the dynamic spread of emotional tones recorded alongside your archives.</p>
             </div>
             <div className="svg-chart-container compact" style={{ minHeight: '16rem' }}>
               <MoodRibbonChart distribution={selectedReport.mood_distribution} />
@@ -360,7 +364,7 @@ function Reports() {
         </div>
 
         <div className="reports-bottom-section">
-          <div className="habits-breakdown" style={{ flex: 1 }}>
+          <div className="habits-breakdown">
             <div className="breakdown-heading">
               <span className="reports-kicker">Plant Growth Indicators</span>
               <h2>Sequence Health</h2>
@@ -382,7 +386,7 @@ function Reports() {
             </div>
           </div>
 
-          <div className="calendar-section" style={{ width: '320px', flexShrink: 0 }}>
+          <div className="calendar-section">
             <div className="breakdown-heading">
               <span className="reports-kicker">Intensity Grid</span>
               <h2 style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

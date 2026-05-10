@@ -173,6 +173,15 @@
   margin-top: 0.4rem;
   font-size: 2rem;
   line-height: 1.02;
+  margin-bottom: 0.4rem;
+}
+
+.chart-description {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-width: 30rem;
+  margin-bottom: 0.5rem;
 }
 
 .svg-chart-container {
