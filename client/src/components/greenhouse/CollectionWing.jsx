@@ -19,10 +19,11 @@ export default function CollectionWing({ wing }) {
 
       <div className="gh-cultivation-surface glass-panel">
         <div className="gh-planter-grid">
-          {wing.specimens.map(specimen => (
+          {wing.specimens.map((specimen, index) => (
             <PreservedBloom 
               key={specimen.id}
               specimen={specimen}
+              index={index}
             />
           ))}
         </div>

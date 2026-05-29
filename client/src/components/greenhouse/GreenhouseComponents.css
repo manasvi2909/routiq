@@ -1,6 +1,9 @@
-/* Shared Greenhouse Component Styles */
+/* ═══════════════════════════════════════════════
+   GREENHOUSE COMPONENT STYLES
+   Environmental Life System
+   ═══════════════════════════════════════════════ */
 
-/* Empty State */
+/* ── Empty State ── */
 .gh-empty-conservatory {
   padding: 4rem 2rem;
   border-radius: var(--radius-xl);
@@ -28,7 +31,7 @@
   opacity: 0.9;
 }
 
-/* Entrance Plaque */
+/* ── Entrance Plaque ── */
 .gh-entrance-plaque {
   position: relative;
   max-width: 420px;
@@ -107,7 +110,10 @@ body[data-theme='dark'] .gh-screw {
   font-size: 0.6rem;
 }
 
-/* Conservatory Floor & Path */
+/* ══════════════════════════════════════════════
+   CONSERVATORY FLOOR & LAYOUT
+   ══════════════════════════════════════════════ */
+
 .gh-conservatory-floor {
   position: relative;
   padding-bottom: 8rem;
@@ -118,16 +124,17 @@ body[data-theme='dark'] .gh-screw {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Crucial for allowing pedestals/tables to shrink to their content */
-  gap: 8rem; /* Physical gravel pathways between benches */
+  align-items: center;
+  gap: 6rem;
 }
 
-/* Cultivation Region (Base) */
+/* ── Cultivation Region (Base) ── */
 .gh-cultivation-region {
   position: relative;
+  width: 100%;
 }
 
-/* Botanical Marker */
+/* ── Botanical Marker ── */
 .gh-botanical-marker {
   position: absolute;
   top: -24px;
@@ -180,10 +187,13 @@ body[data-theme='dark'] .gh-marker-sign {
   letter-spacing: 0.1em;
 }
 
-/* Cultivation Surface (Base) */
+/* ══════════════════════════════════════════════
+   CULTIVATION SURFACES — Discrete Stages
+   ══════════════════════════════════════════════ */
+
 .gh-cultivation-surface {
   position: relative;
-  background: rgba(10, 51, 35, 0.02); /* Subtle dirt/bench texture */
+  background: rgba(10, 51, 35, 0.02);
   border-top: 1px solid rgba(10, 51, 35, 0.08);
   border-bottom: 2px solid rgba(10, 51, 35, 0.15);
 }
@@ -195,7 +205,7 @@ body[data-theme='dark'] .gh-marker-sign {
   left: 0;
   right: 0;
   height: 8px;
-  background: rgba(10, 51, 35, 0.08); /* Bench front edge */
+  background: rgba(10, 51, 35, 0.08);
   z-index: 0;
 }
 
@@ -209,13 +219,20 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   background: rgba(255, 255, 255, 0.03);
 }
 
-/* Stage 1: Pedestal */
+/* Stage 1: Pedestal — tiny circular plinth */
+.gh-pedestal {
+  display: flex;
+  justify-content: center;
+}
+
 .gh-pedestal .gh-cultivation-surface {
-  padding: 3rem 3rem 2rem;
+  padding: 2.5rem 2.5rem 1.8rem;
   border-radius: 50%;
   border-left: 1px solid rgba(10, 51, 35, 0.08);
   border-right: 1px solid rgba(10, 51, 35, 0.08);
-  min-width: 140px;
+  min-width: 120px;
+  display: inline-flex;
+  justify-content: center;
 }
 .gh-pedestal .gh-cultivation-surface::after {
   border-radius: 0 0 50% 50%;
@@ -224,41 +241,52 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   justify-content: center;
 }
 
-/* Stage 2: Potting Table */
+/* Stage 2: Potting Table — structured rectangular surface */
+.gh-potting-table {
+  display: flex;
+  justify-content: center;
+}
+
 .gh-potting-table .gh-cultivation-surface {
-  padding: 3rem 3rem 2rem;
+  padding: 2.5rem 2.5rem 1.8rem;
   border-radius: 8px;
   border-left: 1px solid rgba(10, 51, 35, 0.08);
   border-right: 1px solid rgba(10, 51, 35, 0.08);
+  display: inline-flex;
+  justify-content: center;
 }
 .gh-potting-table .gh-cultivation-surface::after {
   border-radius: 0 0 8px 8px;
 }
 .gh-potting-table .gh-planter-grid {
-  max-width: 600px;
+  max-width: 520px;
   justify-content: center;
 }
 
-/* Stage 3: Bench */
+/* Stage 3: Bench — full-width cultivation surface */
 .gh-bench .gh-cultivation-surface {
-  padding: 3rem 2rem 2rem;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%); /* Bleed to full width of screen */
+  padding: 2.5rem 2rem 1.8rem;
+  width: 100%;
 }
 .gh-bench .gh-planter-grid {
   max-width: 1000px;
   justify-content: center;
 }
 
+/* ── Plant Grid ── */
 .gh-planter-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem 1.5rem; /* Natural plant spacing */
+  gap: 1.5rem 1.2rem;
   align-items: flex-end;
   margin: 0 auto;
 }
 
-/* Preserved Bloom */
+
+/* ══════════════════════════════════════════════
+   PRESERVED BLOOM — The Living Specimen
+   ══════════════════════════════════════════════ */
+
 .gh-preserved-bloom {
   display: flex;
   flex-direction: column;
@@ -269,20 +297,54 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   cursor: pointer;
   padding: 0.4rem;
   border-radius: var(--radius-md);
-  transition: transform 0.2s ease;
   flex-shrink: 0;
-  animation: bloom-appear 200ms ease-out forwards;
+
+  /* ── Plant Breathing ──
+     Microscopic scale oscillation that removes 
+     the feeling of dead SVG assets.
+     Each bloom gets a randomized delay via inline style. */
+  animation: 
+    bloom-appear 300ms ease-out forwards,
+    bloom-breathe var(--breathe-duration, 10s) ease-in-out var(--breathe-delay, 0s) infinite;
+  
+  /* Hover transition — only transform and filter for GPU compositing */
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Plant Breathing keyframes: 0.5-1% scale change, imperceptible vertical drift */
+@keyframes bloom-breathe {
+  0%, 100% { 
+    transform: scale(1) translateY(0); 
+  }
+  50% { 
+    transform: scale(1.008) translateY(-0.8px); 
+  }
 }
 
 @keyframes bloom-appear {
-  0% { opacity: 0; transform: scale(0.94); }
-  100% { opacity: 1; transform: scale(1); }
+  0% { opacity: 0; transform: scale(0.92) translateY(4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* ── Hover Life ──
+   Plant lifts, shadow deepens, specimen feels treasured */
 .gh-preserved-bloom:hover {
-  transform: translateY(-4px);
+  transform: scale(1.04) translateY(-6px);
+  z-index: 10;
 }
 
+.gh-preserved-bloom:hover .gh-bloom-shadow {
+  transform: scaleX(1.2) scaleY(1.6);
+  opacity: 0.7;
+  filter: blur(6px);
+}
+
+.gh-preserved-bloom:hover .gh-bloom-pedestal {
+  transform: scaleX(1.1);
+  opacity: 0.6;
+}
+
+/* ── SVG Wrapper ── */
 .gh-bloom-svg-wrapper {
   position: relative;
   display: flex;
@@ -290,6 +352,12 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   align-items: center;
 }
 
+.gh-bloom-svg-wrapper svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Ground Shadow ── */
 .gh-bloom-shadow {
   position: absolute;
   bottom: -4px;
@@ -299,8 +367,14 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   filter: blur(4px);
   border-radius: 50%;
   z-index: 0;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+body[data-theme='dark'] .gh-bloom-shadow {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ── Specimen Pedestal (per-bloom base) ── */
 .gh-bloom-pedestal {
   position: absolute;
   bottom: 2px;
@@ -310,6 +384,7 @@ body[data-theme='dark'] .gh-cultivation-surface::after {
   border-radius: 50%;
   border-bottom: 2px solid rgba(10, 51, 35, 0.2);
   z-index: 0;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 body[data-theme='dark'] .gh-bloom-pedestal {
@@ -317,13 +392,13 @@ body[data-theme='dark'] .gh-bloom-pedestal {
   border-bottom-color: rgba(255, 255, 255, 0.15);
 }
 
-body[data-theme='dark'] .gh-bloom-shadow {
-  background: rgba(0, 0, 0, 0.4);
+
+/* ══════════════════════════════════════════════
+   REDUCED MOTION
+   ══════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-preserved-bloom {
+    animation: bloom-appear 300ms ease-out forwards !important;
+  }
 }
-
-.gh-bloom-svg-wrapper svg {
-  position: relative;
-  z-index: 1;
-}
-
-
