@@ -1,22 +1,22 @@
 import React, { useMemo } from 'react';
 import './GreenhouseComponents.css'; // Will hold atmosphere styles
 
-export default function GreenhouseAtmosphere({ totalBlooms }) {
+export default function GreenhouseAtmosphere({ densityScore }) {
   // Determine Growth State
   let stateClass = 'gh-env-genesis';
   let sporeCount = 0;
   
-  if (totalBlooms > 500) {
+  if (densityScore >= 500) {
     stateClass = 'gh-env-archive';
     sporeCount = 60;
-  } else if (totalBlooms > 100) {
+  } else if (densityScore >= 200) {
     stateClass = 'gh-env-established';
     sporeCount = 40;
-  } else if (totalBlooms > 10) {
+  } else if (densityScore >= 50) {
     stateClass = 'gh-env-flourishing';
     sporeCount = 20;
   } else {
-    // Genesis: 1-10 blooms
+    // Genesis: < 50 density
     sporeCount = 5;
   }
 

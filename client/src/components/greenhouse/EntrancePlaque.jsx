@@ -1,8 +1,9 @@
 import React from 'react';
 import './GreenhouseComponents.css';
 
-export default function EntrancePlaque({ collection }) {
+export default function EntrancePlaque({ collection, densityScore, title }) {
   if (!collection || collection.total_blooms === 0) return null;
+  if (densityScore < 10) return null; // Plant-First Entrance rule
 
   return (
     <div className="gh-entrance-plaque glass-panel">
@@ -12,7 +13,7 @@ export default function EntrancePlaque({ collection }) {
       </div>
       
       <div className="gh-plaque-content">
-        <h2>Conservatory</h2>
+        <h2>{title}</h2>
         <p className="gh-plaque-subtitle">Preserved Growth</p>
         <div className="gh-plaque-stats">
           <span>{collection.total_blooms} Blooms</span>

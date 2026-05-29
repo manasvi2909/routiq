@@ -50,16 +50,32 @@ export default function Greenhouse() {
 
   const isEmpty = data.collection.total_blooms === 0;
 
+  // Calculate Environmental Density Score
+  const densityScore = (data.collection.total_blooms * 1) + 
+                       (data.wings.length * 5) + 
+                       (data.collection.unique_species * 2);
+
+  let conservatoryTitle = "First Specimen";
+  if (densityScore >= 500) {
+    conservatoryTitle = "The Living Archive";
+  } else if (densityScore >= 200) {
+    conservatoryTitle = "The Conservatory";
+  } else if (densityScore >= 50) {
+    conservatoryTitle = "The Greenhouse";
+  } else if (densityScore >= 10) {
+    conservatoryTitle = "Cultivation Table";
+  }
+
   return (
     <div className="greenhouse-page">
-      <GreenhouseAtmosphere totalBlooms={data.collection.total_blooms} />
+      <GreenhouseAtmosphere densityScore={densityScore} />
 
       <div className="greenhouse-width">
         {isEmpty ? (
           <EmptyConservatory />
         ) : (
           <>
-            <EntrancePlaque collection={data.collection} />
+            <EntrancePlaque collection={data.collection} densityScore={densityScore} title={conservatoryTitle} />
             <ConservatoryFloor wings={data.wings} />
           </>
         )}

@@ -118,11 +118,12 @@ body[data-theme='dark'] .gh-screw {
   z-index: 1;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Crucial for allowing pedestals/tables to shrink to their content */
   gap: 8rem; /* Physical gravel pathways between benches */
 }
 
-/* Cultivation Bench */
-.gh-planter-bed {
+/* Cultivation Region (Base) */
+.gh-cultivation-region {
   position: relative;
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
@@ -137,6 +138,12 @@ body[data-theme='dark'] .gh-screw {
   flex-direction: column;
   align-items: center;
   z-index: 2;
+}
+
+.gh-pedestal .gh-botanical-marker {
+  left: 50%;
+  transform: translateX(-50%);
+  top: -36px;
 }
 
 .gh-marker-stake {
@@ -175,17 +182,15 @@ body[data-theme='dark'] .gh-marker-sign {
   letter-spacing: 0.1em;
 }
 
-.gh-planter-soil {
+/* Cultivation Surface (Base) */
+.gh-cultivation-surface {
   position: relative;
   background: rgba(10, 51, 35, 0.02); /* Subtle dirt/bench texture */
   border-top: 1px solid rgba(10, 51, 35, 0.08);
   border-bottom: 2px solid rgba(10, 51, 35, 0.15);
-  padding: 3rem 2rem 2rem;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%); /* Bleed to full width of screen */
 }
 
-.gh-planter-soil::after {
+.gh-cultivation-surface::after {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -196,14 +201,55 @@ body[data-theme='dark'] .gh-marker-sign {
   z-index: 0;
 }
 
-body[data-theme='dark'] .gh-planter-soil {
+body[data-theme='dark'] .gh-cultivation-surface {
   background: rgba(255, 255, 255, 0.015);
   border-top-color: rgba(255, 255, 255, 0.04);
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
-body[data-theme='dark'] .gh-planter-soil::after {
+body[data-theme='dark'] .gh-cultivation-surface::after {
   background: rgba(255, 255, 255, 0.03);
+}
+
+/* Stage 1: Pedestal */
+.gh-pedestal .gh-cultivation-surface {
+  padding: 3rem 3rem 2rem;
+  border-radius: 50%;
+  border-left: 1px solid rgba(10, 51, 35, 0.08);
+  border-right: 1px solid rgba(10, 51, 35, 0.08);
+  min-width: 140px;
+}
+.gh-pedestal .gh-cultivation-surface::after {
+  border-radius: 0 0 50% 50%;
+}
+.gh-pedestal .gh-planter-grid {
+  justify-content: center;
+}
+
+/* Stage 2: Potting Table */
+.gh-potting-table .gh-cultivation-surface {
+  padding: 3rem 3rem 2rem;
+  border-radius: 8px;
+  border-left: 1px solid rgba(10, 51, 35, 0.08);
+  border-right: 1px solid rgba(10, 51, 35, 0.08);
+}
+.gh-potting-table .gh-cultivation-surface::after {
+  border-radius: 0 0 8px 8px;
+}
+.gh-potting-table .gh-planter-grid {
+  max-width: 600px;
+  justify-content: center;
+}
+
+/* Stage 3: Bench */
+.gh-bench .gh-cultivation-surface {
+  padding: 3rem 2rem 2rem;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%); /* Bleed to full width of screen */
+}
+.gh-bench .gh-planter-grid {
+  max-width: 1000px;
+  justify-content: center;
 }
 
 .gh-planter-grid {
@@ -211,8 +257,6 @@ body[data-theme='dark'] .gh-planter-soil::after {
   flex-wrap: wrap;
   gap: 2rem 1.5rem; /* Natural plant spacing */
   align-items: flex-end;
-  justify-content: center; /* Center cultivation along the bench */
-  max-width: 1000px;
   margin: 0 auto;
 }
 
