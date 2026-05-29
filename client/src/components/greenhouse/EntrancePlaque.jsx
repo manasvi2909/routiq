@@ -18,7 +18,7 @@ export default function EntrancePlaque({ collection, densityScore, title }) {
         <div className="gh-plaque-stats">
           <span>{collection.total_blooms} Blooms</span>
           <span className="gh-plaque-dot">•</span>
-          <span>{collection.unique_species} Species</span>
+          <span>{collection.species_cultivated} Species</span>
         </div>
       </div>
 

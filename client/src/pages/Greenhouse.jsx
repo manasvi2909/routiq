@@ -53,7 +53,7 @@ export default function Greenhouse() {
   // Calculate Environmental Density Score
   const densityScore = (data.collection.total_blooms * 1) + 
                        (data.wings.length * 5) + 
-                       (data.collection.unique_species * 2);
+                       ((data.collection.species_cultivated || 0) * 2);
 
   let conservatoryTitle = "First Specimen";
   if (densityScore >= 500) {
