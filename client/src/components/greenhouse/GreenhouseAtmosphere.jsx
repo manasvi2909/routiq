@@ -36,7 +36,7 @@ export default function GreenhouseAtmosphere({ densityScore }) {
     <div className={`greenhouse-atmosphere ${stateClass}`} aria-hidden="true">
       {/* Dynamic ambient lighting depending on state */}
       <div className="gh-light-shaft gh-light-main" />
-      {totalBlooms > 10 && <div className="gh-light-shaft gh-light-secondary" />}
+      {densityScore > 10 && <div className="gh-light-shaft gh-light-secondary" />}
 
       {/* Spores / Dust Motes */}
       <div className="gh-spores-container">
