@@ -169,3 +169,9 @@ CREATE TABLE IF NOT EXISTS oracle_memories (
     category VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Greenhouse migration
+ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_cycle_number INTEGER DEFAULT 1;
+ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_stage_reached INTEGER DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_garden_plants_grown_at ON garden_plants(grown_at);
+CREATE INDEX IF NOT EXISTS idx_garden_plants_habit_name ON garden_plants(habit_name);

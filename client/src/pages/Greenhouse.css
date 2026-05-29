@@ -1,0 +1,184 @@
+.greenhouse-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem 5% 4rem;
+  --shelf-surface: linear-gradient(
+    180deg,
+    rgba(255, 250, 241, 0.48),
+    rgba(248, 239, 222, 0.22)
+  );
+  --shelf-shadow: inset 0 -2px 6px rgba(10, 51, 35, 0.04);
+  --specimen-size: 3rem;
+  --specimen-gap: 1.8rem;
+  --wing-gap: 1.2rem;
+  --placard-blur: 20px;
+}
+
+body[data-theme='dark'] .greenhouse-page {
+  --shelf-surface: linear-gradient(
+    180deg,
+    rgba(30, 42, 46, 0.72),
+    rgba(20, 29, 33, 0.52)
+  );
+  --shelf-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.greenhouse-width {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.gh-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+/* Atmosphere */
+.greenhouse-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.gh-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(28px);
+  opacity: 0.5;
+  animation: gh-drift 22s ease-in-out infinite alternate;
+}
+
+.gh-orb-one {
+  top: 5%;
+  left: -6%;
+  width: 28rem;
+  height: 28rem;
+  background: radial-gradient(circle, rgba(18, 77, 57, 0.22), transparent);
+}
+
+.gh-orb-two {
+  bottom: 12%;
+  right: -8%;
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(circle, rgba(214, 168, 108, 0.18), transparent);
+  animation-duration: 26s;
+}
+
+.gh-orb-three {
+  top: 40%;
+  left: 35%;
+  width: 18rem;
+  height: 18rem;
+  background: radial-gradient(circle, rgba(143, 185, 168, 0.16), transparent);
+  animation-duration: 18s;
+}
+
+@keyframes gh-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, 5%) scale(1.05); }
+  100% { transform: translate(-2%, 8%) scale(0.95); }
+}
+
+/* Header */
+.gh-header {
+  margin-bottom: 2rem;
+}
+
+.gh-kicker {
+  font-family: var(--font-accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.gh-header h1 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 0.96;
+  margin-bottom: 0.8rem;
+}
+
+.gh-subtitle {
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}
+
+/* Search */
+.gh-search-container {
+  display: flex;
+  margin: 2rem 0;
+}
+
+.gh-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 999px;
+  width: min(320px, 100%);
+  background: var(--surface-subtle);
+  border: 1px solid rgba(10, 51, 35, 0.08);
+}
+
+body[data-theme='dark'] .gh-search-pill {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.gh-search-icon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.gh-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.gh-search-input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Wings Container */
+.gh-wings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wing-gap);
+}
+
+.gh-no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-text-secondary);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-orb {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .greenhouse-page {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+}

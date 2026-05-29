@@ -1,0 +1,1734 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>RoutIQ Complete Project Guidebook</title>
+<style>
+@page { margin: 22mm 18mm; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #17231d; line-height: 1.48; font-size: 10.5pt; }
+h1 { font-size: 28pt; color: #0f2d1e; margin: 0 0 10pt; border-bottom: 3px solid #1f7960; padding-bottom: 8pt; }
+h2 { font-size: 18pt; color: #124d39; margin-top: 24pt; border-bottom: 1px solid #c4d6ca; padding-bottom: 4pt; page-break-after: avoid; }
+h3 { font-size: 13.5pt; color: #1f604b; margin-top: 15pt; page-break-after: avoid; }
+p { margin: 5pt 0; }
+ul, ol { margin-top: 4pt; margin-bottom: 8pt; padding-left: 20pt; }
+li { margin: 2.5pt 0; }
+code { font-family: "SFMono-Regular", Menlo, Consolas, monospace; background: #eef5f0; padding: 1pt 3pt; border-radius: 3pt; font-size: 9.3pt; }
+pre { background: #f4f7f4; border: 1px solid #d7e3db; border-left: 4px solid #1f7960; padding: 9pt; border-radius: 5pt; white-space: pre-wrap; word-break: break-word; font-size: 8.4pt; line-height: 1.35; page-break-inside: avoid; }
+pre code { background: transparent; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 8pt 0 12pt; font-size: 8.7pt; page-break-inside: avoid; }
+th { background: #124d39; color: white; font-weight: 700; }
+th, td { border: 1px solid #c9d8cf; padding: 5pt 6pt; vertical-align: top; }
+tr:nth-child(even) td { background: #f6faf7; }
+hr { border: 0; border-top: 1px solid #c9d8cf; margin: 16pt 0; }
+.language-mermaid { background: #fbfdfb; border-left-color: #d6876c; }
+</style></head><body><h1>RoutIQ Complete Project Guidebook</h1>
+
+<p>Version: source-code sweep of the local workspace on 2026-05-10  </p>
+<p>Scope: <code>/Users/manasvisharma/Desktop/uni/sem-3 material/routiq-dbms-project</code></p>
+
+<h2>0. How to Read This Guidebook</h2>
+
+<p>This document is intentionally not a pitch deck, not a summary, and not a small edited brochure. It is a technical and conceptual assembly manual for the RoutIQ project as represented by the local workspace.</p>
+
+<p>There is one important scope note: the workspace currently contains only a focused slice of the full application:</p>
+
+<ul>
+<li><code>client/src/pages/Chat.jsx</code></li>
+<li><code>client/src/pages/Chat.css</code></li>
+<li><code>server/routes/chat.js</code></li>
+<li><code>server/services/chatService.js</code></li>
+<li><code>ROUTIQ_GUIDEBOOK.pdf</code></li>
+</ul>
+
+<p>There is no <code>package.json</code>, no database initialization file, no auth middleware source, no global React app shell, no schema migration file, and no README in the visible workspace. The code does import modules that must exist in the larger project, such as <code>../database/init</code>, <code>../middleware/auth</code>, <code>../services/api</code>, and <code>../contexts/AuthContext</code>, but those files are not present here. Where this guide discusses those items, it marks them as inferred dependencies rather than directly inspected files.</p>
+
+<p>This guidebook therefore has two layers:</p>
+
+<ol>
+<li>Confirmed system behavior: what can be proven from the source files in this workspace.</li>
+<li>Inferred architecture: what the missing application almost certainly contains because the visible slice depends on it.</li>
+</ol>
+
+<p>The central confirmed feature is called <strong>The Oracle</strong>: an AI-powered habit reflection interface that uses a user's RoutIQ habit data to generate insight cards and conversational coaching.</p>
+
+<hr>
+
+<h2>1. Project Inventory</h2>
+
+<p>The project directory is small but meaningful. It contains a React page, a CSS module for that page, an Express router, a backend service layer, and an existing PDF guidebook artifact.</p>
+
+<pre class="language-text"><code>routiq-dbms-project/
++-- ROUTIQ_GUIDEBOOK.pdf
++-- client/
+|   +-- src/
+|       +-- pages/
+|           +-- Chat.css
+|           +-- Chat.jsx
++-- server/
+    +-- routes/
+    |   +-- chat.js
+    +-- services/
+        +-- chatService.js</code></pre>
+
+<h3>File Roles</h3>
+
+<table>
+<tr><th>File</th><th>Role</th></tr>
+<tr><td><code>client/src/pages/Chat.jsx</code></td><td>React implementation of the Oracle page: insight cards, suggested prompts, chat conversation, message rendering, loading states, and API calls.</td></tr>
+<tr><td><code>client/src/pages/Chat.css</code></td><td>Full visual styling for the Oracle page, including layout, cards, bubbles, dark mode, responsive behavior, typing animation, and botanical visual language.</td></tr>
+<tr><td><code>server/routes/chat.js</code></td><td>Express API routes for Oracle chat and insight cards. Handles authentication, request validation, Gemini setup, system prompt composition, and error responses.</td></tr>
+<tr><td><code>server/services/chatService.js</code></td><td>Data gathering and deterministic insight engine. Queries PostgreSQL habit tables, builds AI context text, computes user patterns, and returns insight-card objects.</td></tr>
+<tr><td><code>ROUTIQ_GUIDEBOOK.pdf</code></td><td>Existing 8-page PDF artifact. It mentions a wider RoutIQ architecture, but most of those files are not available in the current workspace.</td></tr>
+</table>
+
+<hr>
+
+<h2>2. What RoutIQ Is About</h2>
+
+<p>RoutIQ is a habit-tracking system with a botanical metaphor and a behavioral philosophy that avoids treating habits as simple yes/no checkboxes.</p>
+
+<p>From the code, RoutIQ tracks:</p>
+
+<ul>
+<li>Users.</li>
+<li>Habits.</li>
+<li>Habit activity status.</li>
+<li>Streaks.</li>
+<li>Total completions.</li>
+<li>Growth stages.</li>
+<li>Milestones.</li>
+<li>Inconsistency flags.</li>
+<li>Plant types.</li>
+<li>Goals.</li>
+<li>Rewards.</li>
+<li>Habit timing.</li>
+<li>Motivations.</li>
+<li>Hindrances.</li>
+<li>Daily habit logs.</li>
+<li>Completion intensity.</li>
+<li>Mood.</li>
+<li>Stress level.</li>
+<li>Notes.</li>
+<li>Garden plants grown from habit milestones.</li>
+</ul>
+
+<p>The major product idea is that a user's habits become an ecosystem. Habits are represented as growing plants, habit logs become nourishment, and long-term consistency becomes a garden collection. The Oracle sits on top of that ecosystem as a reflective intelligence layer.</p>
+
+<p>The Oracle is not written as a generic chatbot. Its system prompt explicitly positions it as a personalized reflection companion. It is meant to analyze concrete user data and respond with calm, grounded, habit-specific advice.</p>
+
+<h3>Product Philosophy</h3>
+
+<p>The project's philosophy can be summarized as:</p>
+
+<ul>
+<li>Habits are living systems, not binary tasks.</li>
+<li>Consistency should be interpreted through patterns, not shame.</li>
+<li>Partial progress matters.</li>
+<li>Stress and mood are first-class habit signals.</li>
+<li>The app should protect motivation instead of punishing imperfection.</li>
+<li>Reflection should be personal and data-grounded.</li>
+<li>Growth should be visual, gradual, and emotionally legible.</li>
+</ul>
+
+<p>This philosophy appears in both the code and the user experience:</p>
+
+<ul>
+<li>The backend computes stress-completion correlations.</li>
+<li>The backend detects burnout signals.</li>
+<li>The Oracle prompt tells the model to prioritize self-compassion when stress is high.</li>
+<li>The frontend uses botanical styling, plant/growth terms, and gentle insight card language.</li>
+<li>The database context includes the user's own motivations and hindrances.</li>
+</ul>
+
+<hr>
+
+<h2>3. Confirmed Technology Stack</h2>
+
+<p>The code directly confirms the following stack:</p>
+
+<table>
+<tr><th>Layer</th><th>Technology</th><th>Evidence</th></tr>
+<tr><td>Frontend</td><td>React</td><td><code>Chat.jsx</code> imports React hooks and exports a React component.</td></tr>
+<tr><td>Frontend HTTP</td><td>Custom API client, likely Axios</td><td><code>Chat.jsx</code> imports <code>api</code> from <code>../services/api</code>.</td></tr>
+<tr><td>Frontend auth</td><td>React auth context</td><td><code>Chat.jsx</code> imports <code>useAuth</code> from <code>../contexts/AuthContext</code>.</td></tr>
+<tr><td>Frontend icons</td><td><code>lucide-react</code></td><td>Many Lucide icons are imported in <code>Chat.jsx</code>.</td></tr>
+<tr><td>Frontend styling</td><td>Plain CSS with CSS variables</td><td><code>Chat.css</code> uses variables like <code>--font-display</code>, <code>--forest-deep</code>, <code>--color-accent</code>.</td></tr>
+<tr><td>Backend</td><td>Node.js and Express</td><td><code>chat.js</code> imports Express and exports an Express router.</td></tr>
+<tr><td>Backend database</td><td>PostgreSQL via a pool object</td><td><code>chatService.js</code> imports <code>pool</code> from <code>../database/init</code> and uses SQL queries.</td></tr>
+<tr><td>Backend auth</td><td>Middleware-based authentication</td><td><code>chat.js</code> imports <code>authenticate</code> from <code>../middleware/auth</code>.</td></tr>
+<tr><td>AI provider</td><td>Google Gemini</td><td><code>chat.js</code> imports <code>GoogleGenerativeAI</code> from <code>@google/generative-ai</code>.</td></tr>
+<tr><td>AI model</td><td><code>gemini-2.0-flash</code></td><td>Explicitly selected in <code>chat.js</code>.</td></tr>
+<tr><td>Config</td><td><code>dotenv</code></td><td><code>chat.js</code> calls <code>require('dotenv').config()</code>.</td></tr>
+</table>
+
+<p>The older PDF also mentions Vite, JWT, bcrypt, and serverless deployment. Those are plausible for the larger app, but in this local source slice only JWT-style authentication can be inferred from the existence of <code>authenticate</code>; bcrypt and Vite are not directly visible.</p>
+
+<hr>
+
+<h2>4. High-Level Architecture</h2>
+
+<p>RoutIQ's visible architecture is a classic React + Express + PostgreSQL + AI-service flow.</p>
+
+<pre class="language-mermaid"><code>flowchart TD
+    U["User"] --&gt; UI["React Oracle Page&lt;br/&gt;client/src/pages/Chat.jsx"]
+    UI --&gt; API["API Client&lt;br/&gt;../services/api&lt;br/&gt;(inferred)"]
+    API --&gt; R["Express Chat Router&lt;br/&gt;server/routes/chat.js"]
+    R --&gt; A["Auth Middleware&lt;br/&gt;../middleware/auth&lt;br/&gt;(inferred)"]
+    A --&gt; S["Chat Service&lt;br/&gt;server/services/chatService.js"]
+    S --&gt; DB["PostgreSQL Pool&lt;br/&gt;../database/init&lt;br/&gt;(inferred)"]
+    R --&gt; G["Google Gemini&lt;br/&gt;gemini-2.0-flash"]
+    DB --&gt; S
+    S --&gt; R
+    G --&gt; R
+    R --&gt; API
+    API --&gt; UI</code></pre>
+
+<p>The frontend does two main things:</p>
+
+<ol>
+<li>Fetches deterministic insight cards from <code>/chat/insights</code>.</li>
+<li>Sends conversational messages to <code>/chat</code>, including previous conversation history.</li>
+</ol>
+
+<p>The backend does two main things:</p>
+
+<ol>
+<li>Builds a complete user habit context string from PostgreSQL.</li>
+<li>Sends that context plus the conversation to Gemini.</li>
+</ol>
+
+<p>There is also a separate deterministic insight generator that does not require Gemini. It calculates cards from raw habit data.</p>
+
+<hr>
+
+<h2>5. The Oracle Feature</h2>
+
+<p>The Oracle is the most important confirmed feature in this workspace.</p>
+
+<p>It has two surfaces:</p>
+
+<ol>
+<li><strong>Live Observations</strong>: insight cards generated by deterministic backend rules.</li>
+<li><strong>Reflect with the Oracle</strong>: a chat interface backed by Gemini and grounded in user habit data.</li>
+</ol>
+
+<h3>5.1 User Experience</h3>
+
+<p>When the user opens the Oracle page:</p>
+
+<ol>
+<li>The component initializes with empty messages.</li>
+<li>A <code>useEffect</code> calls <code>fetchInsights()</code>.</li>
+<li>The page displays a header with the Oracle identity.</li>
+<li>It shows insight cards if available.</li>
+<li>It shows an empty chat state with suggested prompts if no conversation has started.</li>
+<li>The user can click a suggested prompt, click an insight card, or type a custom question.</li>
+<li>The chat sends the message to the backend.</li>
+<li>The backend returns Gemini's reply.</li>
+<li>The reply is rendered as styled paragraphs and bullets.</li>
+</ol>
+
+<h3>5.2 Suggested Prompts</h3>
+
+<p>The frontend includes six predefined prompts:</p>
+
+<ul>
+<li>Why do I lose consistency?</li>
+<li>What habit complements my routine?</li>
+<li>When am I most productive?</li>
+<li>What patterns do you notice?</li>
+<li>Am I close to burnout?</li>
+<li>How can I improve my streaks?</li>
+</ul>
+
+<p>These prompts are designed around the backend's available data:</p>
+
+<ul>
+<li>Consistency patterns.</li>
+<li>Habit relationships.</li>
+<li>Day-of-week productivity.</li>
+<li>Mood and stress patterns.</li>
+<li>Burnout risk.</li>
+<li>Streak improvement.</li>
+</ul>
+
+<h3>5.3 Insight Cards</h3>
+
+<p>Insight cards are backend-generated and returned from <code>GET /api/chat/insights</code> as objects containing:</p>
+
+<pre class="language-js"><code>{
+  type: "streak",
+  iconName: "flame",
+  title: "Streak Champion",
+  body: "...",
+  priority: "high"
+}</code></pre>
+
+<p>The frontend maps <code>iconName</code> strings to Lucide icon components:</p>
+
+<table>
+<tr><th><code>iconName</code></th><th>Icon</th></tr>
+<tr><td><code>flame</code></td><td>Flame</td></tr>
+<tr><td><code>alert-triangle</code></td><td>AlertTriangle</td></tr>
+<tr><td><code>brain</code></td><td>Brain</td></tr>
+<tr><td><code>calendar-check</code></td><td>CalendarCheck</td></tr>
+<tr><td><code>moon</code></td><td>Moon</td></tr>
+<tr><td><code>trending-down</code></td><td>TrendingDown</td></tr>
+<tr><td><code>heart-pulse</code></td><td>HeartPulse</td></tr>
+<tr><td><code>sprout</code></td><td>Sprout</td></tr>
+<tr><td><code>leaf</code></td><td>Leaf</td></tr>
+<tr><td><code>sunrise</code></td><td>Sunrise</td></tr>
+</table>
+
+<p>If the server sends an unknown icon name, the frontend falls back to <code>Sparkles</code>.</p>
+
+<p>Clicking an insight card sends:</p>
+
+<pre class="language-text"><code>Tell me more about: &lt;insight title&gt;</code></pre>
+
+<p>That turns deterministic insight cards into conversational entry points.</p>
+
+<hr>
+
+<h2>6. Backend API Surface</h2>
+
+<p>The backend router in <code>server/routes/chat.js</code> defines two endpoints.</p>
+
+<h3>6.1 <code>POST /api/chat</code></h3>
+
+<p>Purpose: Generate a personalized Oracle chat response.</p>
+
+<p>Authentication: Required via <code>authenticate</code>.</p>
+
+<p>Request body:</p>
+
+<pre class="language-json"><code>{
+  "message": "What patterns do you notice?",
+  "history": [
+    {
+      "role": "user",
+      "content": "Earlier question"
+    },
+    {
+      "role": "assistant",
+      "content": "Earlier Oracle reply"
+    }
+  ]
+}</code></pre>
+
+<p>Validation:</p>
+
+<ul>
+<li><code>message</code> must exist.</li>
+<li><code>message</code> must be a string.</li>
+<li><code>message.trim().length</code> must be greater than zero.</li>
+</ul>
+
+<p>Environment requirement:</p>
+
+<ul>
+<li><code>GEMINI_API_KEY</code> must be present.</li>
+</ul>
+
+<p>Success response:</p>
+
+<pre class="language-json"><code>{
+  "reply": "Oracle response text"
+}</code></pre>
+
+<p>Missing API key response:</p>
+
+<pre class="language-json"><code>{
+  "error": "AI service unavailable",
+  "reply": "The Oracle is currently resting. Please configure the Gemini API key."
+}</code></pre>
+
+<p>Failure response:</p>
+
+<pre class="language-json"><code>{
+  "error": "Failed to generate response",
+  "reply": "The Oracle could not process your request. Please try again in a moment."
+}</code></pre>
+
+<h3>6.2 <code>GET /api/chat/insights</code></h3>
+
+<p>Purpose: Return deterministic insight cards for the current authenticated user.</p>
+
+<p>Authentication: Required via <code>authenticate</code>.</p>
+
+<p>Success response:</p>
+
+<pre class="language-json"><code>{
+  "insights": []
+}</code></pre>
+
+<p>Failure response:</p>
+
+<pre class="language-json"><code>{
+  "error": "Failed to generate insights",
+  "insights": []
+}</code></pre>
+
+<hr>
+
+<h2>7. Backend Request Flow</h2>
+
+<h3>7.1 Conversational Flow</h3>
+
+<pre class="language-mermaid"><code>sequenceDiagram
+    participant User
+    participant React as React Chat Page
+    participant API as API Client
+    participant Express as Express Router
+    participant Auth as Auth Middleware
+    participant Service as chatService
+    participant DB as PostgreSQL
+    participant Gemini as Gemini API
+
+    User-&gt;&gt;React: Types or clicks prompt
+    React-&gt;&gt;React: Add user message to local state
+    React-&gt;&gt;API: POST /chat with message + history
+    API-&gt;&gt;Express: HTTP request
+    Express-&gt;&gt;Auth: authenticate request
+    Auth--&gt;&gt;Express: req.user.id
+    Express-&gt;&gt;Service: getUserContext(req.user.id)
+    Service-&gt;&gt;DB: Query users
+    Service-&gt;&gt;DB: Query habits
+    Service-&gt;&gt;DB: Query habit logs
+    Service-&gt;&gt;DB: Query garden plants
+    DB--&gt;&gt;Service: Rows
+    Service--&gt;&gt;Express: Formatted context string
+    Express-&gt;&gt;Gemini: generateContent with systemInstruction + contents
+    Gemini--&gt;&gt;Express: Model response
+    Express--&gt;&gt;API: { reply }
+    API--&gt;&gt;React: Response
+    React-&gt;&gt;React: Add assistant message
+    React--&gt;&gt;User: Display Oracle reply</code></pre>
+
+<h3>7.2 Insight Flow</h3>
+
+<pre class="language-mermaid"><code>sequenceDiagram
+    participant React as React Chat Page
+    participant API as API Client
+    participant Express as Express Router
+    participant Auth as Auth Middleware
+    participant Service as chatService
+    participant DB as PostgreSQL
+
+    React-&gt;&gt;API: GET /chat/insights
+    API-&gt;&gt;Express: HTTP request
+    Express-&gt;&gt;Auth: authenticate request
+    Auth--&gt;&gt;Express: req.user.id
+    Express-&gt;&gt;Service: generateInsights(req.user.id)
+    Service-&gt;&gt;DB: Query user
+    Service-&gt;&gt;DB: Query habits
+    Service-&gt;&gt;DB: Query 30-day logs
+    DB--&gt;&gt;Service: Rows
+    Service-&gt;&gt;Service: Apply insight rules
+    Service-&gt;&gt;Service: Sort by priority
+    Service--&gt;&gt;Express: Up to 6 cards
+    Express--&gt;&gt;API: { insights }
+    API--&gt;&gt;React: Cards
+    React--&gt;&gt;React: Render cards</code></pre>
+
+<hr>
+
+<h2>8. Database Model as Seen from Code</h2>
+
+<p>No schema file is present, but SQL queries in <code>chatService.js</code> reveal the fields the Oracle expects.</p>
+
+<h3>8.1 <code>users</code></h3>
+
+<p>Used fields:</p>
+
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td><code>id</code></td><td>User primary key.</td></tr>
+<tr><td><code>username</code></td><td>Display name used in Oracle context.</td></tr>
+<tr><td><code>created_at</code></td><td>Used to calculate membership duration.</td></tr>
+<tr><td><code>plants_fully_grown</code></td><td>Lifetime count of fully grown plants.</td></tr>
+</table>
+
+<p>The existing PDF mentions additional columns like <code>email</code>, <code>password_hash</code>, <code>avatar</code>, and coaching settings. Those are not used by this Oracle slice.</p>
+
+<h3>8.2 <code>habits</code></h3>
+
+<p>Used fields:</p>
+
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td><code>id</code></td><td>Habit identifier.</td></tr>
+<tr><td><code>user_id</code></td><td>Ownership link to user.</td></tr>
+<tr><td><code>name</code></td><td>Habit name shown in context and insights.</td></tr>
+<tr><td><code>description</code></td><td>Selected but not currently written into the context string.</td></tr>
+<tr><td><code>is_active</code></td><td>Separates active habits from inactive/paused habits.</td></tr>
+<tr><td><code>consecutive_days</code></td><td>Current streak.</td></tr>
+<tr><td><code>total_completions</code></td><td>Lifetime completion count.</td></tr>
+<tr><td><code>growth_stage</code></td><td>Current plant growth progress.</td></tr>
+<tr><td><code>milestones_achieved</code></td><td>Number of growth milestones reached.</td></tr>
+<tr><td><code>is_inconsistent</code></td><td>Flag used for consistency warning insights.</td></tr>
+<tr><td><code>selected_plant_type</code></td><td>Plant identity used in Oracle context and milestone cards.</td></tr>
+<tr><td><code>current_goal</code></td><td>User's stated target.</td></tr>
+<tr><td><code>current_reward</code></td><td>Selected but not currently written into context.</td></tr>
+<tr><td><code>habit_time</code></td><td>Scheduled time.</td></tr>
+<tr><td><code>when_specifically</code></td><td>Selected but not currently written into context.</td></tr>
+<tr><td><code>what_motivating</code></td><td>User's motivation, used in context.</td></tr>
+<tr><td><code>what_hindering</code></td><td>User's hindrances, used in context.</td></tr>
+<tr><td><code>created_at</code></td><td>Sorting and age reference.</td></tr>
+<tr><td><code>fully_grown_count</code></td><td>Selected but not currently written into context.</td></tr>
+</table>
+
+<h3>8.3 <code>habit_logs</code></h3>
+
+<p>Used fields:</p>
+
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td><code>habit_id</code></td><td>Links log to a habit.</td></tr>
+<tr><td><code>user_id</code></td><td>Ensures logs belong to current user.</td></tr>
+<tr><td><code>log_date</code></td><td>Date filtering and day-of-week analysis.</td></tr>
+<tr><td><code>completion_percentage</code></td><td>Main completion intensity. Despite the name, code treats it as numeric levels where <code>&gt; 0</code> means completed and <code>=== 3</code> means full completion.</td></tr>
+<tr><td><code>mood</code></td><td>Mood distribution and emotional pattern insights.</td></tr>
+<tr><td><code>stress_level</code></td><td>Average stress, burnout detection, and stress-completion correlation.</td></tr>
+<tr><td><code>notes</code></td><td>Selected for chat context query but not currently written into the context string.</td></tr>
+</table>
+
+<h3>8.4 <code>garden_plants</code></h3>
+
+<p>Used fields:</p>
+
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td><code>plant_type</code></td><td>Type of grown plant.</td></tr>
+<tr><td><code>habit_name</code></td><td>Habit that produced the plant.</td></tr>
+<tr><td><code>milestone_number</code></td><td>Milestone sequence.</td></tr>
+<tr><td><code>grown_at</code></td><td>Sorting by most recent.</td></tr>
+<tr><td><code>user_id</code></td><td>Ownership filter.</td></tr>
+</table>
+
+<h3>8.5 ER Diagram</h3>
+
+<pre class="language-mermaid"><code>erDiagram
+    USERS ||--o{ HABITS : owns
+    USERS ||--o{ HABIT_LOGS : records
+    USERS ||--o{ GARDEN_PLANTS : grows
+    HABITS ||--o{ HABIT_LOGS : has
+
+    USERS {
+        int id
+        string username
+        timestamp created_at
+        int plants_fully_grown
+    }
+
+    HABITS {
+        int id
+        int user_id
+        string name
+        string description
+        boolean is_active
+        int consecutive_days
+        int total_completions
+        int growth_stage
+        int milestones_achieved
+        boolean is_inconsistent
+        string selected_plant_type
+        string current_goal
+        string current_reward
+        string habit_time
+        string when_specifically
+        string what_motivating
+        string what_hindering
+        timestamp created_at
+        int fully_grown_count
+    }
+
+    HABIT_LOGS {
+        int habit_id
+        int user_id
+        date log_date
+        int completion_percentage
+        string mood
+        int stress_level
+        string notes
+    }
+
+    GARDEN_PLANTS {
+        int user_id
+        string plant_type
+        string habit_name
+        int milestone_number
+        timestamp grown_at
+    }</code></pre>
+
+<hr>
+
+<h2>9. The Context Builder</h2>
+
+<p>The function <code>getUserContext(userId)</code> is the Oracle's data pipeline. It creates the information that Gemini sees before answering.</p>
+
+<p>Its stages are:</p>
+
+<ol>
+<li>Fetch user profile.</li>
+<li>Calculate days since the user joined.</li>
+<li>Fetch all habits for the user.</li>
+<li>Split habits into active and inactive.</li>
+<li>Fetch habit logs from the last 30 days.</li>
+<li>Filter recent logs from the last 14 days for per-habit statistics.</li>
+<li>Compute statistics for each active habit.</li>
+<li>Compute mood distribution.</li>
+<li>Compute day-of-week completion rates.</li>
+<li>Compute stress-completion buckets.</li>
+<li>Fetch garden plants.</li>
+<li>Build a formatted text report.</li>
+</ol>
+
+<h3>9.1 Context Sections Sent to Gemini</h3>
+
+<p>The generated context string contains sections like:</p>
+
+<pre class="language-text"><code>=== USER PROFILE ===
+Username: ...
+Member for: ... days
+Plants fully grown (lifetime): ...
+Garden collection: ... plants
+Total log entries (last 30 days): ...
+
+=== ACTIVE HABITS (...) ===
+- Habit name
+  Streak: ...
+  Total completions: ...
+  14-day completion rate: ...
+  Growth stage: ..., Milestones: ...
+  Plant: ...
+  Flagged inconsistent: ...
+  Current goal: ...
+  Scheduled time: ...
+  Motivation: ...
+  Hindrances: ...
+  Most common mood while logging: ...
+  Avg stress while logging: ...
+
+=== INACTIVE / PAUSED HABITS (...) ===
+...
+
+=== MOOD DISTRIBUTION (last 30 days) ===
+...
+
+=== DAY-OF-WEEK PATTERNS ===
+...
+
+=== STRESS-COMPLETION CORRELATION ===
+...
+
+=== GARDEN COLLECTION ===
+...</code></pre>
+
+<p>This is a retrieval-augmented generation style pattern, though it is not vector search. The app retrieves structured user data from PostgreSQL, formats it into natural-language context, and gives it to Gemini as grounding information.</p>
+
+<h3>9.2 Per-Habit Statistics</h3>
+
+<p>For each active habit, the service calculates:</p>
+
+<table>
+<tr><th>Metric</th><th>Meaning</th></tr>
+<tr><td><code>loggedDays</code></td><td>How many logs exist in the last 14 days.</td></tr>
+<tr><td><code>completions</code></td><td>Number of recent logs where <code>completion_percentage &gt; 0</code>.</td></tr>
+<tr><td><code>fullCompletions</code></td><td>Number of recent logs where <code>completion_percentage === 3</code>.</td></tr>
+<tr><td><code>completionRate</code></td><td>Rounded percent based on <code>completions / 14</code>, not <code>completions / loggedDays</code>.</td></tr>
+<tr><td><code>moods</code></td><td>Mood values from recent logs.</td></tr>
+<tr><td><code>avgStress</code></td><td>Average stress over recent logs with stress values.</td></tr>
+<tr><td><code>mostCommonMood</code></td><td>Mode of the recent mood list.</td></tr>
+</table>
+
+<p>The use of <code>completions / 14</code> is significant. It means the metric is a true two-week consistency rate, not just a rate among days the user logged. If a user logs only 2 days and completes both, the completion rate is <code>14%</code>, not <code>100%</code>. That is stricter and more honest for habit consistency.</p>
+
+<h3>9.3 Day-of-Week Patterns</h3>
+
+<p>The service creates two arrays of length 7:</p>
+
+<ul>
+<li><code>dayOfWeekLogs</code></li>
+<li><code>dayOfWeekCompletions</code></li>
+</ul>
+
+<p>For every log in the last 30 days:</p>
+
+<ol>
+<li>It computes the day index using <code>new Date(l.log_date).getDay()</code>.</li>
+<li>It increments the log count for that day.</li>
+<li>It increments the completion count if completion is above zero.</li>
+</ol>
+
+<p>The result is a list:</p>
+
+<pre class="language-js"><code>[
+  { day: "Sunday", rate: 75 },
+  { day: "Monday", rate: null },
+  ...
+]</code></pre>
+
+<p><code>null</code> means there was no data for that day.</p>
+
+<h3>9.4 Stress Buckets</h3>
+
+<p>Stress is bucketed into:</p>
+
+<table>
+<tr><th>Bucket</th><th>Rule</th></tr>
+<tr><td><code>low</code></td><td><code>stress_level &lt;= 2</code></td></tr>
+<tr><td><code>medium</code></td><td><code>stress_level &lt;= 3</code></td></tr>
+<tr><td><code>high</code></td><td><code>stress_level &gt;= 4</code></td></tr>
+</table>
+
+<p>Each bucket stores:</p>
+
+<pre class="language-js"><code>{
+  completed: 0,
+  total: 0
+}</code></pre>
+
+<p>This lets the Oracle say whether high-stress days are less consistent than low-stress days.</p>
+
+<hr>
+
+<h2>10. The Gemini Prompt</h2>
+
+<p>The system prompt in <code>server/routes/chat.js</code> defines the Oracle's identity.</p>
+
+<h3>10.1 Personality</h3>
+
+<p>The Oracle is instructed to be:</p>
+
+<ul>
+<li>Warm.</li>
+<li>Perceptive.</li>
+<li>Gently challenging.</li>
+<li>Calm.</li>
+<li>Botanical in tone.</li>
+<li>Grounded rather than corny.</li>
+<li>Personalized rather than generic.</li>
+</ul>
+
+<p>It is explicitly forbidden from using emojis.</p>
+
+<h3>10.2 Capabilities</h3>
+
+<p>The prompt lists five capabilities:</p>
+
+<ol>
+<li>Pattern recognition.</li>
+<li>Personalized reflection.</li>
+<li>Habit recommendations.</li>
+<li>Burnout prevention.</li>
+<li>Motivation anchoring.</li>
+</ol>
+
+<p>These map directly to the available database context:</p>
+
+<table>
+<tr><th>Prompt capability</th><th>Data source</th></tr>
+<tr><td>Pattern recognition</td><td>Logs, streaks, day-of-week rates, stress-completion buckets.</td></tr>
+<tr><td>Personalized reflection</td><td>Habit names, goals, motivations, hindrances.</td></tr>
+<tr><td>Habit recommendations</td><td>Existing habit set and completion patterns.</td></tr>
+<tr><td>Burnout prevention</td><td>Recent stress levels and consistency drops.</td></tr>
+<tr><td>Motivation anchoring</td><td><code>what_motivating</code>, <code>current_goal</code>, habit history.</td></tr>
+</table>
+
+<h3>10.3 Rules</h3>
+
+<p>The model is told to:</p>
+
+<ul>
+<li>Always ground responses in user data.</li>
+<li>Reference specific habit names, streaks, moods, and stress levels.</li>
+<li>Never invent data.</li>
+<li>Admit when data is insufficient.</li>
+<li>Keep replies concise.</li>
+<li>Recommend habits based on the user's current routine.</li>
+<li>Prioritize self-compassion during high stress and dropping consistency.</li>
+<li>Use markdown when helpful.</li>
+<li>End most replies with a reflective question.</li>
+<li>Never use emojis.</li>
+</ul>
+
+<h3>10.4 Gemini Call Shape</h3>
+
+<p>The backend builds a <code>contents</code> array from chat history and current message:</p>
+
+<pre class="language-js"><code>contents.push({
+  role: "user",
+  parts: [{ text: message }]
+});</code></pre>
+
+<p>For history:</p>
+
+<ul>
+<li>User messages become Gemini role <code>user</code>.</li>
+<li>Assistant messages become Gemini role <code>model</code>.</li>
+</ul>
+
+<p>The full system prompt plus user context is sent as:</p>
+
+<pre class="language-js"><code>systemInstruction: {
+  role: "user",
+  parts: [{ text: fullSystemPrompt }]
+}</code></pre>
+
+<p>The selected model is:</p>
+
+<pre class="language-js"><code>gemini-2.0-flash</code></pre>
+
+<hr>
+
+<h2>11. Deterministic Insight Engine</h2>
+
+<p>The function <code>generateInsights(userId)</code> produces insight cards without calling Gemini.</p>
+
+<p>This is a strong design choice. The app does not depend on AI for every piece of intelligence. Repetitive, measurable patterns are handled deterministically, making them faster, cheaper, and more predictable.</p>
+
+<h3>11.1 Insight Types</h3>
+
+<p>The engine can create the following insight types:</p>
+
+<table>
+<tr><th>Type</th><th>Trigger</th><th>Priority</th></tr>
+<tr><td><code>streak</code></td><td>Best active habit has streak of at least 3 days.</td><td>High if streak &gt;= 7, else medium.</td></tr>
+<tr><td><code>burnout</code></td><td>At least 3 logs in last 7 days have stress level 4 or 5.</td><td>High.</td></tr>
+<tr><td><code>pattern</code></td><td>Low-stress and high-stress logs both have enough data, and low-stress completion is more than 15 percentage points higher.</td><td>Medium.</td></tr>
+<tr><td><code>timing</code> / Peak Day</td><td>A day has at least 2 logs and the best completion rate.</td><td>Low.</td></tr>
+<tr><td><code>timing</code> / Dip Day</td><td>A day has at least 2 logs and the worst completion rate, different from best day.</td><td>Low.</td></tr>
+<tr><td><code>consistency</code></td><td>One or more active habits are flagged <code>is_inconsistent</code>.</td><td>Medium.</td></tr>
+<tr><td><code>emotional</code></td><td>A mood appears at least 4 times in recent logs.</td><td>Medium.</td></tr>
+<tr><td><code>milestone</code></td><td>An active habit has growth progress between 70% and 100%.</td><td>Medium.</td></tr>
+<tr><td><code>onboarding</code></td><td>No active habits.</td><td>High.</td></tr>
+<tr><td><code>onboarding</code> / Early Days</td><td>User joined within 7 days and has 1-2 active habits.</td><td>Medium.</td></tr>
+</table>
+
+<p>After generation, insights are sorted by priority:</p>
+
+<pre class="language-js"><code>const priorityOrder = { high: 0, medium: 1, low: 2 };</code></pre>
+
+<p>Then the service returns at most six:</p>
+
+<pre class="language-js"><code>return insights.slice(0, 6);</code></pre>
+
+<h3>11.2 Insight Decision Tree</h3>
+
+<pre class="language-mermaid"><code>flowchart TD
+    Start["generateInsights(userId)"] --&gt; User["Fetch user"]
+    User --&gt; Exists{"User exists?"}
+    Exists --&gt;|No| Empty["Return []"]
+    Exists --&gt;|Yes| Data["Fetch habits and last 30 days logs"]
+    Data --&gt; Streak{"Best streak &gt;= 3?"}
+    Streak --&gt;|Yes| AddStreak["Add Streak Champion"]
+    Streak --&gt;|No| Burnout
+    AddStreak --&gt; Burnout{"3+ high-stress logs in last 7 days?"}
+    Burnout --&gt;|Yes| AddBurnout["Add Burnout Signal"]
+    Burnout --&gt;|No| Stress
+    AddBurnout --&gt; Stress{"Low vs high stress data enough and diff &gt; 15%?"}
+    Stress --&gt;|Yes| AddStress["Add Stress-Performance Pattern"]
+    Stress --&gt;|No| Days
+    AddStress --&gt; Days["Compute best/worst days"]
+    Days --&gt; Inconsistent{"Any active habits inconsistent?"}
+    Inconsistent --&gt;|Yes| AddInconsistent["Add Consistency Watch"]
+    Inconsistent --&gt;|No| Mood
+    AddInconsistent --&gt; Mood{"Top mood count &gt;= 4?"}
+    Mood --&gt;|Yes| AddMood["Add Emotional Landscape"]
+    Mood --&gt;|No| Growth
+    AddMood --&gt; Growth{"Any habit 70-99% grown?"}
+    Growth --&gt;|Yes| AddGrowth["Add Almost Bloomed"]
+    Growth --&gt;|No| Onboard
+    AddGrowth --&gt; Onboard{"No active habits or early user?"}
+    Onboard --&gt; Sort["Sort by priority"]
+    Sort --&gt; Limit["Return first 6 cards"]</code></pre>
+
+<h3>11.3 Why Deterministic Insights Matter</h3>
+
+<p>The deterministic engine gives the app:</p>
+
+<ul>
+<li>Fast loading insight cards.</li>
+<li>Predictable output.</li>
+<li>No hallucinated measurements.</li>
+<li>Lower AI cost.</li>
+<li>Clear thresholds.</li>
+<li>Easier debugging.</li>
+<li>A stable bridge into AI chat.</li>
+</ul>
+
+<p>The Oracle chat can interpret, expand, and personalize these insights, but the first detection pass is mathematical.</p>
+
+<hr>
+
+<h2>12. Frontend Architecture</h2>
+
+<p>The main frontend component is <code>Chat</code>.</p>
+
+<h3>12.1 Imports</h3>
+
+<p>The file imports:</p>
+
+<ul>
+<li>React hooks: <code>useState</code>, <code>useEffect</code>, <code>useRef</code>.</li>
+<li><code>api</code> from <code>../services/api</code>.</li>
+<li><code>useAuth</code> from <code>../contexts/AuthContext</code>.</li>
+<li>Many Lucide icons.</li>
+<li><code>./Chat.css</code>.</li>
+</ul>
+
+<h3>12.2 State</h3>
+
+<p>The component maintains:</p>
+
+<table>
+<tr><th>State</th><th>Purpose</th></tr>
+<tr><td><code>messages</code></td><td>Conversation history displayed on screen.</td></tr>
+<tr><td><code>input</code></td><td>Current textarea content.</td></tr>
+<tr><td><code>isLoading</code></td><td>Whether a chat message is being processed.</td></tr>
+<tr><td><code>insights</code></td><td>Insight cards returned by backend.</td></tr>
+<tr><td><code>insightsLoading</code></td><td>Whether cards are currently loading.</td></tr>
+</table>
+
+<p>It also uses refs:</p>
+
+<table>
+<tr><th>Ref</th><th>Purpose</th></tr>
+<tr><td><code>messagesEndRef</code></td><td>Scroll target for keeping chat at bottom.</td></tr>
+<tr><td><code>inputRef</code></td><td>Refocus input after sending.</td></tr>
+</table>
+
+<h3>12.3 Lifecycle</h3>
+
+<p>There are two <code>useEffect</code> calls:</p>
+
+<ol>
+<li>On mount, fetch insight cards.</li>
+<li>Whenever messages change, scroll to bottom.</li>
+</ol>
+
+<pre class="language-mermaid"><code>flowchart TD
+    Mount["Component mounts"] --&gt; Fetch["fetchInsights()"]
+    Fetch --&gt; Cards["Render cards or empty state"]
+    UserAction["User sends message"] --&gt; AddUser["Append user message"]
+    AddUser --&gt; Loading["Set isLoading true"]
+    Loading --&gt; Post["POST /chat"]
+    Post --&gt; Reply["Append assistant reply"]
+    Reply --&gt; Scroll["Scroll to bottom"]
+    Scroll --&gt; Focus["Focus textarea"]</code></pre>
+
+<h3>12.4 Message Sending</h3>
+
+<p>The <code>sendMessage</code> function:</p>
+
+<ol>
+<li>Uses the passed text or current input.</li>
+<li>Trims whitespace.</li>
+<li>Stops if empty or already loading.</li>
+<li>Creates a user message.</li>
+<li>Adds the user message to state immediately.</li>
+<li>Clears input.</li>
+<li>Sets loading true.</li>
+<li>Posts to <code>/chat</code>.</li>
+<li>Sends the current message plus previous history.</li>
+<li>Appends the assistant response.</li>
+<li>On error, appends fallback response.</li>
+<li>Clears loading.</li>
+<li>Focuses input.</li>
+</ol>
+
+<p>This gives the UI an optimistic feel because the user's message appears immediately.</p>
+
+<h3>12.5 Keyboard Behavior</h3>
+
+<p>The textarea uses:</p>
+
+<ul>
+<li>Enter to send.</li>
+<li>Shift+Enter to insert a newline.</li>
+</ul>
+
+<p>That is standard chat behavior.</p>
+
+<h3>12.6 Message Rendering</h3>
+
+<p>Assistant messages go through <code>renderMessageContent(content)</code>.</p>
+
+<p>The renderer:</p>
+
+<ul>
+<li>Splits content by newline.</li>
+<li>Converts <code><strong>bold</strong></code> to <code>&lt;strong&gt;</code>.</li>
+<li>Converts <code><em>italic</em></code> to <code>&lt;em&gt;</code>.</li>
+<li>Converts lines starting with <code>- </code> or a bullet character into custom bullet rows.</li>
+<li>Renders blank lines as spacing.</li>
+<li>Renders other lines as paragraphs.</li>
+</ul>
+
+<p>This is a lightweight markdown renderer, not a full markdown library.</p>
+
+<p>Important implementation detail: it uses <code>dangerouslySetInnerHTML</code> after regex replacement. Because the content comes from an AI service, this creates an XSS risk if not sanitized. More on that in the risk section.</p>
+
+<hr>
+
+<h2>13. Frontend Visual Design</h2>
+
+<p>The Oracle page has a botanical, calm, premium habit-coaching aesthetic.</p>
+
+<h3>13.1 Layout</h3>
+
+<p>The page structure is:</p>
+
+<pre class="language-text"><code>oracle-page page-shell
++-- page-width
+    +-- oracle-header
+    +-- insights-section
+    |   +-- insights-header
+    |   +-- insights-grid / loading / empty
+    +-- chat-section
+        +-- chat-header-bar
+        +-- chat-container
+            +-- chat-messages
+            +-- chat-input-area</code></pre>
+
+<h3>13.2 Visual Language</h3>
+
+<p>The design uses:</p>
+
+<ul>
+<li>Forest green gradients.</li>
+<li>Botanical names like <code>Leaf</code>, <code>Sprout</code>, <code>Flame</code>, <code>Sunrise</code>.</li>
+<li>Soft cards.</li>
+<li>Rounded chat bubbles.</li>
+<li>Gentle shadows.</li>
+<li>Light and dark mode mappings.</li>
+<li>Small uppercase eyebrow labels.</li>
+<li>A premium display font via <code>--font-display</code>.</li>
+<li>An accent font via <code>--font-accent</code>.</li>
+</ul>
+
+<h3>13.3 Insight Cards</h3>
+
+<p>Insight cards:</p>
+
+<ul>
+<li>Are placed in a responsive grid.</li>
+<li>Have priority-specific accents.</li>
+<li>Use hover lift.</li>
+<li>Reveal an "Explore" CTA on hover.</li>
+<li>Are clickable.</li>
+<li>Use icons to signal insight type.</li>
+</ul>
+
+<p>Priority affects visual treatment:</p>
+
+<table>
+<tr><th>Priority</th><th>Visual behavior</th></tr>
+<tr><td>High</td><td>Rosy bloom accent underline and icon treatment.</td></tr>
+<tr><td>Medium</td><td>Moss/forest accent.</td></tr>
+<tr><td>Low</td><td>Teal accent.</td></tr>
+</table>
+
+<h3>13.4 Chat Bubbles</h3>
+
+<p>User messages:</p>
+
+<ul>
+<li>Align right.</li>
+<li>Use forest gradient.</li>
+<li>Use a user avatar with first username letter.</li>
+</ul>
+
+<p>Oracle messages:</p>
+
+<ul>
+<li>Align left.</li>
+<li>Use bot avatar.</li>
+<li>Use subtle surface background.</li>
+<li>Support paragraphs and bullets.</li>
+</ul>
+
+<p>Loading state:</p>
+
+<ul>
+<li>Shows an Oracle message bubble with animated typing dots.</li>
+</ul>
+
+<h3>13.5 Dark Mode</h3>
+
+<p>Dark mode is keyed on:</p>
+
+<pre class="language-css"><code>body[data-theme='dark']</code></pre>
+
+<p>The CSS remaps:</p>
+
+<ul>
+<li>Header colors.</li>
+<li>Card title/body colors.</li>
+<li>Icon backgrounds.</li>
+<li>Chat bubble backgrounds.</li>
+<li>Prompt pill colors.</li>
+<li>Input area background.</li>
+<li>Shadows.</li>
+</ul>
+
+<p>The design assumes the rest of the app defines root variables like:</p>
+
+<ul>
+<li><code>--color-text-primary</code></li>
+<li><code>--color-text-secondary</code></li>
+<li><code>--color-text-muted</code></li>
+<li><code>--color-accent</code></li>
+<li><code>--surface-subtle</code></li>
+<li><code>--surface-subtle-strong</code></li>
+<li><code>--surface-chip</code></li>
+<li><code>--color-border</code></li>
+<li><code>--radius-lg</code></li>
+<li><code>--radius-xl</code></li>
+<li><code>--shadow-strong</code></li>
+<li><code>--font-display</code></li>
+<li><code>--font-sans</code></li>
+<li><code>--font-accent</code></li>
+</ul>
+
+<p>Those definitions are not present in this workspace, so they must live in a global stylesheet in the larger app.</p>
+
+<h3>13.6 Responsive Behavior</h3>
+
+<p>At widths under 720px:</p>
+
+<ul>
+<li>Header top padding shrinks.</li>
+<li>Insight grid becomes one column.</li>
+<li>Chat container has smaller minimum height.</li>
+<li>Chat max height is removed.</li>
+<li>Message padding is reduced.</li>
+<li>Chat messages can use up to 90% width.</li>
+<li>Suggested prompts can fill the available width.</li>
+</ul>
+
+<hr>
+
+<h2>14. Feature Map</h2>
+
+<h3>14.1 Confirmed User-Facing Features</h3>
+
+<table>
+<tr><th>Feature</th><th>Description</th></tr>
+<tr><td>Oracle header</td><td>Introduces the AI companion as personalized intelligence.</td></tr>
+<tr><td>Live observations</td><td>Shows deterministic insight cards generated from user data.</td></tr>
+<tr><td>Clickable insight cards</td><td>Lets user ask the Oracle to expand on a card.</td></tr>
+<tr><td>Suggested prompts</td><td>Gives users useful first questions.</td></tr>
+<tr><td>AI chat</td><td>Allows free-form questions about habits.</td></tr>
+<tr><td>Conversation history</td><td>Sends previous messages to Gemini for continuity.</td></tr>
+<tr><td>Loading indicators</td><td>Shows insight loading and chat typing states.</td></tr>
+<tr><td>Empty state</td><td>Encourages users to log habits if no insights exist.</td></tr>
+<tr><td>Light/dark mode styling</td><td>Supports both themes via body attribute.</td></tr>
+<tr><td>Responsive design</td><td>Works on mobile and desktop.</td></tr>
+</table>
+
+<h3>14.2 Confirmed Backend Features</h3>
+
+<table>
+<tr><th>Feature</th><th>Description</th></tr>
+<tr><td>Auth-protected chat</td><td>Uses middleware before chat endpoints.</td></tr>
+<tr><td>Gemini integration</td><td>Calls <code>gemini-2.0-flash</code>.</td></tr>
+<tr><td>User context retrieval</td><td>Builds a profile from user, habit, log, and garden data.</td></tr>
+<tr><td>Pattern analytics</td><td>Calculates completion rates, mood distributions, day-of-week rates, and stress correlations.</td></tr>
+<tr><td>Insight generation</td><td>Returns up to six prioritized insight cards.</td></tr>
+<tr><td>API-key fallback</td><td>Returns a friendly message if Gemini is not configured.</td></tr>
+<tr><td>Error fallback</td><td>Returns stable fallback response on backend failure.</td></tr>
+</table>
+
+<hr>
+
+<h2>15. Data Contracts</h2>
+
+<h3>15.1 Chat Message Object</h3>
+
+<p>Frontend message object:</p>
+
+<pre class="language-js"><code>{
+  role: "user" | "assistant",
+  content: "message text"
+}</code></pre>
+
+<p>Backend converts this to Gemini's format:</p>
+
+<pre class="language-js"><code>{
+  role: "user" | "model",
+  parts: [{ text: "message text" }]
+}</code></pre>
+
+<h3>15.2 Insight Object</h3>
+
+<pre class="language-js"><code>{
+  type: "streak" | "burnout" | "pattern" | "timing" | "consistency" | "emotional" | "milestone" | "onboarding",
+  iconName: "flame",
+  title: "Streak Champion",
+  body: "Text shown on card.",
+  priority: "high" | "medium" | "low"
+}</code></pre>
+
+<h3>15.3 User Context String</h3>
+
+<p>The context passed to Gemini is plain text, not JSON. This makes it easy for a language model to read but harder for strict downstream validation.</p>
+
+<p>Benefits:</p>
+
+<ul>
+<li>Human-readable.</li>
+<li>Prompt-friendly.</li>
+<li>Easy to debug in logs if needed.</li>
+</ul>
+
+<p>Tradeoffs:</p>
+
+<ul>
+<li>Less structured than JSON.</li>
+<li>Harder to enforce exact grounding.</li>
+<li>Might become long as data grows.</li>
+<li>Requires careful prompt design.</li>
+</ul>
+
+<hr>
+
+<h2>16. Security and Privacy</h2>
+
+<h3>16.1 Authentication</h3>
+
+<p>Both routes use <code>authenticate</code>, so the Oracle depends on an authenticated request and <code>req.user.id</code>.</p>
+
+<p>The route never accepts a user ID from the client. That is good. It prevents users from asking for another user's Oracle data by changing request payloads.</p>
+
+<h3>16.2 SQL Safety</h3>
+
+<p>The backend uses parameterized queries:</p>
+
+<pre class="language-js"><code>WHERE id = $1</code></pre>
+
+<p>with values passed separately:</p>
+
+<pre class="language-js"><code>[userId]</code></pre>
+
+<p>This is the correct pattern for preventing SQL injection.</p>
+
+<h3>16.3 AI Data Exposure</h3>
+
+<p>The Oracle sends detailed user habit data to Gemini:</p>
+
+<ul>
+<li>Username.</li>
+<li>Membership duration.</li>
+<li>Habit names.</li>
+<li>Streaks.</li>
+<li>Goals.</li>
+<li>Motivations.</li>
+<li>Hindrances.</li>
+<li>Mood distribution.</li>
+<li>Stress levels.</li>
+<li>Garden information.</li>
+</ul>
+
+<p>That is core to the feature, but it is also privacy-sensitive. Production use should make this clear in privacy terms and should avoid sending anything unnecessary.</p>
+
+<h3>16.4 Frontend Rendering Risk</h3>
+
+<p>The assistant message renderer uses <code>dangerouslySetInnerHTML</code>.</p>
+
+<p>Because the content comes from Gemini, there is a potential HTML/script injection risk. React's <code>dangerouslySetInnerHTML</code> will render HTML tags. If the model outputs malicious HTML or if a prompt injection causes it to include unsafe markup, the browser may interpret it.</p>
+
+<p>Safer options:</p>
+
+<ul>
+<li>Use a markdown renderer with sanitization.</li>
+<li>Escape all raw HTML before applying bold/italic formatting.</li>
+<li>Use React element construction instead of raw HTML strings.</li>
+<li>Use a sanitizer such as DOMPurify if available.</li>
+</ul>
+
+<h3>16.5 Prompt Injection Risk</h3>
+
+<p>Because user messages and prior history are sent to Gemini, users could ask the model to ignore system instructions. The system instruction should reduce this, but the app should assume prompt injection is possible.</p>
+
+<p>The safest architecture is:</p>
+
+<ul>
+<li>Never let the AI perform privileged actions directly.</li>
+<li>Keep AI read-only unless future tools are heavily permissioned.</li>
+<li>Avoid showing hidden instructions back to the user.</li>
+<li>Sanitize rendered output.</li>
+<li>Log and monitor failures.</li>
+</ul>
+
+<hr>
+
+<h2>17. Reliability and Edge Cases</h2>
+
+<h3>17.1 Missing Gemini Key</h3>
+
+<p>If <code>GEMINI_API_KEY</code> is missing, the chat endpoint returns HTTP 503 with a friendly fallback reply.</p>
+
+<p>This is good developer ergonomics because the frontend can still display a meaningful message.</p>
+
+<h3>17.2 Missing User</h3>
+
+<p>In <code>getUserContext</code>, a missing user throws <code>User not found</code>, resulting in a 500 response.</p>
+
+<p>In <code>generateInsights</code>, a missing user returns <code>[]</code>.</p>
+
+<p>This is slightly inconsistent. A future cleanup could standardize behavior.</p>
+
+<h3>17.3 Empty Insights</h3>
+
+<p>If there are no insights, the frontend shows:</p>
+
+<pre class="language-text"><code>Start logging habits to unlock personalized insights.</code></pre>
+
+<p>However, the backend already creates onboarding cards for no active habits if the user exists. An empty insight state would more likely happen on error, unusual data, or if the user exists with conditions that trigger no cards.</p>
+
+<h3>17.4 Completion Rate Semantics</h3>
+
+<p>The code names the field <code>completion_percentage</code>, but compares it to numeric values like <code>0</code> and <code>3</code>.</p>
+
+<p>This suggests it is not a percentage in the usual 0-100 sense. It appears to be a 0-3 completion scale.</p>
+
+<p>That naming could confuse future developers. Possible clearer names:</p>
+
+<ul>
+<li><code>completion_level</code></li>
+<li><code>completion_score</code></li>
+<li><code>completion_intensity</code></li>
+</ul>
+
+<h3>17.5 Date Handling</h3>
+
+<p>The service uses JavaScript date math:</p>
+
+<pre class="language-js"><code>new Date(l.log_date).getDay()</code></pre>
+
+<p>Depending on how PostgreSQL dates are serialized and what timezone the server uses, day-of-week calculations can shift around midnight. A more robust version would calculate day of week in SQL or use a timezone-aware date library.</p>
+
+<h3>17.6 History Growth</h3>
+
+<p>The frontend sends all messages in local state as history, except the just-created current message. There is no visible cap.</p>
+
+<p>For long conversations, this can:</p>
+
+<ul>
+<li>Increase token cost.</li>
+<li>Slow responses.</li>
+<li>Hit provider context limits.</li>
+<li>Send more user data than necessary.</li>
+</ul>
+
+<p>A future version could send only the last N messages or summarize older context.</p>
+
+<hr>
+
+<h2>18. Missing Pieces in the Local Workspace</h2>
+
+<p>The visible Oracle feature depends on files that are absent from this directory.</p>
+
+<h3>18.1 Missing Backend Files</h3>
+
+<p>Expected but not present:</p>
+
+<ul>
+<li><code>server/database/init.js</code></li>
+<li><code>server/middleware/auth.js</code></li>
+<li>Server entry point such as <code>server/index.js</code> or <code>server/app.js</code></li>
+<li>Package manifest for backend dependencies</li>
+<li>Database schema or migration files</li>
+<li>User routes</li>
+<li>Habit routes</li>
+<li>Auth routes</li>
+</ul>
+
+<h3>18.2 Missing Frontend Files</h3>
+
+<p>Expected but not present:</p>
+
+<ul>
+<li><code>client/src/services/api.js</code></li>
+<li><code>client/src/contexts/AuthContext.jsx</code></li>
+<li>App router</li>
+<li>Global CSS variables</li>
+<li>Theme handling</li>
+<li>Main entry point</li>
+<li>Package manifest</li>
+</ul>
+
+<h3>18.3 Missing Tests</h3>
+
+<p>No test files are visible. Useful tests would include:</p>
+
+<ul>
+<li>Unit tests for <code>generateInsights</code>.</li>
+<li>Unit tests for <code>buildContextString</code>.</li>
+<li>API route tests for missing message, missing API key, and service failure.</li>
+<li>Frontend tests for prompt clicks, insight loading, message send behavior, and error fallback.</li>
+<li>Security tests around AI-rendered markdown/HTML.</li>
+</ul>
+
+<hr>
+
+<h2>19. Development and Configuration</h2>
+
+<p>Because package manifests are missing, exact install/run commands cannot be verified from this workspace.</p>
+
+<p>Based on imports, the backend likely requires:</p>
+
+<pre class="language-text"><code>express
+dotenv
+@google/generative-ai
+pg</code></pre>
+
+<p>The frontend likely requires:</p>
+
+<pre class="language-text"><code>react
+lucide-react
+axios or another HTTP client</code></pre>
+
+<p>Required environment variable:</p>
+
+<pre class="language-text"><code>GEMINI_API_KEY=&lt;Google Gemini API key&gt;</code></pre>
+
+<p>Required database:</p>
+
+<ul>
+<li>PostgreSQL database accessible from <code>../database/init</code>.</li>
+<li>A <code>pool</code> export from that module.</li>
+<li>Tables matching the fields listed in the database section.</li>
+</ul>
+
+<p>Expected auth:</p>
+
+<ul>
+<li><code>authenticate</code> middleware must verify a request token/session.</li>
+<li>It must attach a user object with <code>req.user.id</code>.</li>
+</ul>
+
+<hr>
+
+<h2>20. Operational Mental Model</h2>
+
+<p>RoutIQ can be understood as three layers:</p>
+
+<pre class="language-mermaid"><code>flowchart LR
+    A["Habit Capture Layer&lt;br/&gt;habits + logs + moods + stress"] --&gt; B["Meaning Layer&lt;br/&gt;analytics + insight rules + context builder"]
+    B --&gt; C["Reflection Layer&lt;br/&gt;Oracle cards + Gemini chat"]</code></pre>
+
+<p>The habit capture layer records behavior.  </p>
+<p>The meaning layer turns behavior into patterns.  </p>
+<p>The reflection layer turns patterns into guidance.</p>
+
+<p>That distinction is central to the product:</p>
+
+<ul>
+<li>A normal habit app stores checkmarks.</li>
+<li>RoutIQ stores signals.</li>
+<li>The Oracle interprets those signals as a living behavioral system.</li>
+</ul>
+
+<hr>
+
+<h2>21. Design Philosophy in Practice</h2>
+
+<p>The code repeatedly chooses language and mechanics that reduce harshness.</p>
+
+<p>Examples:</p>
+
+<ul>
+<li>"Burnout Signal Detected" does not shame the user. It recommends reducing difficulty.</li>
+<li>"Dip Day" suggests lighter routines or rest days.</li>
+<li>"Early Days" tells the user to focus on showing up, not perfection.</li>
+<li>The system prompt says to prioritize self-compassion when stress is high.</li>
+<li>The garden metaphor frames habits as growth, not compliance.</li>
+</ul>
+
+<p>This makes RoutIQ closer to a reflective habit companion than a productivity dashboard.</p>
+
+<p>The app's philosophy is not anti-discipline. It still tracks streaks, completions, and consistency. But it interprets those metrics through context:</p>
+
+<ul>
+<li>Stress matters.</li>
+<li>Mood matters.</li>
+<li>Motivation matters.</li>
+<li>Hindrances matter.</li>
+<li>Timing matters.</li>
+<li>Partial completion matters.</li>
+</ul>
+
+<hr>
+
+<h2>22. Strengths of the Current Implementation</h2>
+
+<ol>
+<li><strong>Good separation of concerns</strong>  </li>
+</ol>
+<p>   The frontend handles interaction and rendering. The route handles HTTP and AI provider orchestration. The service handles database queries and analytics.</p>
+
+<ol>
+<li><strong>Deterministic insight cards</strong>  </li>
+</ol>
+<p>   Important patterns are calculated, not hallucinated.</p>
+
+<ol>
+<li><strong>User-specific AI grounding</strong>  </li>
+</ol>
+<p>   The model receives habit names, streaks, stress, moods, goals, and motivations.</p>
+
+<ol>
+<li><strong>Friendly fallbacks</strong>  </li>
+</ol>
+<p>   Missing Gemini keys and backend failures produce user-readable fallback messages.</p>
+
+<ol>
+<li><strong>Clear product voice</strong>  </li>
+</ol>
+<p>   The prompt, UI copy, and CSS all support a consistent Oracle identity.</p>
+
+<ol>
+<li><strong>Parameterized SQL</strong>  </li>
+</ol>
+<p>   Database queries use safe parameter binding.</p>
+
+<ol>
+<li><strong>Good onboarding behavior</strong>  </li>
+</ol>
+<p>   New or empty users receive nudges rather than blank intelligence.</p>
+
+<ol>
+<li><strong>Responsive UI</strong>  </li>
+</ol>
+<p>   Mobile behavior is considered.</p>
+
+<ol>
+<li><strong>Dark mode support</strong>  </li>
+</ol>
+<p>   The Oracle styling supports both light and dark themes.</p>
+
+<hr>
+
+<h2>23. Risks and Improvement Areas</h2>
+
+<h3>23.1 Sanitize AI Output</h3>
+
+<p>Highest-priority technical issue: assistant output is rendered with <code>dangerouslySetInnerHTML</code>.</p>
+
+<p>Recommended fix:</p>
+
+<ul>
+<li>Replace custom regex + <code>dangerouslySetInnerHTML</code> with a safe markdown renderer.</li>
+<li>Or manually parse bold/italic into React elements without HTML injection.</li>
+</ul>
+
+<h3>23.2 Cap Conversation History</h3>
+
+<p>The frontend should avoid sending unlimited message history.</p>
+
+<p>Recommended fix:</p>
+
+<ul>
+<li>Send last 8-12 messages.</li>
+<li>Add server-side truncation.</li>
+<li>Later, summarize older conversation turns.</li>
+</ul>
+
+<h3>23.3 Rename Completion Field</h3>
+
+<p>If <code>completion_percentage</code> is truly 0-3, the name is misleading.</p>
+
+<p>Recommended fix:</p>
+
+<ul>
+<li>Rename to <code>completion_level</code> or document the scale clearly.</li>
+</ul>
+
+<h3>23.4 Add Tests for Insight Rules</h3>
+
+<p><code>generateInsights</code> has many thresholds and edge cases. It should have unit tests.</p>
+
+<p>Test cases should include:</p>
+
+<ul>
+<li>No user.</li>
+<li>No active habits.</li>
+<li>Early user.</li>
+<li>Streak 2 vs 3 vs 7.</li>
+<li>Burnout exactly 2 vs 3 high-stress logs.</li>
+<li>Stress-performance diff below and above 15.</li>
+<li>Best and worst day logic.</li>
+<li>Mood threshold exactly 3 vs 4.</li>
+<li>Growth progress 69%, 70%, 99%, 100%.</li>
+</ul>
+
+<h3>23.5 Timezone-Safe Date Logic</h3>
+
+<p>Day-of-week calculations should be made timezone-safe.</p>
+
+<p>Possible fix:</p>
+
+<ul>
+<li>Compute day of week in PostgreSQL using a known timezone.</li>
+<li>Or normalize dates without timezone conversion.</li>
+</ul>
+
+<h3>23.6 Include Notes or Remove Them from Query</h3>
+
+<p><code>notes</code> is selected from <code>habit_logs</code> in <code>getUserContext</code>, but not included in the final context.</p>
+
+<p>Options:</p>
+
+<ul>
+<li>Add recent notes to the context if they are valuable.</li>
+<li>Remove them from the query if not needed.</li>
+</ul>
+
+<h3>23.7 Standardize Missing User Behavior</h3>
+
+<p><code>getUserContext</code> throws; <code>generateInsights</code> returns empty array.</p>
+
+<p>Recommended fix:</p>
+
+<ul>
+<li>Decide whether missing authenticated users should be 404, 401, or empty.</li>
+<li>Apply consistently.</li>
+</ul>
+
+<hr>
+
+<h2>24. Future Expansion Ideas</h2>
+
+<p>These are natural next steps based on the current architecture.</p>
+
+<h3>24.1 Richer Context Builder</h3>
+
+<p>Add:</p>
+
+<ul>
+<li>Recent notes summaries.</li>
+<li>Habit age.</li>
+<li>Missed-day streaks.</li>
+<li>Best time-of-day patterns.</li>
+<li>Goal-progress mismatch.</li>
+<li>Reward effectiveness.</li>
+<li>Hindrance recurrence.</li>
+</ul>
+
+<h3>24.2 More Insight Cards</h3>
+
+<p>Possible new insight types:</p>
+
+<ul>
+<li>"Quiet Comeback": consistency improving after a slump.</li>
+<li>"Fragile Streak": streak exists but stress is rising.</li>
+<li>"Motivation Mismatch": stated goal does not match completion pattern.</li>
+<li>"Best Companion Habit": two habits succeed on the same days.</li>
+<li>"Recovery Window": best rest day pattern.</li>
+<li>"Overloaded Routine": too many active habits with low completion.</li>
+</ul>
+
+<h3>24.3 Memory Layer</h3>
+
+<p>The older PDF mentions Oracle memories and vector-style storage, but this code does not implement it.</p>
+
+<p>A future memory system could store:</p>
+
+<ul>
+<li>User reflections.</li>
+<li>Important self-insights.</li>
+<li>Repeated obstacles.</li>
+<li>AI-generated summaries.</li>
+<li>Preference signals.</li>
+</ul>
+
+<p>However, memory should be transparent and editable because it affects user trust.</p>
+
+<h3>24.4 Admin/Debug View</h3>
+
+<p>A developer-facing Oracle debug view could show:</p>
+
+<ul>
+<li>Final context string.</li>
+<li>Generated insights.</li>
+<li>Model request payload.</li>
+<li>Token estimate.</li>
+<li>Last database query timing.</li>
+<li>Missing data warnings.</li>
+</ul>
+
+<p>This would make AI behavior easier to debug.</p>
+
+<hr>
+
+<h2>25. Assembly Manual: How the Pieces Fit</h2>
+
+<p>If you were assembling RoutIQ from this slice, the minimum required system would look like this:</p>
+
+<ol>
+<li>Create a React app with routing.</li>
+<li>Define global CSS variables and themes.</li>
+<li>Add <code>Chat.jsx</code> as a page.</li>
+<li>Add <code>Chat.css</code>.</li>
+<li>Create an API client that prefixes requests with <code>/api</code> and sends auth credentials.</li>
+<li>Create an auth context that exposes <code>user.username</code>.</li>
+<li>Create an Express server.</li>
+<li>Mount <code>server/routes/chat.js</code> at <code>/api/chat</code>.</li>
+<li>Implement <code>authenticate</code> middleware that sets <code>req.user.id</code>.</li>
+<li>Implement <code>database/init.js</code> that exports a PostgreSQL <code>pool</code>.</li>
+<li>Create PostgreSQL tables for users, habits, habit logs, and garden plants.</li>
+<li>Provide <code>GEMINI_API_KEY</code>.</li>
+<li>Start the frontend and backend.</li>
+<li>Log habits for a user.</li>
+<li>Visit the Oracle page.</li>
+<li>Confirm insight cards appear.</li>
+<li>Ask a question.</li>
+<li>Confirm Gemini responds using habit-specific context.</li>
+</ol>
+
+<pre class="language-mermaid"><code>flowchart TD
+    Setup["Set up app shell"] --&gt; CSS["Define global CSS variables"]
+    CSS --&gt; Page["Install Oracle page"]
+    Page --&gt; APIClient["Connect API client"]
+    APIClient --&gt; Auth["Provide auth context"]
+    Auth --&gt; Server["Mount Express chat router"]
+    Server --&gt; DB["Connect PostgreSQL pool"]
+    DB --&gt; Schema["Create required tables"]
+    Schema --&gt; Env["Add GEMINI_API_KEY"]
+    Env --&gt; Data["Create user habits and logs"]
+    Data --&gt; TestCards["Test /api/chat/insights"]
+    TestCards --&gt; TestChat["Test /api/chat"]
+    TestChat --&gt; Done["Working Oracle feature"]</code></pre>
+
+<hr>
+
+<h2>26. Glossary</h2>
+
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Oracle</td><td>RoutIQ's AI reflection companion.</td></tr>
+<tr><td>Insight card</td><td>Deterministic observation generated from user habit data.</td></tr>
+<tr><td>Completion percentage</td><td>In code, appears to mean a 0-3 completion intensity level.</td></tr>
+<tr><td>Growth stage</td><td>Numeric plant progress for a habit.</td></tr>
+<tr><td>Milestone</td><td>A growth achievement tied to a habit.</td></tr>
+<tr><td>Garden collection</td><td>Historical plants grown through habit milestones.</td></tr>
+<tr><td>Inconsistent habit</td><td>Active habit flagged by the system as inconsistent.</td></tr>
+<tr><td>Stress-completion correlation</td><td>Relationship between stress bucket and completion rate.</td></tr>
+<tr><td>Mood distribution</td><td>Count of logged moods over the last 30 days.</td></tr>
+<tr><td>Context builder</td><td>Backend process that formats database facts for Gemini.</td></tr>
+<tr><td>RAG-like grounding</td><td>Supplying retrieved user data to a generative model. This implementation uses SQL retrieval, not vector retrieval.</td></tr>
+</table>
+
+<hr>
+
+<h2>27. Final Mental Model</h2>
+
+<p>RoutIQ is best understood as a habit ecosystem with an intelligence layer.</p>
+
+<p>At the bottom, it records behavior: habits, logs, completion levels, moods, stress, streaks, and growth.  </p>
+<p>In the middle, it computes meaning: rates, patterns, emotional landscapes, burnout warnings, and milestone proximity.  </p>
+<p>At the top, it reflects that meaning back to the user through the Oracle: a calm AI companion that turns raw habit data into personal guidance.</p>
+
+<p>The current workspace is not the whole product. It is the Oracle module and its supporting analytics layer. But that module reveals the project's core identity clearly: RoutIQ is not trying to be a checkbox app. It is trying to be a reflective growth system where data is used not only to measure the user, but to help the user understand themselves.</p>
+
+</body></html>

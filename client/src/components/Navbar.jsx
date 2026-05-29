@@ -37,6 +37,9 @@ function Navbar() {
           <Link to="/garden" className={isActive('/garden') ? 'active' : ''}>
             <span>Garden</span>
           </Link>
+          <Link to="/greenhouse" className={isActive('/greenhouse') ? 'active' : ''}>
+            <span>Greenhouse</span>
+          </Link>
           <Link to="/reports" className={isActive('/reports') ? 'active' : ''}>
             <span>Archives</span>
           </Link>
@@ -46,10 +49,12 @@ function Navbar() {
           <Link to="/settings" className={isActive('/settings') ? 'active' : ''}>
             <span>Refinement</span>
           </Link>
-          <UserProfile />
-          <button onClick={handleLogout} className="logout-btn-premium" title="Exit Archive">
-            <LogOut size={18} />
-          </button>
+          <div className="navbar-actions-group">
+            <UserProfile />
+            <button onClick={handleLogout} className="logout-btn-premium" title="Exit Archive">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </nav>

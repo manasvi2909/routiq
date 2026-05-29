@@ -75,7 +75,7 @@ body[data-theme='dark'] .navbar-brand-mark {
 .navbar-links-premium {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -88,15 +88,15 @@ body[data-theme='dark'] .navbar-brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.8rem 1rem;
+  padding: 0.65rem 0.85rem;
   border-radius: 999px;
   border: 1px solid transparent;
   text-decoration: none;
   color: rgba(10, 51, 35, 0.82);
   font-family: var(--font-accent);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   transition:
     transform 220ms ease,
@@ -156,6 +156,12 @@ body[data-theme='dark'] .logout-btn-premium {
   color: var(--color-text-primary);
 }
 
+.navbar-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .navbar-links-premium .notification-bell-container {
   display: inline-flex;
 }
@@ -167,7 +173,7 @@ body[data-theme='dark'] .logout-btn-premium {
   box-shadow: 0 16px 28px rgba(157, 69, 52, 0.14);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1200px) {
   .navbar-container {
     flex-direction: column;
     align-items: stretch;

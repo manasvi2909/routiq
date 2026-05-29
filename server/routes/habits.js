@@ -303,15 +303,17 @@ router.post('/:id/complete-milestone', authenticate, async (req, res) => {
       updatedUserPlantCount += 1;
 
       await pool.query(
-        `INSERT INTO garden_plants (user_id, habit_id, habit_name, plant_type, milestone_number, reward_given)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
+        `INSERT INTO garden_plants (user_id, habit_id, habit_name, plant_type, milestone_number, reward_given, growth_cycle_number, growth_stage_reached)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [
           req.user.id,
           habit.id,
           habit.name,
           currentPlantType,
           (habit.milestones_achieved || 0) + 1,
-          habit.current_reward || null
+          habit.current_reward || null,
+          newFullyGrownCount,
+          currentPlantGrowthTarget
         ]
       );
 
@@ -438,6 +440,98 @@ router.get('/:id/consistency', authenticate, async (req, res) => {
     res.json(analysis);
   } catch (error) {
     console.error('Consistency analysis error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Replant a fully grown plant without milestone logic
+router.post('/:id/replant', authenticate, async (req, res) => {
+  try {
+    const { selected_plant_type } = req.body;
+
+    const habitResult = await pool.query(
+      'SELECT * FROM habits WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
+    );
+
+    if (habitResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Habit not found' });
+    }
+
+    const habit = habitResult.rows[0];
+    const userPlantCount = await getUserPlantCount(req.user.id);
+    const currentPlantType = habit.selected_plant_type || 'fern';
+    const currentPlantGrowthTarget = getPlantById(currentPlantType).growthTarget || 12;
+
+    if ((habit.growth_stage || 0) < currentPlantGrowthTarget) {
+      return res.status(400).json({ error: 'Plant is not fully grown yet' });
+    }
+
+    let nextGrowthStage = (habit.growth_stage || 0) - currentPlantGrowthTarget;
+    let newFullyGrownCount = (habit.fully_grown_count || 0) + 1;
+    let updatedUserPlantCount = userPlantCount + 1;
+
+    // Archive plant in garden
+    await pool.query(
+      `INSERT INTO garden_plants (user_id, habit_id, habit_name, plant_type, milestone_number, reward_given, growth_cycle_number, growth_stage_reached)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        req.user.id,
+        habit.id,
+        habit.name,
+        currentPlantType,
+        habit.milestones_achieved || 0,
+        null,
+        newFullyGrownCount,
+        currentPlantGrowthTarget
+      ]
+    );
+
+    await pool.query(
+      'UPDATE users SET plants_fully_grown = plants_fully_grown + 1 WHERE id = $1',
+      [req.user.id]
+    );
+
+    const nextPlantType = selected_plant_type || currentPlantType;
+    if (!canUsePlant(nextPlantType, updatedUserPlantCount)) {
+      return res.status(400).json({ error: 'Selected plant is locked' });
+    }
+
+    const result = await pool.query(
+      `UPDATE habits
+       SET growth_stage = $1,
+           fully_grown_count = $2,
+           selected_plant_type = $3
+       WHERE id = $4 AND user_id = $5
+       RETURNING *`,
+      [
+        nextGrowthStage,
+        newFullyGrownCount,
+        nextPlantType,
+        habit.id,
+        req.user.id
+      ]
+    );
+
+    const nextPlantCatalog = getPlantCatalog(updatedUserPlantCount);
+    const newlyUnlockedPlants = nextPlantCatalog.filter(
+      (plant) => plant.unlocked && plant.unlockCount > userPlantCount
+    );
+
+    res.json({
+      habit: result.rows[0],
+      fully_grown: true,
+      plants_fully_grown: updatedUserPlantCount,
+      current_plant_growth_target: currentPlantGrowthTarget,
+      completed_plant_type: currentPlantType,
+      next_plant_type: nextPlantType,
+      habit_name: habit.name,
+      unlocked_plants: nextPlantCatalog.filter((plant) => plant.unlocked),
+      plant_catalog: nextPlantCatalog,
+      newly_unlocked_plants: newlyUnlockedPlants
+    });
+  } catch (error) {
+    console.error('Replant error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

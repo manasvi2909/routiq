@@ -3,8 +3,9 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+const isLocal = process.env.DATABASE_URL && (process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1'));
 const pool = process.env.DATABASE_URL 
-  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
+  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: isLocal ? false : { rejectUnauthorized: false } })
   : new Pool({
       user: process.env.DB_USER || 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -16,6 +17,8 @@ const pool = process.env.DATABASE_URL
 // Run live schema alterations immediately upon pool instantiation to support Vercel serverless
 pool.query(`
   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT NULL;
+  ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_cycle_number INTEGER DEFAULT 1;
+  ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_stage_reached INTEGER DEFAULT 0;
 `).then(() => {
   console.log('Self-healing database migration completed successfully');
 }).catch(err => {
@@ -34,6 +37,8 @@ async function initDatabase() {
     // Dynamically alter existing tables to add avatar column if missing
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT DEFAULT NULL;
+      ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_cycle_number INTEGER DEFAULT 1;
+      ALTER TABLE garden_plants ADD COLUMN IF NOT EXISTS growth_stage_reached INTEGER DEFAULT 0;
     `);
     
     console.log('Database schema initialized successfully');

@@ -1,0 +1,302 @@
+/* Shared Greenhouse Component Styles */
+
+/* Empty State */
+.gh-empty-conservatory {
+  padding: 4rem 2rem;
+  border-radius: var(--radius-xl);
+  text-align: center;
+}
+
+.gh-empty-cta {
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 999px;
+  background: var(--color-accent-text);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.gh-empty-cta:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+/* Collection Overview */
+.gh-overview-panel {
+  padding: 3rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(10, 51, 35, 0.06);
+}
+
+body[data-theme='dark'] .gh-overview-panel {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.gh-overview-content h2 {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+  margin-bottom: 1.6rem;
+}
+
+.gh-overview-content p {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.2rem;
+}
+
+.gh-overview-content p:last-child {
+  margin-bottom: 0;
+}
+
+.gh-overview-data {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.gh-overview-latest {
+  margin-top: 2rem;
+  font-size: clamp(1rem, 2vw, 1.2rem) !important;
+  color: var(--color-text-tertiary) !important;
+}
+
+/* Collection Wing */
+.gh-wing {
+  margin-bottom: var(--wing-gap);
+}
+
+.gh-wing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.6rem;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  border: 1px solid rgba(10, 51, 35, 0.06);
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+body[data-theme='dark'] .gh-wing-header {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+.gh-wing-header:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+body[data-theme='dark'] .gh-wing-header:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.gh-wing-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.gh-wing-species-indicator {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+}
+
+.gh-wing-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.gh-wing-count {
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gh-wing-explore {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-text-tertiary);
+}
+
+.gh-explore-text {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .gh-explore-text {
+    display: none;
+  }
+}
+
+/* Specimen Shelf */
+.gh-wing-body-inner {
+  padding: 1.6rem 0 0.4rem 0;
+}
+
+.gh-shelf-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.gh-era-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.gh-era-header {
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
+  color: var(--color-accent-text);
+  margin-left: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.gh-specimen-shelf {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--shelf-surface);
+  box-shadow: var(--shelf-shadow);
+  border: 1px solid rgba(10, 51, 35, 0.04);
+}
+
+body[data-theme='dark'] .gh-specimen-shelf {
+  border-color: rgba(255, 255, 255, 0.03);
+}
+
+.gh-shelf-scroll {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--specimen-gap);
+  padding: 1.5rem 2rem;
+  overflow-x: auto;
+  will-change: scroll-position;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.gh-shelf-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Collection Drawer (Compressed older eras) */
+.gh-collection-drawer {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 51, 35, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+body[data-theme='dark'] .gh-collection-drawer {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.gh-collection-drawer:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+body[data-theme='dark'] .gh-collection-drawer:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gh-drawer-title {
+  font-family: var(--font-accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+}
+
+.gh-drawer-count {
+  color: var(--color-text-tertiary);
+  font-size: 0.85rem;
+}
+
+/* Preserved Bloom */
+.gh-preserved-bloom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  animation: bloom-appear 200ms ease-out forwards;
+}
+
+@keyframes bloom-appear {
+  0% { opacity: 0; transform: scale(0.94); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.gh-preserved-bloom:hover {
+  transform: translateY(-4px);
+}
+
+.gh-bloom-svg-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gh-bloom-shadow {
+  position: absolute;
+  bottom: -4px;
+  width: 60%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.15);
+  filter: blur(4px);
+  border-radius: 50%;
+  z-index: 0;
+}
+
+body[data-theme='dark'] .gh-bloom-shadow {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.gh-bloom-svg-wrapper svg {
+  position: relative;
+  z-index: 1;
+}
+
+.gh-bloom-date {
+  font-family: var(--font-accent);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

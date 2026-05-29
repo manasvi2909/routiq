@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import PlantPreview from '../components/PlantPreview';
 import './Garden.css';
@@ -75,28 +76,14 @@ function Garden() {
 
         <section className="garden-section">
           <div className="section-heading">
-            <span className="garden-kicker">Archive</span>
-            <h2>Grown Thus Far</h2>
+            <span className="garden-kicker">Preserved blooms</span>
+            <h2>The Greenhouse</h2>
           </div>
-          {garden.garden_plants.length === 0 ? (
-            <div className="garden-empty">
-              Complete milestone cycles and full plants will be stored here automatically.
-            </div>
-          ) : (
-            <div className="garden-grid">
-              {garden.garden_plants.map((plant) => (
-                <div key={plant.id} className="garden-card">
-                  <PlantPreview plantType={plant.plant_type} growthStage={12} showLabel fullBloom />
-                  <div className="garden-card-content">
-                    <h3>{plant.habit_name || 'Archived ritual'}</h3>
-                    <p>Milestone {plant.milestone_number}</p>
-                    {plant.reward_given && <p className="garden-reward">Reward claimed: {plant.reward_given}</p>}
-                    <span>{new Date(plant.grown_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <Link to="/greenhouse" className="greenhouse-link-card glass-panel">
+            {garden.plants_fully_grown > 0
+              ? `Visit the Greenhouse to explore your ${garden.plants_fully_grown} preserved specimen${garden.plants_fully_grown !== 1 ? 's' : ''}.`
+              : 'Complete a full growth cycle to preserve your first bloom in the Greenhouse.'}
+          </Link>
         </section>
       </div>
     </div>

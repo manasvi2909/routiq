@@ -168,15 +168,20 @@ routiq-dbms-project/
 
 ## 6. Installation Protocols
 
+> [!IMPORTANT]
+> **STORAGE OPTIMIZATION NOTICE:**
+> To keep the backup zipped archive ultra-lightweight (saving over 169 MB), all `node_modules` folders have been omitted. Before attempting to run the project locally, you **MUST** restore these dependencies.
+
 ### Prerequisites
 *   Node.js (18+)
 *   PostgreSQL Database Cluster
 
-### 1. Dependency Alignment
-Retrieve standard binaries from the root node:
+### 1. Restore & Install Dependencies
+Run the unified installer script from the **root directory** of the project to automatically install dependencies for the Root package, the Express Server, and the React Client:
 ```bash
 npm run install-all
 ```
+
 
 ### 2. Database Initialization
 Execute external pool commands to initialize raw clusters:
@@ -201,10 +206,19 @@ Default standard execution:
 
 ## 7. Environment Variables Configuration
 
-Manual environment configuration requires a `server/.env` declaration:
+Manual environment configuration requires a `server/.env` declaration. Create a file named `.env` inside the `server/` directory and populate it with your local credentials:
 
 ```env
+# PostgreSQL connection string
 DATABASE_URL=postgresql://[USER]:[PASS]@localhost:5432/habit_tracker
-JWT_SECRET=[ENCRYPTED_KEY_HERE]
+
+# JWT Signing Secret (used for sessions)
+JWT_SECRET=[YOUR_JWT_SECRET_HERE]
+
+# Express Server Port
 PORT=5600
+
+# Google Gemini API Key (required for The Oracle AI reflection feature)
+GEMINI_API_KEY=[YOUR_GEMINI_API_KEY_HERE]
 ```
+

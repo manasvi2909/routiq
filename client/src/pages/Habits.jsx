@@ -12,12 +12,16 @@ function Habits() {
   const [plantCatalog, setPlantCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
   const [milestoneHabit, setMilestoneHabit] = useState(null);
+  const [replantHabit, setReplantHabit] = useState(null);
   const [editHabit, setEditHabit] = useState(null);
   const [milestoneForm, setMilestoneForm] = useState({
     next_goal: '',
     next_reward: '',
     goal_window_days: 1,
     habit_time: '08:00',
+    selected_plant_type: 'fern'
+  });
+  const [replantForm, setReplantForm] = useState({
     selected_plant_type: 'fern'
   });
   const [editForm, setEditForm] = useState({
@@ -31,6 +35,7 @@ function Habits() {
     selected_plant_type: 'fern'
   });
   const [submittingMilestone, setSubmittingMilestone] = useState(false);
+  const [submittingReplant, setSubmittingReplant] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const [completionCelebration, setCompletionCelebration] = useState(null);
   const navigate = useNavigate();
@@ -89,6 +94,13 @@ function Habits() {
     });
   };
 
+  const openReplantModal = (habit) => {
+    setReplantHabit(habit);
+    setReplantForm({
+      selected_plant_type: habit.selected_plant_type || 'fern'
+    });
+  };
+
   const openEditModal = (habit) => {
     setEditHabit(habit);
     setEditForm({
@@ -132,6 +144,35 @@ function Habits() {
     }
   };
 
+  const handleReplantSubmit = async (e) => {
+    e.preventDefault();
+    if (!replantHabit) return;
+
+    setSubmittingReplant(true);
+    try {
+      const response = await api.post(`/habits/${replantHabit.id}/replant`, replantForm);
+      if (response.data?.plant_catalog) {
+        setPlantCatalog(response.data.plant_catalog);
+      }
+      if (response.data?.fully_grown) {
+        setCompletionCelebration({
+          habitName: response.data.habit_name,
+          completedPlantType: response.data.completed_plant_type,
+          nextPlantType: response.data.next_plant_type,
+          rewardClaimed: null,
+          newlyUnlockedPlants: response.data.newly_unlocked_plants || []
+        });
+      }
+      setReplantHabit(null);
+      await fetchData();
+    } catch (error) {
+      console.error('Error replanting:', error);
+      alert(error.response?.data?.error || 'Error replanting');
+    } finally {
+      setSubmittingReplant(false);
+    }
+  };
+
   const handleEditSave = async (e) => {
     e.preventDefault();
     if (!editHabit) return;
@@ -171,7 +212,7 @@ function Habits() {
 
   const getVisualGrowthStage = (habit) => {
     const growthTarget = getPlantById(habit.selected_plant_type || 'fern').growthTarget || 12;
-    return Math.min(12, Math.max(0, Math.floor(((habit.growth_stage || 0) / growthTarget) * 12)));
+    return Math.min(growthTarget, Math.max(0, habit.growth_stage || 0));
   };
 
   const isLoggedToday = (habit) => {
@@ -247,7 +288,7 @@ function Habits() {
                 <span className="habit-stat-chip">{habit.total_completions || 0} Successful Archivals</span>
                 <span className="habit-stat-chip">{habit.milestones_achieved || 0} Milestones Achieved</span>
                 <span className="habit-stat-chip">{habit.fully_grown_count || 0} Plants Fully Grown</span>
-                <span className="habit-stat-chip">Growth {getVisualGrowthStage(habit)}/12</span>
+                <span className="habit-stat-chip">Growth {getVisualGrowthStage(habit)}/{getPlantById(habit.selected_plant_type || 'fern').growthTarget || 12}</span>
               </div>
 
               <div className="habit-detail-grid">
@@ -286,6 +327,12 @@ function Habits() {
                   <Link to={`/habits/${habit.id}/log`} className="action-btn log">
                     Archive Progress
                   </Link>
+                )}
+                {getVisualGrowthStage(habit) >= (getPlantById(habit.selected_plant_type || 'fern').growthTarget || 12) && (
+                  <button onClick={() => openReplantModal(habit)} className="action-btn replant">
+                    <Check size={16} />
+                    Plant New Seed
+                  </button>
                 )}
                 <button onClick={() => openMilestoneModal(habit)} className="action-btn milestone">
                   <Check size={16} />
@@ -557,6 +604,51 @@ function Habits() {
                 Continue Growing
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {replantHabit && (
+        <div className="milestone-modal-backdrop" onClick={() => !submittingReplant && setReplantHabit(null)}>
+          <div className="milestone-modal" onClick={(e) => e.stopPropagation()}>
+            <span className="eyebrow">Start New Growth Cycle</span>
+            <h2>Your plant has fully grown</h2>
+            <p className="milestone-modal-copy">
+              Your {getPlantById(replantHabit.selected_plant_type || 'fern').name.toLowerCase()} has reached maturity. Archive it in your Greenhouse and select a new seed to continue this ritual.
+            </p>
+
+            <form onSubmit={handleReplantSubmit} className="milestone-form">
+              <div className="form-group">
+                <label>Plant for the next cycle</label>
+                <div className="edit-plant-grid">
+                  {plantCatalog.map((plant) => {
+                    const projectedUnlocked = projectedPlantCount >= plant.unlockCount;
+
+                    return (
+                      <button
+                        key={plant.id}
+                        type="button"
+                        className={`edit-plant-option ${replantForm.selected_plant_type === plant.id ? 'selected' : ''} ${!projectedUnlocked ? 'locked' : ''}`}
+                        onClick={() => projectedUnlocked && setReplantForm({ ...replantForm, selected_plant_type: plant.id })}
+                        disabled={!projectedUnlocked}
+                      >
+                        <PlantPreview plantType={plant.id} growthStage={plant.growthTarget} fullBloom />
+                        <span>{plant.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="milestone-modal-actions">
+                <button type="button" className="back-btn" onClick={() => setReplantHabit(null)} disabled={submittingReplant}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn" disabled={submittingReplant}>
+                  {submittingReplant ? 'Planting...' : 'Archive and Plant New Seed'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

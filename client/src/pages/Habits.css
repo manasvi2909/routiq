@@ -259,6 +259,7 @@
 
 .action-btn.log,
 .action-btn.milestone,
+.action-btn.replant,
 .action-btn.edit {
   gap: 0.55rem;
   padding: 0.9rem 1.1rem;
@@ -281,6 +282,13 @@
   background: linear-gradient(135deg, #d6876c, #b95a48);
   color: #fff8f4;
   box-shadow: 0 14px 28px rgba(185, 90, 72, 0.16);
+}
+
+.action-btn.replant {
+  border: none;
+  background: linear-gradient(135deg, #124d39, #1f7960);
+  color: #fbf7ef;
+  box-shadow: 0 14px 28px rgba(18, 77, 57, 0.16);
 }
 
 .action-btn.edit {
