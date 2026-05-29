@@ -8,6 +8,42 @@ import CollectionWing from '../components/greenhouse/CollectionWing';
 import SpecimenPlacard from '../components/greenhouse/SpecimenPlacard';
 import PlantPreview from '../components/PlantPreview';
 
+const SporesAtmosphere = () => {
+  // Generate a stable array of random fireflies
+  const spores = useMemo(() => {
+    return Array.from({ length: 24 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${Math.random() * 4 + 2}px`,
+      duration: `${Math.random() * 8 + 6}s`,
+      delay: `-${Math.random() * 10}s`,
+      maxOpacity: Math.random() * 0.5 + 0.3
+    }));
+  }, []);
+
+  return (
+    <div className="gh-spores-container" aria-hidden="true">
+      {spores.map(s => (
+        <div
+          key={s.id}
+          className="gh-spore"
+          style={{
+            left: s.left,
+            top: s.top,
+            width: s.size,
+            height: s.size,
+            animationDuration: s.duration,
+            animationDelay: s.delay,
+            '--duration': s.duration,
+            '--max-opacity': s.maxOpacity
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const ConservatoryIllustration = () => (
   <div className="gh-illustration">
     <div className="gh-ill-row gh-ill-row-1">
@@ -32,7 +68,6 @@ export default function Greenhouse() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedWings, setExpandedWings] = useState(new Set());
   const [selectedSpecimen, setSelectedSpecimen] = useState(null);
   const [placardAnchorRect, setPlacardAnchorRect] = useState(null);
 
@@ -66,16 +101,7 @@ export default function Greenhouse() {
     }
   };
 
-  useEffect(() => {
-    if (data && expandedWings.size === 0 && data.wings.length > 0) {
-      const initial = new Set(
-        data.wings
-          .slice(0, 3)
-          .map(w => w.habit_name)
-      );
-      setExpandedWings(initial);
-    }
-  }, [data, expandedWings.size]);
+
 
   const filteredWings = useMemo(() => {
     if (!data) return [];
@@ -89,17 +115,7 @@ export default function Greenhouse() {
     return wings;
   }, [data, searchQuery]);
 
-  const toggleWing = (habitName) => {
-    setExpandedWings(prev => {
-      const next = new Set(prev);
-      if (next.has(habitName)) {
-        next.delete(habitName);
-      } else {
-        next.add(habitName);
-      }
-      return next;
-    });
-  };
+
 
   const openPlacard = (specimen, elementRect) => {
     setSelectedSpecimen(specimen);
@@ -127,6 +143,7 @@ export default function Greenhouse() {
         <div className="gh-orb gh-orb-one" />
         <div className="gh-orb gh-orb-two" />
         <div className="gh-orb gh-orb-three" />
+        <SporesAtmosphere />
       </div>
 
       <div className="greenhouse-width">
@@ -166,9 +183,8 @@ export default function Greenhouse() {
                 <CollectionWing
                   key={wing.habit_name}
                   wing={wing}
-                  isExpanded={expandedWings.has(wing.habit_name)}
-                  onToggle={() => toggleWing(wing.habit_name)}
-                  onSpecimenClick={openPlacard}
+                  onSpecimenEnter={openPlacard}
+                  onSpecimenLeave={closePlacard}
                 />
               ))}
               {filteredWings.length === 0 && searchQuery && (

@@ -87,6 +87,36 @@ body[data-theme='dark'] .greenhouse-page {
   100% { transform: translate(-2%, 8%) scale(0.95); }
 }
 
+/* Fireflies / Spores */
+.gh-spores-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.gh-spore {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4);
+  animation: float-spore var(--duration) ease-in-out infinite alternate;
+  opacity: 0;
+}
+
+body[data-theme='dark'] .gh-spore {
+  background: #fdf5e6;
+  box-shadow: 0 0 12px 3px rgba(239, 219, 172, 0.5);
+}
+
+@keyframes float-spore {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  20% { opacity: var(--max-opacity); }
+  80% { opacity: var(--max-opacity); }
+  100% { transform: translateY(-120px) translateX(40px); opacity: 0; }
+}
+
 /* Header */
 .gh-header {
   margin-bottom: 2rem;

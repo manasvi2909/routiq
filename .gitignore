@@ -29,3 +29,5 @@ Thumbs.db
 *.db
 *.sqlite
 
+# Guidebooks
+*GUIDEBOOK*

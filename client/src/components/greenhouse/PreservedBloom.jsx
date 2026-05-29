@@ -2,19 +2,13 @@ import React from 'react';
 import PlantPreview from '../PlantPreview';
 import './GreenhouseComponents.css';
 
-export default function PreservedBloom({ specimen, onClick }) {
-  const date = new Date(specimen.grown_at);
-  const formattedDate = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
-  const handleClick = (e) => {
-    onClick(specimen, e.currentTarget.getBoundingClientRect());
-  };
-
+export default function PreservedBloom({ specimen, onMouseEnter, onMouseLeave }) {
   return (
-    <button
+    <div
       className="gh-preserved-bloom"
-      onClick={handleClick}
-      aria-label={`${specimen.plant_type} bloom, milestone ${specimen.milestone_number}, preserved ${formattedDate}`}
+      onMouseEnter={(e) => onMouseEnter && onMouseEnter(specimen, e.currentTarget.getBoundingClientRect())}
+      onMouseLeave={onMouseLeave}
+      aria-label={`${specimen.plant_type} bloom from ${specimen.habit_name}`}
     >
       <div className="gh-bloom-svg-wrapper">
         <PlantPreview
@@ -26,12 +20,6 @@ export default function PreservedBloom({ specimen, onClick }) {
         <div className="gh-bloom-pedestal" />
         <div className="gh-bloom-shadow" />
       </div>
-      <div className="gh-bloom-label-plate">
-        {specimen.isFirstBloom && (
-          <span className="gh-plate-title">Beginning of Collection</span>
-        )}
-        <span className="gh-plate-date">{formattedDate}</span>
-      </div>
-    </button>
+    </div>
   );
 }
