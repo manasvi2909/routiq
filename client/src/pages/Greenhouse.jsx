@@ -6,6 +6,27 @@ import CollectionOverview from '../components/greenhouse/CollectionOverview';
 import EmptyConservatory from '../components/greenhouse/EmptyConservatory';
 import CollectionWing from '../components/greenhouse/CollectionWing';
 import SpecimenPlacard from '../components/greenhouse/SpecimenPlacard';
+import PlantPreview from '../components/PlantPreview';
+
+const ConservatoryIllustration = () => (
+  <div className="gh-illustration">
+    <div className="gh-ill-row gh-ill-row-1">
+      <div className="gh-ill-plant"><PlantPreview plantType="moonvine" fullBloom size="small" /></div>
+    </div>
+    <div className="gh-ill-row gh-ill-row-2">
+      <div className="gh-ill-plant"><PlantPreview plantType="orchid" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="fern" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="bonsai" fullBloom size="small" /></div>
+    </div>
+    <div className="gh-ill-row gh-ill-row-3">
+      <div className="gh-ill-plant"><PlantPreview plantType="fern" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="bonsai" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="lotus" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="orchid" fullBloom size="small" /></div>
+      <div className="gh-ill-plant"><PlantPreview plantType="moonvine" fullBloom size="small" /></div>
+    </div>
+  </div>
+);
 
 export default function Greenhouse() {
   const [data, setData] = useState(null);
@@ -22,7 +43,22 @@ export default function Greenhouse() {
   const fetchGreenhouse = async () => {
     try {
       const response = await api.get('/garden/greenhouse');
-      setData(response.data);
+      const responseData = response.data;
+
+      // Tag the earliest bloom in the collection
+      let oldestSpecimen = null;
+      responseData.wings.forEach(wing => {
+        wing.specimens.forEach(spec => {
+          if (!oldestSpecimen || new Date(spec.grown_at) < new Date(oldestSpecimen.grown_at)) {
+            oldestSpecimen = spec;
+          }
+        });
+      });
+      if (oldestSpecimen) {
+        oldestSpecimen.isFirstBloom = true;
+      }
+
+      setData(responseData);
     } catch (error) {
       console.error('Error fetching greenhouse:', error);
     } finally {
@@ -107,20 +143,23 @@ export default function Greenhouse() {
           <EmptyConservatory />
         ) : (
           <>
+            <ConservatoryIllustration />
             <CollectionOverview collection={data.collection} />
 
-            <div className="gh-search-container">
-              <div className="gh-search-pill glass-panel">
-                <Search size={18} className="gh-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search your collection..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="gh-search-input"
-                />
+            {data.collection.total_blooms >= 10 && (
+              <div className="gh-search-container">
+                <div className="gh-search-pill glass-panel">
+                  <Search size={18} className="gh-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search your collection..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="gh-search-input"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="gh-wings">
               {filteredWings.map(wing => (

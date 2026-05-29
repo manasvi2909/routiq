@@ -23,9 +23,15 @@ export default function PreservedBloom({ specimen, onClick }) {
           fullBloom={true}
           size="medium"
         />
+        <div className="gh-bloom-pedestal" />
         <div className="gh-bloom-shadow" />
       </div>
-      <div className="gh-bloom-date">{formattedDate}</div>
+      <div className="gh-bloom-label-plate">
+        {specimen.isFirstBloom && (
+          <span className="gh-plate-title">Beginning of Collection</span>
+        )}
+        <span className="gh-plate-date">{formattedDate}</span>
+      </div>
     </button>
   );
 }

@@ -114,6 +114,42 @@ body[data-theme='dark'] .greenhouse-page {
   line-height: 1.8;
 }
 
+/* Conservatory Illustration */
+.gh-illustration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 1rem 0 3rem 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.gh-ill-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: -3.5rem;
+}
+
+.gh-ill-row-1 {
+  margin-top: 0;
+  z-index: 1;
+}
+
+.gh-ill-row-2 {
+  z-index: 2;
+}
+
+.gh-ill-row-3 {
+  z-index: 3;
+}
+
+.gh-ill-plant {
+  transform: scale(0.65);
+  margin: -1.5rem -2rem;
+}
+
 /* Search */
 .gh-search-container {
   display: flex;

@@ -51,7 +51,7 @@ body[data-theme='dark'] .gh-overview-panel {
 
 .gh-overview-content p {
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
   line-height: 1.6;
   color: var(--color-text-secondary);
   margin-bottom: 1.2rem;
@@ -183,8 +183,20 @@ body[data-theme='dark'] .gh-wing-header:hover {
   border: 1px solid rgba(10, 51, 35, 0.04);
 }
 
-body[data-theme='dark'] .gh-specimen-shelf {
-  border-color: rgba(255, 255, 255, 0.03);
+.gh-specimen-shelf::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: rgba(10, 51, 35, 0.08);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  z-index: 0;
+}
+
+body[data-theme='dark'] .gh-specimen-shelf::after {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .gh-shelf-scroll {
@@ -284,6 +296,22 @@ body[data-theme='dark'] .gh-collection-drawer:hover {
   z-index: 0;
 }
 
+.gh-bloom-pedestal {
+  position: absolute;
+  bottom: 2px;
+  width: 48px;
+  height: 8px;
+  background: rgba(10, 51, 35, 0.1);
+  border-radius: 50%;
+  border-bottom: 2px solid rgba(10, 51, 35, 0.2);
+  z-index: 0;
+}
+
+body[data-theme='dark'] .gh-bloom-pedestal {
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
 body[data-theme='dark'] .gh-bloom-shadow {
   background: rgba(0, 0, 0, 0.4);
 }
@@ -293,7 +321,33 @@ body[data-theme='dark'] .gh-bloom-shadow {
   z-index: 1;
 }
 
-.gh-bloom-date {
+.gh-bloom-label-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background: var(--surface-subtle);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(10, 51, 35, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+body[data-theme='dark'] .gh-bloom-label-plate {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.gh-plate-title {
+  font-family: var(--font-accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.gh-plate-date {
   font-family: var(--font-accent);
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
