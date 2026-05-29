@@ -42,8 +42,6 @@ export default function ConservatoryFloor({ wings }) {
       onMouseOver={handleMouseOver}
       onTouchStart={handleMouseOver} // For mobile tap-to-view
     >
-      <div className="gh-central-path" aria-hidden="true" />
-      
       <div className="gh-cultivation-rows">
         {wings.map(wing => (
           <CollectionWing key={wing.habit_name} wing={wing} />
