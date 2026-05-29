@@ -9,6 +9,7 @@ import ConservatoryFloor from '../components/greenhouse/ConservatoryFloor';
 export default function Greenhouse() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchGreenhouse();
@@ -35,6 +36,7 @@ export default function Greenhouse() {
       setData(responseData);
     } catch (error) {
       console.error('Error fetching greenhouse:', error);
+      setError(error.message || 'Failed to load conservatory');
     } finally {
       setLoading(false);
     }
@@ -44,8 +46,18 @@ export default function Greenhouse() {
     return <div className="gh-loading">Opening the conservatory...</div>;
   }
 
+  if (error) {
+    return (
+      <div className="greenhouse-page">
+        <div className="gh-loading" style={{ color: 'red' }}>
+          Error: {error}. Please ensure the backend is deployed and migrations are run.
+        </div>
+      </div>
+    );
+  }
+
   if (!data) {
-    return null;
+    return <div className="gh-loading">No data found.</div>;
   }
 
   const isEmpty = data.collection.total_blooms === 0;
