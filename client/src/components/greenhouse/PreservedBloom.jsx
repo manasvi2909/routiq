@@ -2,12 +2,11 @@ import React from 'react';
 import PlantPreview from '../PlantPreview';
 import './GreenhouseComponents.css';
 
-export default function PreservedBloom({ specimen, onMouseEnter, onMouseLeave }) {
+export default function PreservedBloom({ specimen }) {
   return (
     <div
       className="gh-preserved-bloom"
-      onMouseEnter={(e) => onMouseEnter && onMouseEnter(specimen, e.currentTarget.getBoundingClientRect())}
-      onMouseLeave={onMouseLeave}
+      data-specimen-id={specimen.id}
       aria-label={`${specimen.plant_type} bloom from ${specimen.habit_name}`}
     >
       <div className="gh-bloom-svg-wrapper">
