@@ -125,8 +125,6 @@ body[data-theme='dark'] .gh-screw {
 /* Cultivation Region (Base) */
 .gh-cultivation-region {
   position: relative;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
 }
 
 /* Botanical Marker */
