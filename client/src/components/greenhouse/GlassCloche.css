@@ -31,7 +31,22 @@
   /* Hover transition */
   transition:
     transform 460ms cubic-bezier(0.16, 1, 0.3, 1),
-    filter 460ms ease;
+    filter 460ms ease,
+    opacity 460ms ease;
+}
+
+/* ── Depth Planes (3D spatial illusion) ── */
+.gh-cloche[data-plane="background"] {
+  filter: blur(1.5px) saturate(0.85);
+  opacity: 0.8;
+}
+
+.gh-cloche[data-plane="foreground"] {
+  filter: saturate(1.1) drop-shadow(0 20px 24px rgba(10, 51, 35, 0.15));
+}
+
+body[data-theme='dark'] .gh-cloche[data-plane="foreground"] {
+  filter: saturate(1.1) drop-shadow(0 20px 24px rgba(0, 0, 0, 0.4));
 }
 
 /* ── Warm Aura ── */
@@ -147,8 +162,9 @@
 .gh-cloche:focus-visible,
 .gh-cloche.is-inspected {
   transform: translate(-50%, -56%) scale(calc(var(--cloche-scale, 1) * 1.08));
-  filter: saturate(1.06);
-  z-index: 10;
+  filter: blur(0px) saturate(1.06) !important;
+  opacity: 1 !important;
+  z-index: 100 !important;
 }
 
 .gh-cloche:hover .gh-cloche-aura,

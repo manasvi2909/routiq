@@ -22,7 +22,7 @@ function formatDate(value) {
   });
 }
 
-export default function GlassCloche({ specimen, placement, tier, onInspect }) {
+export default function GlassCloche({ specimen, placement, plane = 'midground', tier, onInspect }) {
   const species = getPlantById(specimen.plant_type || 'fern').name;
 
   const breatheStyle = useMemo(() => {
@@ -44,6 +44,7 @@ export default function GlassCloche({ specimen, placement, tier, onInspect }) {
       type="button"
       style={breatheStyle}
       data-specimen-id={specimen.id}
+      data-plane={plane}
       onClick={() => onInspect(specimen)}
       onMouseEnter={() => onInspect(specimen)}
       aria-label={`${species} specimen from ${specimen.habit_name}, preserved ${formatDate(specimen.grown_at)}`}

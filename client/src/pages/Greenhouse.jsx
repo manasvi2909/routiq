@@ -55,62 +55,87 @@ function normalizeSpecimens(data) {
   return specimens;
 }
 
-/* ─── Zone Creation ─── */
+/* ─── Terrace Creation (Spatial Clusters) ─── */
 
-function createZones(specimens, tier) {
+function createTerraces(specimens, tier) {
   if (specimens.length === 0) return [];
 
-  const zones = [];
-  const zoneSize = tier.zoneSize;
+  const terraces = [];
+  // Use larger clumps for terraces so they feel like physical islands
+  const terraceSize = Math.max(8, tier.zoneSize);
 
-  for (let start = 0; start < specimens.length; start += zoneSize) {
-    const zoneSpecimens = specimens.slice(start, start + zoneSize);
-    const habits = [...new Set(zoneSpecimens.map((s) => s.habit_name))];
-    zones.push({
-      id: `zone-${start}`,
-      index: zones.length,
-      specimens: zoneSpecimens,
+  for (let start = 0; start < specimens.length; start += terraceSize) {
+    const terraceSpecimens = specimens.slice(start, start + terraceSize);
+    const habits = [...new Set(terraceSpecimens.map((s) => s.habit_name))];
+    terraces.push({
+      id: `terrace-${start}`,
+      index: terraces.length,
+      alignment: terraces.length % 2 === 0 ? 'left' : 'right', // Staggered layout
+      specimens: terraceSpecimens,
       habitName: habits.length === 1 ? habits[0] : null,
     });
   }
 
-  return zones;
+  return terraces;
 }
 
-/* ─── Specimen Placement Algorithm ─── */
+/* ─── Depth Plane Placement Algorithm ─── */
 
-function computePlacement(specimen, localIndex, totalInZone, tierKey) {
-  if (tierKey === 'sanctuary') {
-    const sanctuaryPositions = [
-      { x: 50, y: 50, scale: 1.28, depth: 5 },
-      { x: 35, y: 60, scale: 0.92, depth: 4 },
-      { x: 65, y: 58, scale: 0.94, depth: 4 },
-    ];
-    const pos = sanctuaryPositions[localIndex] || sanctuaryPositions[0];
-    return {
-      '--cloche-x': `${pos.x}%`,
-      '--cloche-y': `${pos.y}%`,
-      '--cloche-scale': pos.scale,
-      '--cloche-depth': pos.depth,
-    };
+function computeDepthPlacement(specimen, localIndex, totalInTerrace, terraceAlignment) {
+  const seed = hashSeed(`${specimen.id}-${localIndex}`);
+  
+  // 1. Determine Depth Plane (Foreground, Midground, Background)
+  // Background (30%), Midground (50%), Foreground (20%)
+  const depthMod = seed % 100;
+  let plane = 'midground';
+  let zIndex = 2;
+  let scaleBase = 0.8;
+  
+  if (depthMod < 20) {
+    plane = 'foreground';
+    zIndex = 3;
+    scaleBase = 1.15;
+  } else if (depthMod > 70) {
+    plane = 'background';
+    zIndex = 1;
+    scaleBase = 0.55;
   }
 
-  const seed = hashSeed(`${specimen.id}-${localIndex}`);
-  const progress = totalInZone <= 1 ? 0.5 : localIndex / (totalInZone - 1);
-  const curve = Math.sin(progress * Math.PI);
-  const side = localIndex % 2 === 0 ? -1 : 1;
-  const drift = ((seed % 15) - 7) * 0.8;
+  // 2. Spatial Spread
+  // X is spread out across the terrace width
+  const baseProgress = totalInTerrace <= 1 ? 0.5 : localIndex / (totalInTerrace - 1);
+  // Add noise so it's not a straight line
+  const xNoise = ((seed % 20) - 10) * 1.5; 
+  let x = 10 + (baseProgress * 80) + xNoise;
 
-  const x = 50 + side * (13 + curve * 18) + drift;
-  const y = 14 + progress * 72 + ((seed % 9) - 4) * 0.5;
-  const depth = 1 + Math.round(curve * 4);
-  const scale = 0.78 + curve * 0.3 + (seed % 7) * 0.012;
+  // Y is determined primarily by the depth plane (background is higher, foreground is lower)
+  let y = 50;
+  const yNoise = ((seed % 15) - 7);
+  
+  if (plane === 'background') {
+    y = 20 + yNoise; // High up
+  } else if (plane === 'midground') {
+    y = 50 + yNoise; // Middle
+  } else {
+    y = 80 + yNoise; // Low down
+  }
+
+  // 3. Scale Variation
+  const scale = scaleBase + ((seed % 15) * 0.02);
+
+  // Offset left/right based on terrace alignment to keep center mostly clear
+  if (terraceAlignment === 'left') {
+    x = x * 0.7; // Compress to left 70%
+  } else {
+    x = 30 + (x * 0.7); // Compress to right 70%
+  }
 
   return {
-    '--cloche-x': `${Math.min(86, Math.max(14, x))}%`,
-    '--cloche-y': `${Math.min(88, Math.max(12, y))}%`,
+    '--cloche-x': `${Math.min(92, Math.max(8, x))}%`,
+    '--cloche-y': `${Math.min(90, Math.max(10, y))}%`,
     '--cloche-scale': scale.toFixed(2),
-    '--cloche-depth': depth,
+    '--cloche-depth': zIndex,
+    '--cloche-plane': `"${plane}"`
   };
 }
 
@@ -134,20 +159,20 @@ function generateDustMotes(count, tierKey) {
   });
 }
 
-/* ─── Zone Active Tracking ─── */
+/* ─── Active Terrace Tracking ─── */
 
-function useActiveZones(zoneCount) {
+function useActiveTerraces(terraceCount) {
   const [active, setActive] = useState(() => new Set([0]));
 
   useEffect(() => {
-    if (zoneCount === 0 || typeof IntersectionObserver === 'undefined') return undefined;
+    if (terraceCount === 0 || typeof IntersectionObserver === 'undefined') return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
         setActive((prev) => {
           const next = new Set(prev);
           entries.forEach((entry) => {
-            const idx = Number(entry.target.dataset.zoneIdx);
+            const idx = Number(entry.target.dataset.terraceIdx);
             if (entry.isIntersecting) {
               next.add(idx);
               next.add(idx - 1);
@@ -157,12 +182,12 @@ function useActiveZones(zoneCount) {
           return next;
         });
       },
-      { rootMargin: '360px 0px' }
+      { rootMargin: '600px 0px' }
     );
 
-    document.querySelectorAll('[data-zone-observe]').forEach((el) => observer.observe(el));
+    document.querySelectorAll('[data-terrace-observe]').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [zoneCount]);
+  }, [terraceCount]);
 
   return active;
 }
@@ -198,9 +223,9 @@ export default function Greenhouse() {
   const specimens = useMemo(() => normalizeSpecimens(data), [data]);
   const totalBlooms = data?.collection?.total_blooms ?? specimens.length;
   const tier = useMemo(() => getTier(totalBlooms), [totalBlooms]);
-  const zones = useMemo(() => createZones(specimens, tier), [specimens, tier]);
+  const terraces = useMemo(() => createTerraces(specimens, tier), [specimens, tier]);
   const dustMotes = useMemo(() => generateDustMotes(tier.particles, tier.key), [tier]);
-  const activeZones = useActiveZones(zones.length);
+  const activeTerraces = useActiveTerraces(terraces.length);
 
   const showArchways = tier.key === 'conservatory-wing' || tier.key === 'botanical-archive' || tier.key === 'living-archive';
 
@@ -329,35 +354,38 @@ export default function Greenhouse() {
     <main className="greenhouse-page" data-archive-state={tier.key}>
       {renderEnvironment()}
 
-      {/* LAYER 3 — The Specimen Walk */}
-      <div className="gh-walk" aria-label="Preserved botanical archive">
+      {/* LAYER 3 — The Landscape Architecture */}
+      <div className="gh-landscape" aria-label="Preserved botanical archive">
         <div className="gh-path" aria-hidden="true" />
 
-        {zones.map((zone, zoneIdx) => {
-          const isActive = activeZones.has(zone.index);
+        {terraces.map((terrace, terraceIdx) => {
+          const isActive = activeTerraces.has(terrace.index);
 
           return (
             <section
-              key={zone.id}
-              className="gh-zone"
-              data-zone-observe
-              data-zone-idx={zone.index}
-              aria-label={zone.habitName ? `${zone.habitName} specimens` : `Archive zone ${zone.index + 1}`}
+              key={terrace.id}
+              className={`gh-terrace gh-terrace-align-${terrace.alignment}`}
+              data-terrace-observe
+              data-terrace-idx={terrace.index}
+              aria-label={terrace.habitName ? `${terrace.habitName} wing` : `Archive terrace ${terrace.index + 1}`}
             >
-              {zone.habitName && (
+              {terrace.habitName && (
                 <div className="gh-stone-inscription">
-                  <span>{zone.habitName}</span>
+                  <span>{terrace.habitName}</span>
                 </div>
               )}
 
-              {showArchways && zoneIdx > 0 && <div className="gh-iron-archway" aria-hidden="true" />}
+              {showArchways && terraceIdx > 0 && <div className="gh-iron-archway" aria-hidden="true" />}
+              
+              {/* Foreground obfuscating foliage for exploration feel */}
+              {terraceIdx % 3 === 0 && <div className="gh-terrace-foliage" aria-hidden="true" />}
 
-              {zone.specimens.map((specimen, localIdx) => {
-                const placement = computePlacement(
+              {terrace.specimens.map((specimen, localIdx) => {
+                const placement = computeDepthPlacement(
                   specimen,
                   localIdx,
-                  zone.specimens.length,
-                  tier.key
+                  terrace.specimens.length,
+                  terrace.alignment
                 );
 
                 return (
@@ -365,6 +393,7 @@ export default function Greenhouse() {
                     key={specimen.id}
                     specimen={specimen}
                     placement={placement}
+                    plane={placement['--cloche-plane']?.replace(/"/g, '') || 'midground'}
                     tier={tier.key}
                     onInspect={handleInspect}
                   />

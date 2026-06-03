@@ -85,48 +85,11 @@ body[data-theme='dark'] .greenhouse-page {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;
-  opacity: calc(var(--gh-ceiling-opacity) * 0.8);
+  z-index: 0; /* Was -1, but must be 0 to render over the radial gradient background of isolation context */
+  opacity: calc(var(--gh-ceiling-opacity) * 0.9);
 }
 
-/* Distant path fading into the fog */
-.gh-distant-path {
-  position: absolute;
-  left: 50%;
-  bottom: 30%;
-  width: 80px;
-  height: 40vh;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, transparent, rgba(168, 152, 118, 0.08) 60%, rgba(216, 207, 183, 0.15));
-  clip-path: polygon(48% 0, 52% 0, 80% 100%, 20% 100%);
-  filter: blur(4px);
-}
-
-/* Distant architectural arches */
-.gh-distant-arch {
-  position: absolute;
-  left: 30%;
-  right: 30%;
-  border-bottom: 2px solid var(--gh-iron-rib);
-  border-radius: 0 0 50% 50%;
-  filter: blur(3px);
-  opacity: 0.4;
-}
-
-.gh-distant-arch-1 {
-  top: 15%;
-  height: 20vh;
-}
-
-.gh-distant-arch-2 {
-  top: 30%;
-  left: 38%;
-  right: 38%;
-  height: 12vh;
-  opacity: 0.2;
-}
-
-/* Distant blurry pedestals */
+/* ─── Faux Abundance: Distant Ghost Cloches ─── */
 .gh-distant-pedestal {
   position: absolute;
   bottom: 45%;
@@ -137,14 +100,82 @@ body[data-theme='dark'] .greenhouse-page {
   filter: blur(6px);
 }
 
+/* Generate multiple ghost clusters */
+.gh-distant-pedestal::before {
+  content: "";
+  position: absolute;
+  top: -6vh;
+  left: 10%;
+  width: 80%;
+  height: 6vh;
+  border-radius: 50% 50% 10% 10%;
+  background: radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.15), transparent 70%);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .gh-distant-pedestal-left {
-  left: 35%;
+  left: 20%;
+  bottom: 50%;
+  transform: scale(0.8);
   background: linear-gradient(180deg, rgba(255, 244, 215, 0.06), rgba(10, 51, 35, 0.1));
 }
 
 .gh-distant-pedestal-right {
-  right: 36%;
+  right: 25%;
+  bottom: 55%;
+  transform: scale(0.6);
   background: linear-gradient(180deg, rgba(255, 244, 215, 0.04), rgba(10, 51, 35, 0.08));
+}
+
+/* More ghost cloches deep in the fog */
+.gh-deep-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.05) 0%, transparent 3%),
+    radial-gradient(circle at 60% 65%, rgba(255, 255, 255, 0.04) 0%, transparent 2%),
+    radial-gradient(circle at 45% 58%, rgba(255, 255, 255, 0.06) 0%, transparent 2.5%),
+    radial-gradient(circle at 55% 62%, rgba(255, 255, 255, 0.03) 0%, transparent 2%);
+  filter: blur(4px);
+  opacity: 0.6;
+}
+
+/* Distant path fading into the fog */
+.gh-distant-path {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  width: 120px;
+  height: 40vh;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, rgba(168, 152, 118, 0.08) 60%, rgba(216, 207, 183, 0.15));
+  clip-path: polygon(45% 0, 55% 0, 80% 100%, 20% 100%);
+  filter: blur(6px);
+}
+
+/* Distant architectural arches */
+.gh-distant-arch {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  border-bottom: 2px solid var(--gh-iron-rib);
+  border-radius: 0 0 50% 50%;
+  filter: blur(4px);
+  opacity: 0.5;
+}
+
+.gh-distant-arch-1 {
+  top: 15%;
+  height: 25vh;
+}
+
+.gh-distant-arch-2 {
+  top: 30%;
+  left: 30%;
+  right: 30%;
+  height: 15vh;
+  opacity: 0.3;
 }
 
 body[data-theme='dark'] .gh-distant-path {
@@ -168,11 +199,19 @@ body[data-theme='dark'] .gh-distant-pedestal-right {
    Arched vault with iron ribs. Always visible overhead.
    ═══════════════════════════════════════════════════════════════ */
 
+.gh-condensation {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  opacity: var(--gh-mist-opacity);
+}
+
 .gh-ceiling {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
   opacity: var(--gh-ceiling-opacity);
 }
 
@@ -254,7 +293,7 @@ body[data-theme='dark'] .gh-ceiling::after {
   right: 0;
   height: 40vh;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
   opacity: var(--gh-canopy-opacity);
   transition: opacity 800ms ease;
 }
@@ -350,7 +389,7 @@ body[data-theme='dark'] .gh-vine::after {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 1;
+  z-index: 4;
 }
 
 /* Light shafts — angled golden beams cutting through the space */
@@ -521,7 +560,6 @@ body[data-theme='dark'] .gh-dust-mote {
   box-shadow: 0 0 10px rgba(181, 234, 208, 0.2);
 }
 
-
 /* ═══════════════════════════════════════════════════════════════
    LAYER 4 — ARCHITECTURAL FRAME
    Iron columns and arches framing the viewport.
@@ -532,7 +570,7 @@ body[data-theme='dark'] .gh-dust-mote {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 3;
+  z-index: 5;
   opacity: var(--gh-frame-opacity);
 }
 
@@ -615,77 +653,123 @@ body[data-theme='dark'] .gh-arch-main {
 
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYER 3 — THE SPECIMEN WALK
-   The central scrollable content area.
-   Stone path, zones, specimen positions.
+   LAYER 3 — THE LANDSCAPE ARCHITECTURE
+   The sprawling, explorable conservatory layout.
    ═══════════════════════════════════════════════════════════════ */
 
-.gh-walk {
+.gh-landscape {
   position: relative;
-  z-index: 4;
-  width: min(1280px, 100%);
+  z-index: 6;
+  width: 100%;
+  max-width: 1600px; /* Much wider canvas to imply scale */
   margin: 0 auto;
-  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 3rem) 12rem;
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem) 16rem;
+  overflow: hidden;
 }
 
-/* Central stone path running the length of the walk */
+/* Winding dirt/stone path underneath terraces */
 .gh-path {
   position: absolute;
-  left: 50%;
+  left: 30%;
   top: 0;
   bottom: 0;
-  width: min(18vw, 160px);
-  transform: translateX(-50%);
+  width: min(30vw, 250px);
   pointer-events: none;
   z-index: 0;
 
   background:
-    /* Water reflection in center */
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent),
-    /* Stone gradient */
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent),
     linear-gradient(180deg,
       rgba(216, 207, 183, 0.22),
       rgba(168, 152, 118, 0.16) 50%,
       rgba(216, 207, 183, 0.2)
     );
-  clip-path: polygon(36% 0, 64% 0, 82% 100%, 18% 100%);
-  opacity: 0.7;
+  clip-path: polygon(40% 0, 80% 0, 60% 100%, 20% 100%);
+  opacity: 0.6;
+  filter: blur(10px);
 }
 
 body[data-theme='dark'] .gh-path {
   background:
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent),
     linear-gradient(180deg,
-      rgba(37, 54, 52, 0.4),
-      rgba(20, 34, 33, 0.25) 50%,
-      rgba(37, 54, 52, 0.35)
+      rgba(37, 54, 52, 0.3),
+      rgba(20, 34, 33, 0.15) 50%,
+      rgba(37, 54, 52, 0.25)
     );
 }
 
-/* Specimen zone — a spatial region along the walk */
-.gh-zone {
+/* ─── Terraces (Spatial Islands) ─── */
+.gh-terrace {
   position: relative;
-  min-height: var(--gh-zone-min-height);
+  min-height: 800px;
   content-visibility: auto;
-  contain-intrinsic-size: 900px;
+  contain-intrinsic-size: 800px;
   contain: layout paint style;
+  margin-bottom: -15rem; /* Massive overlap to create 3D depth */
+  z-index: 2;
 }
 
-.gh-zone + .gh-zone {
-  margin-top: -6rem;
+/* Allow terraces to stack naturally. Later terraces appear "closer" in the scroll. */
+.gh-terrace:nth-child(even) {
+  z-index: 3;
 }
 
-/* Stone inscription — habit name etched into the path */
+/* Foreground foliage on some terraces to obscure cloches and reward discovery */
+.gh-terrace-foliage {
+  position: absolute;
+  bottom: 15%;
+  right: -5%;
+  width: 40%;
+  height: 60%;
+  z-index: 10;
+  pointer-events: none;
+  background: 
+    radial-gradient(ellipse at 80% 50%, rgba(36, 81, 61, 0.7) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 20%, rgba(45, 94, 61, 0.5) 0%, transparent 50%);
+  filter: blur(8px);
+  animation: framing-leaf-sway 18s ease-in-out infinite alternate;
+}
+
+.gh-terrace-align-left .gh-terrace-foliage {
+  right: auto;
+  left: -5%;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(36, 81, 61, 0.7) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 20%, rgba(45, 94, 61, 0.5) 0%, transparent 50%);
+}
+
+body[data-theme='dark'] .gh-terrace-foliage {
+  background: 
+    radial-gradient(ellipse at 80% 50%, rgba(20, 45, 35, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 20%, rgba(30, 60, 45, 0.6) 0%, transparent 50%);
+}
+
+body[data-theme='dark'] .gh-terrace-align-left .gh-terrace-foliage {
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(20, 45, 35, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 20%, rgba(30, 60, 45, 0.6) 0%, transparent 50%);
+}
+
+/* Stone inscription — habit name etched into the environment */
 .gh-stone-inscription {
-  position: relative;
+  position: absolute;
+  top: 2rem;
+  left: 10%;
   z-index: 6;
-  text-align: center;
+  text-align: left;
   padding: 1rem 0 2rem;
+}
+
+.gh-terrace-align-right .gh-stone-inscription {
+  left: auto;
+  right: 10%;
+  text-align: right;
 }
 
 .gh-stone-inscription span {
   display: inline-block;
-  padding: 0.35rem 1rem;
+  padding: 0.35rem 0;
   font-family: var(--font-accent);
   font-size: 0.62rem;
   font-weight: 700;
@@ -700,23 +784,27 @@ body[data-theme='dark'] .gh-stone-inscription span {
   border-bottom-color: rgba(238, 245, 237, 0.1);
 }
 
-/* Iron archway between zones (tier 3+) */
+/* Iron archway between terraces (tier 3+) */
 .gh-iron-archway {
-  position: relative;
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 5;
-  width: min(62%, 560px);
-  height: 3rem;
-  margin: -1rem auto 2rem;
+  width: min(80%, 700px);
+  height: 4rem;
   opacity: var(--gh-archway-opacity);
   transition: opacity 600ms ease;
+  pointer-events: none;
 }
 
 .gh-iron-archway::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-top: 2px solid rgba(10, 51, 35, 0.14);
+  border-top: 3px solid rgba(10, 51, 35, 0.18);
   border-radius: 50% 50% 0 0;
+  filter: blur(1px);
 }
 
 .gh-iron-archway::after {
@@ -725,8 +813,8 @@ body[data-theme='dark'] .gh-stone-inscription span {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--gh-brass);
   opacity: 0.5;
@@ -904,7 +992,7 @@ body[data-theme='dark'] .gh-empty-link {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 5;
+  z-index: 7;
   opacity: var(--gh-foreground-opacity);
 }
 
