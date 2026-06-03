@@ -1,0 +1,148 @@
+.gh-space {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 80vh;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Entrance ── */
+.gh-space-entrance {
+  min-height: 50vh;
+  justify-content: center;
+  padding-top: 15vh;
+}
+
+.gh-entrance-plaque {
+  text-align: center;
+  z-index: 2;
+}
+
+.gh-entrance-title {
+  font-family: var(--font-accent);
+  font-size: 1.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gh-ink);
+  margin: 0 0 1rem;
+}
+
+.gh-entrance-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--gh-brass);
+  margin: 0 auto 1rem;
+}
+
+.gh-entrance-subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.gh-entrance-stats {
+  font-size: 0.85rem;
+  opacity: 0.5;
+  margin: 0;
+}
+
+.gh-entrance-arch {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Central Hall ── */
+.gh-space-central-hall {
+  padding-top: 5vh;
+  padding-bottom: 20vh;
+}
+
+.gh-hall-platform {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  margin-top: 5rem;
+}
+
+.gh-platform-base {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.gh-hall-specimens {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  padding-bottom: 50px;
+}
+
+.gh-hall-center {
+  margin: 0 4rem;
+  z-index: 3;
+}
+
+.gh-hall-side {
+  z-index: 2;
+  transform: translateY(30px) scale(0.8);
+}
+
+/* ── Archive Wing ── */
+.gh-space-archive-wing {
+  padding-top: 10vh;
+  padding-bottom: 20vh;
+  min-height: 120vh; /* Long corridor */
+}
+
+.gh-wing-path-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gh-wing-specimens {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 8rem;
+  padding: 5rem 0;
+}
+
+.gh-wing-item {
+  display: flex;
+}
+
+.gh-wing-left {
+  justify-content: flex-start;
+  padding-left: 10%;
+}
+
+.gh-wing-right {
+  justify-content: flex-end;
+  padding-right: 10%;
+}

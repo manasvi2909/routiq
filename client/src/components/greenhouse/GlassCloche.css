@@ -4,12 +4,11 @@
    ═══════════════════════════════════════════════════════════════ */
 
 .gh-cloche {
-  position: absolute;
-  left: var(--cloche-x);
-  top: var(--cloche-y);
+  position: relative; /* Changed from absolute */
   z-index: var(--cloche-depth, 3);
-  transform: translate(-50%, -50%) scale(var(--cloche-scale, 1));
+  transform: scale(var(--cloche-scale, 1));
   transform-origin: 50% 84%;
+  margin: 0 auto;
 
   /* Reset button */
   display: grid;

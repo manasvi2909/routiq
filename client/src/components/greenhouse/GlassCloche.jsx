@@ -28,7 +28,7 @@ export default function GlassCloche({ specimen, placement, plane = 'midground', 
   const breatheStyle = useMemo(() => {
     const seed = hashSeed(specimen.id);
     return {
-      ...placement,
+      ...(placement && { transform: `scale(${placement['--cloche-scale'] || 1})` }),
       '--cloche-breathe-duration': `${10 + (seed % 6)}s`,
       '--cloche-breathe-delay': `${(seed % 14) * -1}s`,
       '--cloche-aura-duration': `${14 + (seed % 8)}s`,
