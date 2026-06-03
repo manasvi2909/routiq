@@ -82,10 +82,21 @@ function createTerraces(specimens, tier) {
 /* ─── Depth Plane Placement Algorithm ─── */
 
 function computeDepthPlacement(specimen, localIndex, totalInTerrace, terraceAlignment) {
+  if (totalInTerrace <= 1) {
+    // Sanctuary / solitary bloom: present heroically near the inscription
+    const exactX = terraceAlignment === 'left' ? 35 : 65;
+    return {
+      '--cloche-x': `${exactX}%`,
+      '--cloche-y': `35%`, // Closer to the inscription
+      '--cloche-scale': `1.20`,
+      '--cloche-depth': 3,
+      '--cloche-plane': `"foreground"`
+    };
+  }
+
   const seed = hashSeed(`${specimen.id}-${localIndex}`);
   
   // 1. Determine Depth Plane (Foreground, Midground, Background)
-  // Background (30%), Midground (50%), Foreground (20%)
   const depthMod = seed % 100;
   let plane = 'midground';
   let zIndex = 2;
@@ -102,32 +113,28 @@ function computeDepthPlacement(specimen, localIndex, totalInTerrace, terraceAlig
   }
 
   // 2. Spatial Spread
-  // X is spread out across the terrace width
-  const baseProgress = totalInTerrace <= 1 ? 0.5 : localIndex / (totalInTerrace - 1);
-  // Add noise so it's not a straight line
+  const baseProgress = localIndex / (totalInTerrace - 1);
   const xNoise = ((seed % 20) - 10) * 1.5; 
   let x = 10 + (baseProgress * 80) + xNoise;
 
-  // Y is determined primarily by the depth plane (background is higher, foreground is lower)
   let y = 50;
   const yNoise = ((seed % 15) - 7);
   
   if (plane === 'background') {
-    y = 20 + yNoise; // High up
+    y = 35 + yNoise;
   } else if (plane === 'midground') {
-    y = 50 + yNoise; // Middle
+    y = 55 + yNoise;
   } else {
-    y = 80 + yNoise; // Low down
+    y = 75 + yNoise;
   }
 
   // 3. Scale Variation
   const scale = scaleBase + ((seed % 15) * 0.02);
 
-  // Offset left/right based on terrace alignment to keep center mostly clear
   if (terraceAlignment === 'left') {
-    x = x * 0.7; // Compress to left 70%
+    x = x * 0.6 + 10;
   } else {
-    x = 30 + (x * 0.7); // Compress to right 70%
+    x = 30 + (x * 0.6);
   }
 
   return {

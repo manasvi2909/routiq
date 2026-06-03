@@ -96,8 +96,8 @@ body[data-theme='dark'] .greenhouse-page {
   width: 4vw;
   height: 8vh;
   border-radius: 50% 50% 0 0;
-  background: rgba(10, 51, 35, 0.08);
-  filter: blur(6px);
+  background: rgba(10, 51, 35, 0.15);
+  filter: blur(5px);
 }
 
 /* Generate multiple ghost clusters */
@@ -109,8 +109,8 @@ body[data-theme='dark'] .greenhouse-page {
   width: 80%;
   height: 6vh;
   border-radius: 50% 50% 10% 10%;
-  background: radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.15), transparent 70%);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.35), transparent 70%);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .gh-distant-pedestal-left {
@@ -713,42 +713,6 @@ body[data-theme='dark'] .gh-path {
 /* Allow terraces to stack naturally. Later terraces appear "closer" in the scroll. */
 .gh-terrace:nth-child(even) {
   z-index: 3;
-}
-
-/* Foreground foliage on some terraces to obscure cloches and reward discovery */
-.gh-terrace-foliage {
-  position: absolute;
-  bottom: 15%;
-  right: -5%;
-  width: 40%;
-  height: 60%;
-  z-index: 10;
-  pointer-events: none;
-  background: 
-    radial-gradient(ellipse at 80% 50%, rgba(36, 81, 61, 0.7) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 20%, rgba(45, 94, 61, 0.5) 0%, transparent 50%);
-  filter: blur(8px);
-  animation: framing-leaf-sway 18s ease-in-out infinite alternate;
-}
-
-.gh-terrace-align-left .gh-terrace-foliage {
-  right: auto;
-  left: -5%;
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(36, 81, 61, 0.7) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 20%, rgba(45, 94, 61, 0.5) 0%, transparent 50%);
-}
-
-body[data-theme='dark'] .gh-terrace-foliage {
-  background: 
-    radial-gradient(ellipse at 80% 50%, rgba(20, 45, 35, 0.8) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 20%, rgba(30, 60, 45, 0.6) 0%, transparent 50%);
-}
-
-body[data-theme='dark'] .gh-terrace-align-left .gh-terrace-foliage {
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(20, 45, 35, 0.8) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 20%, rgba(30, 60, 45, 0.6) 0%, transparent 50%);
 }
 
 /* Stone inscription — habit name etched into the environment */
