@@ -14,8 +14,8 @@
   /* Reset button */
   display: grid;
   place-items: center;
-  width: clamp(7.5rem, 11vw, 11.5rem);
-  height: clamp(9rem, 13vw, 13rem);
+  width: clamp(11rem, 16vw, 17rem);
+  height: clamp(13rem, 19vw, 20rem);
   border: 0;
   padding: 0;
   background: transparent;
@@ -98,7 +98,7 @@
 }
 
 .gh-cloche .plant-preview-svg {
-  width: clamp(5rem, 7.5vw, 7.5rem);
+  width: clamp(7.5rem, 11vw, 11.5rem);
   filter:
     drop-shadow(0 14px 14px rgba(13, 48, 36, 0.1))
     drop-shadow(0 0 14px rgba(255, 230, 177, 0.1));
@@ -237,12 +237,12 @@ body[data-theme='dark'] .gh-cloche-shadow {
    ═══════════════════════════════════════ */
 
 .greenhouse-page[data-archive-state='sanctuary'] .gh-cloche {
-  width: clamp(10rem, 16vw, 14rem);
-  height: clamp(12rem, 18vw, 16rem);
+  width: clamp(15rem, 24vw, 22rem);
+  height: clamp(18rem, 27vw, 25rem);
 }
 
 .greenhouse-page[data-archive-state='sanctuary'] .gh-cloche .plant-preview-svg {
-  width: clamp(7rem, 10vw, 10rem);
+  width: clamp(10.5rem, 15vw, 15rem);
 }
 
 
@@ -287,28 +287,28 @@ body[data-theme='dark'] .gh-cloche-shadow {
 
 @media (max-width: 820px) {
   .gh-cloche {
-    width: 8rem;
-    height: 10rem;
+    width: 12rem;
+    height: 15rem;
   }
 
   .gh-cloche .plant-preview-svg {
-    width: 5.5rem;
+    width: 8.5rem;
   }
 
   .greenhouse-page[data-archive-state='sanctuary'] .gh-cloche {
-    width: 10rem;
-    height: 12rem;
+    width: 15rem;
+    height: 18rem;
   }
 
   .greenhouse-page[data-archive-state='sanctuary'] .gh-cloche .plant-preview-svg {
-    width: 7rem;
+    width: 10.5rem;
   }
 }
 
 @media (max-width: 560px) {
   .gh-cloche {
-    width: 7rem;
-    height: 9.2rem;
+    width: 10rem;
+    height: 13rem;
   }
 
   .gh-cloche-dome {

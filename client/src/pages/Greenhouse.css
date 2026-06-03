@@ -76,6 +76,94 @@ body[data-theme='dark'] .greenhouse-page {
 
 
 /* ═══════════════════════════════════════════════════════════════
+   LAYER 8 — DEEP BACKGROUND
+   Distant conservatory architecture and pathways.
+   Creates the illusion of a massive space extending beyond viewport.
+   ═══════════════════════════════════════════════════════════════ */
+
+.gh-deep-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: calc(var(--gh-ceiling-opacity) * 0.8);
+}
+
+/* Distant path fading into the fog */
+.gh-distant-path {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  width: 80px;
+  height: 40vh;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, rgba(168, 152, 118, 0.08) 60%, rgba(216, 207, 183, 0.15));
+  clip-path: polygon(48% 0, 52% 0, 80% 100%, 20% 100%);
+  filter: blur(4px);
+}
+
+/* Distant architectural arches */
+.gh-distant-arch {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  border-bottom: 2px solid var(--gh-iron-rib);
+  border-radius: 0 0 50% 50%;
+  filter: blur(3px);
+  opacity: 0.4;
+}
+
+.gh-distant-arch-1 {
+  top: 15%;
+  height: 20vh;
+}
+
+.gh-distant-arch-2 {
+  top: 30%;
+  left: 38%;
+  right: 38%;
+  height: 12vh;
+  opacity: 0.2;
+}
+
+/* Distant blurry pedestals */
+.gh-distant-pedestal {
+  position: absolute;
+  bottom: 45%;
+  width: 4vw;
+  height: 8vh;
+  border-radius: 50% 50% 0 0;
+  background: rgba(10, 51, 35, 0.08);
+  filter: blur(6px);
+}
+
+.gh-distant-pedestal-left {
+  left: 35%;
+  background: linear-gradient(180deg, rgba(255, 244, 215, 0.06), rgba(10, 51, 35, 0.1));
+}
+
+.gh-distant-pedestal-right {
+  right: 36%;
+  background: linear-gradient(180deg, rgba(255, 244, 215, 0.04), rgba(10, 51, 35, 0.08));
+}
+
+body[data-theme='dark'] .gh-distant-path {
+  background: linear-gradient(180deg, transparent, rgba(20, 34, 33, 0.15) 60%, rgba(37, 54, 52, 0.25));
+}
+
+body[data-theme='dark'] .gh-distant-pedestal {
+  background: rgba(200, 230, 220, 0.04);
+}
+
+body[data-theme='dark'] .gh-distant-pedestal-left {
+  background: linear-gradient(180deg, rgba(140, 180, 220, 0.03), rgba(0, 0, 0, 0.2));
+}
+
+body[data-theme='dark'] .gh-distant-pedestal-right {
+  background: linear-gradient(180deg, rgba(140, 180, 220, 0.02), rgba(0, 0, 0, 0.15));
+}
+
+/* ═══════════════════════════════════════════════════════════════
    LAYER 7 — GLASS CEILING
    Arched vault with iron ribs. Always visible overhead.
    ═══════════════════════════════════════════════════════════════ */
@@ -856,6 +944,41 @@ body[data-theme='dark'] .gh-empty-link {
     linear-gradient(180deg, transparent, rgba(36, 81, 61, 0.15));
 }
 
+/* Very blurred foreground vines intruding from top corners */
+.gh-framing-vine {
+  position: absolute;
+  top: -5%;
+  width: 15vw;
+  height: 40vh;
+  background: radial-gradient(ellipse at center, rgba(36, 81, 61, 0.6), transparent 70%);
+  filter: blur(12px);
+  animation: framing-leaf-sway 22s ease-in-out infinite alternate;
+}
+
+.gh-framing-vine-left {
+  left: -8%;
+  transform-origin: top left;
+}
+
+.gh-framing-vine-right {
+  right: -8%;
+  transform-origin: top right;
+  animation-delay: -9s;
+}
+
+/* Foreground out-of-focus iron edges */
+.gh-iron-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3vw;
+  background: rgba(10, 51, 35, 0.85);
+  filter: blur(8px);
+}
+
+.gh-iron-edge-left { left: -2vw; }
+.gh-iron-edge-right { right: -2vw; }
+
 body[data-theme='dark'] .gh-fern-left {
   background:
     radial-gradient(ellipse at 30% 85%, rgba(30, 60, 45, 0.6) 0%, transparent 50%),
@@ -871,6 +994,14 @@ body[data-theme='dark'] .gh-fern-right {
 
 body[data-theme='dark'] .gh-moss-edge {
   background: linear-gradient(180deg, transparent, rgba(20, 45, 35, 0.12));
+}
+
+body[data-theme='dark'] .gh-framing-vine {
+  background: radial-gradient(ellipse at center, rgba(20, 45, 35, 0.5), transparent 70%);
+}
+
+body[data-theme='dark'] .gh-iron-edge {
+  background: rgba(8, 16, 14, 0.95);
 }
 
 
@@ -1092,6 +1223,11 @@ body[data-theme='dark'] .gh-whisper span {
   50% { opacity: 0.82; }
 }
 
+@keyframes framing-leaf-sway {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(1.5deg) scale(1.02); }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════
    REDUCED MOTION
@@ -1105,7 +1241,8 @@ body[data-theme='dark'] .gh-whisper span {
   .gh-glass-reflection,
   .gh-dust-mote,
   .gh-empty-cloche::before,
-  .gh-empty-light {
+  .gh-empty-light,
+  .gh-framing-vine {
     animation: none !important;
   }
 }

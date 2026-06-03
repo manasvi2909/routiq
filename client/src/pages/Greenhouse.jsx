@@ -212,6 +212,15 @@ export default function Greenhouse() {
   function renderEnvironment() {
     return (
       <>
+        {/* LAYER 8 — Deep Background (Distant Architecture) */}
+        <div className="gh-deep-background" aria-hidden="true">
+          <div className="gh-distant-arch gh-distant-arch-1" />
+          <div className="gh-distant-arch gh-distant-arch-2" />
+          <div className="gh-distant-path" />
+          <div className="gh-distant-pedestal gh-distant-pedestal-left" />
+          <div className="gh-distant-pedestal gh-distant-pedestal-right" />
+        </div>
+
         {/* LAYER 7 — Glass Ceiling */}
         <div className="gh-ceiling" aria-hidden="true" />
 
@@ -247,11 +256,15 @@ export default function Greenhouse() {
           <div className="gh-arch gh-arch-secondary" />
         </div>
 
-        {/* LAYER 2 — Foreground Vegetation */}
+        {/* LAYER 2 — Foreground Vegetation & Framing */}
         <div className="gh-foreground" aria-hidden="true">
           <div className="gh-fern gh-fern-left" />
           <div className="gh-fern gh-fern-right" />
           <div className="gh-moss-edge" />
+          <div className="gh-framing-vine gh-framing-vine-left" />
+          <div className="gh-framing-vine gh-framing-vine-right" />
+          <div className="gh-iron-edge gh-iron-edge-left" />
+          <div className="gh-iron-edge gh-iron-edge-right" />
         </div>
 
         {/* LAYER 1 — Glass Condensation */}

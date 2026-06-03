@@ -12,10 +12,24 @@ function formatDate(value) {
   });
 }
 
+const Ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth'];
+function getOrdinal(num) {
+  if (!num) return 'First';
+  return Ordinals[num - 1] || `${num}th`;
+}
+
+const NumberWords = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
+function getNumberWord(num) {
+  if (!num) return 'One';
+  return NumberWords[num - 1] || String(num);
+}
+
 export default function MuseumPlacard({ specimen, onClose }) {
   if (!specimen) return null;
 
   const species = getPlantById(specimen.plant_type || 'fern').name;
+  const ordinalBloom = getOrdinal(specimen.milestone_number || 1);
+  const cycleWord = getNumberWord(specimen.growth_cycle_number || 1);
 
   return (
     <aside className="gh-placard" aria-live="polite">
@@ -28,38 +42,34 @@ export default function MuseumPlacard({ specimen, onClose }) {
         <X size={13} strokeWidth={2} aria-hidden="true" />
       </button>
 
-      <span className="gh-placard-kicker">Preserved specimen</span>
-      <h2 className="gh-placard-species">{species}</h2>
+      <div className="gh-placard-content">
+        <h2 className="gh-placard-species">{species}</h2>
 
-      <dl className="gh-placard-data">
-        <div>
-          <dt>Habit</dt>
-          <dd>{specimen.habit_name}</dd>
-        </div>
-        <div>
-          <dt>Preserved</dt>
-          <dd>{formatDate(specimen.grown_at)}</dd>
-        </div>
-        <div>
-          <dt>Milestone</dt>
-          <dd>{specimen.milestone_number || 0}</dd>
-        </div>
-        <div>
-          <dt>Growth cycle</dt>
-          <dd>{specimen.growth_cycle_number || 1}</dd>
-        </div>
-      </dl>
-
-      {specimen.reward_given && (
-        <p className="gh-placard-reward">
-          <span>Reward memory</span>
-          {specimen.reward_given}
+        <p className="gh-placard-narrative">
+          Preserved from <em>{specimen.habit_name}</em>
         </p>
-      )}
 
-      {specimen.isFirstBloom && (
-        <p className="gh-placard-first">The first preserved bloom in this archive.</p>
-      )}
+        <p className="gh-placard-narrative">
+          {formatDate(specimen.grown_at)}
+        </p>
+
+        <p className="gh-placard-narrative gh-placard-cycle">
+          {ordinalBloom} Bloom • Growth Cycle {cycleWord}
+        </p>
+
+        {specimen.isFirstBloom && (
+          <p className="gh-placard-narrative gh-placard-first">
+            The first preserved bloom in this archive.
+          </p>
+        )}
+
+        {specimen.reward_given && (
+          <div className="gh-placard-reward">
+            <span className="gh-placard-reward-label">Reward memory</span>
+            <p className="gh-placard-narrative">{specimen.reward_given}</p>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
