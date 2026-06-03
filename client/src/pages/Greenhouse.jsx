@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import './Greenhouse.css';
-import EmptyConservatory from '../components/greenhouse/EmptyConservatory';
-import EntrancePlaque from '../components/greenhouse/EntrancePlaque';
+
+// Import modular components
 import GreenhouseAtmosphere from '../components/greenhouse/GreenhouseAtmosphere';
+import EntrancePlaque from '../components/greenhouse/EntrancePlaque';
+import CollectionOverview from '../components/greenhouse/CollectionOverview';
 import ConservatoryFloor from '../components/greenhouse/ConservatoryFloor';
+import EmptyConservatory from '../components/greenhouse/EmptyConservatory';
 
 export default function Greenhouse() {
   const [data, setData] = useState(null);
@@ -12,86 +15,70 @@ export default function Greenhouse() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let mounted = true;
+
+    async function fetchGreenhouse() {
+      try {
+        const response = await api.get('/garden/greenhouse');
+        if (mounted) {
+          setData(response.data);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err.response?.data?.error || err.message || 'Failed to open the greenhouse');
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    }
+
     fetchGreenhouse();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const fetchGreenhouse = async () => {
-    try {
-      const response = await api.get('/garden/greenhouse');
-      const responseData = response.data;
-
-      // Tag the earliest bloom in the collection
-      let oldestSpecimen = null;
-      responseData.wings.forEach(wing => {
-        wing.specimens.forEach(spec => {
-          if (!oldestSpecimen || new Date(spec.grown_at) < new Date(oldestSpecimen.grown_at)) {
-            oldestSpecimen = spec;
-          }
-        });
-      });
-      if (oldestSpecimen) {
-        oldestSpecimen.isFirstBloom = true;
-      }
-
-      setData(responseData);
-    } catch (error) {
-      console.error('Error fetching greenhouse:', error);
-      setError(error.message || 'Failed to load conservatory');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) {
-    return <div className="gh-loading">Opening the conservatory...</div>;
+    return (
+      <main className="greenhouse-page gh-loading-scene" data-archive-state="empty">
+        <GreenhouseAtmosphere densityScore={0} />
+        <div className="gh-loading">Opening the preservation glass...</div>
+      </main>
+    );
   }
 
   if (error) {
     return (
-      <div className="greenhouse-page">
-        <div className="gh-loading" style={{ color: 'red' }}>
-          Error: {error}. Please ensure the backend is deployed and migrations are run.
-        </div>
-      </div>
+      <main className="greenhouse-page gh-loading-scene" data-archive-state="empty">
+        <GreenhouseAtmosphere densityScore={0} />
+        <div className="gh-loading">{error}</div>
+      </main>
     );
   }
 
-  if (!data) {
-    return <div className="gh-loading">No data found.</div>;
-  }
-
-  const isEmpty = data.collection.total_blooms === 0;
-
-  // Calculate Environmental Density Score
-  const densityScore = (data.collection.total_blooms * 1) + 
-                       (data.wings.length * 5) + 
-                       ((data.collection.species_cultivated || 0) * 2);
-
-  let conservatoryTitle = "First Specimen";
-  if (densityScore >= 500) {
-    conservatoryTitle = "The Living Archive";
-  } else if (densityScore >= 200) {
-    conservatoryTitle = "The Conservatory";
-  } else if (densityScore >= 50) {
-    conservatoryTitle = "The Greenhouse";
-  } else if (densityScore >= 10) {
-    conservatoryTitle = "Cultivation Table";
-  }
+  const { collection, wings } = data;
+  const totalBlooms = collection?.total_blooms || 0;
+  const archiveStateKey = totalBlooms > 0 ? "populated" : "empty";
 
   return (
-    <div className="greenhouse-page">
-      <GreenhouseAtmosphere densityScore={densityScore} />
+    <main className="greenhouse-page" data-archive-state={archiveStateKey}>
+      <GreenhouseAtmosphere densityScore={totalBlooms} />
 
-      <div className="greenhouse-width">
-        {isEmpty ? (
-          <EmptyConservatory />
-        ) : (
-          <>
-            <EntrancePlaque collection={data.collection} densityScore={densityScore} title={conservatoryTitle} />
-            <ConservatoryFloor wings={data.wings} />
-          </>
-        )}
-      </div>
-    </div>
+      {totalBlooms === 0 ? (
+        <EmptyConservatory />
+      ) : (
+        <div className="gh-archive-walk" aria-label="Preserved botanical archive">
+          <EntrancePlaque 
+            title="The Conservatory" 
+            collection={collection} 
+            densityScore={totalBlooms} 
+          />
+          <CollectionOverview collection={collection} />
+          <ConservatoryFloor wings={wings} />
+        </div>
+      )}
+    </main>
   );
 }
