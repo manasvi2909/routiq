@@ -37,9 +37,6 @@ function Navbar() {
           <Link to="/garden" className={isActive('/garden') ? 'active' : ''}>
             <span>Garden</span>
           </Link>
-          <Link to="/greenhouse" className={isActive('/greenhouse') ? 'active' : ''}>
-            <span>Greenhouse</span>
-          </Link>
           <Link to="/reports" className={isActive('/reports') ? 'active' : ''}>
             <span>Archives</span>
           </Link>

@@ -73,18 +73,6 @@ function Garden() {
             ))}
           </div>
         </section>
-
-        <section className="garden-section">
-          <div className="section-heading">
-            <span className="garden-kicker">Preserved blooms</span>
-            <h2>The Greenhouse</h2>
-          </div>
-          <Link to="/greenhouse" className="greenhouse-link-card glass-panel">
-            {garden.plants_fully_grown > 0
-              ? `Visit the Greenhouse to explore your ${garden.plants_fully_grown} preserved specimen${garden.plants_fully_grown !== 1 ? 's' : ''}.`
-              : 'Complete a full growth cycle to preserve your first bloom in the Greenhouse.'}
-          </Link>
-        </section>
       </div>
     </div>
   );

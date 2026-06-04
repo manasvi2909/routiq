@@ -79,8 +79,7 @@
 .garden-metric-card,
 .catalog-card,
 .garden-card,
-.garden-empty,
-.greenhouse-link-card {
+.garden-empty {
   border: 1px solid rgba(10, 51, 35, 0.08);
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 26%),
@@ -178,21 +177,7 @@
   color: var(--color-text-secondary);
 }
 
-.greenhouse-link-card {
-  display: block;
-  padding: 2.4rem;
-  border-radius: 1.8rem;
-  text-align: center;
-  color: var(--color-text);
-  text-decoration: none;
-  font-size: 1.15rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
 
-.greenhouse-link-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
-}
 
 .garden-loading {
   min-height: 100vh;

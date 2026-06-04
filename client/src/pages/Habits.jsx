@@ -614,7 +614,7 @@ function Habits() {
             <span className="eyebrow">Start New Growth Cycle</span>
             <h2>Your plant has fully grown</h2>
             <p className="milestone-modal-copy">
-              Your {getPlantById(replantHabit.selected_plant_type || 'fern').name.toLowerCase()} has reached maturity. Archive it in your Greenhouse and select a new seed to continue this ritual.
+              Your {getPlantById(replantHabit.selected_plant_type || 'fern').name.toLowerCase()} has reached maturity. Archive it in your Garden and select a new seed to continue this ritual.
             </p>
 
             <form onSubmit={handleReplantSubmit} className="milestone-form">
