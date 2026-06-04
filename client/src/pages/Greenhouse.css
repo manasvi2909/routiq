@@ -1,10 +1,37 @@
 /* ═══════════════════════════════════════════════════════════════
    THE GREENHOUSE PAGE
    
-   Not a page. A destination.
-   The background establishes the atmospheric base;
-   the ConservatoryEnvironment component builds the room on top.
+   A monumental architectural space.
+   The background is a deep, warm interior darkness.
+   The spaces themselves build the architecture.
    ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Global Architectural Tokens */
+  --gh-iron:        #3d6e55;
+  --gh-iron-faint:  #2d4e3d;
+  --gh-glass:       #c8e8d4;
+  
+  --gh-stone-base:  #c4b896;
+  --gh-stone-light: #d8cdb0;
+  --gh-stone-dark:  #a09070;
+  
+  --gh-vine:        #1a5438;
+  --gh-warm:        #ffe8b5;
+}
+
+body[data-theme='dark'] {
+  --gh-iron:        #5a9a7a;
+  --gh-iron-faint:  #3a6a5a;
+  --gh-glass:       #2a6048;
+  
+  --gh-stone-base:  #3a4a3a;
+  --gh-stone-light: #4a5a4a;
+  --gh-stone-dark:  #2a3a2a;
+  
+  --gh-vine:        #2a6e4d;
+  --gh-warm:        #ffd080;
+}
 
 .greenhouse-page {
   position: relative;
@@ -14,21 +41,18 @@
   overflow-y: auto;
   font-family: var(--font-primary);
 
-  /* Deep conservatory base — not flat black, not flat green.
-     A warm dark tone that suggests aged greenhouse interior. */
+  /* Deep conservatory base — the dark interior air */
   background:
-    radial-gradient(ellipse at 50% 30%, #1a3d2e 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 70%, #12281e 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 60%, #15302a 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 10%, rgba(26, 61, 46, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(18, 40, 30, 0.5) 0%, transparent 50%),
     #0a1a12;
   color: rgba(230, 225, 210, 0.9);
 }
 
 body[data-theme='dark'] .greenhouse-page {
   background:
-    radial-gradient(ellipse at 50% 30%, #0e2218 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 70%, #081510 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 60%, #0a1c16 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 10%, rgba(14, 34, 24, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(8, 21, 16, 0.5) 0%, transparent 50%),
     #040d09;
 }
 

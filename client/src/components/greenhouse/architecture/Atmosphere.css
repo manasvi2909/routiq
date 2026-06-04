@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════════════════════
+   ATMOSPHERE
+   Subtle light and air for the conservatory.
+   This sits behind everything (z-index: 0).
+   ═══════════════════════════════════════════════════════════════ */
+
+.gh-atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0; /* Behind architecture */
+  overflow: hidden;
+}
+
+/* ── Light Shafts ── */
+
+.gh-light-shaft {
+  position: absolute;
+  top: -10%;
+  height: 120%;
+  background: linear-gradient(
+    178deg,
+    rgba(255, 244, 215, 0.08) 0%,
+    rgba(255, 244, 215, 0.02) 40%,
+    transparent 80%
+  );
+  transform-origin: top center;
+  animation: gh-light-shift 40s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+.gh-shaft-primary {
+  left: 35%;
+  width: 30%;
+  clip-path: polygon(40% 0%, 60% 0%, 80% 100%, 20% 100%);
+}
+
+.gh-shaft-secondary {
+  left: 55%;
+  width: 20%;
+  opacity: 0.6;
+  clip-path: polygon(30% 0%, 50% 0%, 70% 100%, 10% 100%);
+  animation-delay: -15s;
+  animation-duration: 45s;
+}
+
+body[data-theme='dark'] .gh-light-shaft {
+  background: linear-gradient(
+    178deg,
+    rgba(180, 220, 200, 0.04) 0%,
+    rgba(180, 220, 200, 0.01) 40%,
+    transparent 80%
+  );
+}
+
+@keyframes gh-light-shift {
+  0% {
+    transform: rotate(-3deg) translateX(-2%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: rotate(3deg) translateX(2%);
+    opacity: 1;
+  }
+}
+
+/* ── Dust Motes ── */
+
+.gh-dust-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.gh-mote {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: var(--ms);
+  height: var(--ms);
+  border-radius: 50%;
+  background: var(--gh-warm, #ffe8b5);
+  opacity: 0;
+  animation: gh-mote-drift var(--md) ease-in-out infinite;
+  animation-delay: var(--mdelay);
+  will-change: transform, opacity;
+}
+
+body[data-theme='dark'] .gh-mote {
+  background: #ffd080;
+}
+
+@keyframes gh-mote-drift {
+  0%   { opacity: 0;    transform: translate(0, 0); }
+  20%  { opacity: 0.25; }
+  50%  { opacity: 0.15; transform: translate(15px, -20px); }
+  80%  { opacity: 0.25; }
+  100% { opacity: 0;    transform: translate(-10px, 10px); }
+}
+
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-light-shaft,
+  .gh-mote {
+    animation: none !important;
+  }
+  .gh-mote {
+    opacity: 0.15;
+  }
+}

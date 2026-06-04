@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import './Greenhouse.css';
 
-// The Conservatory — the architectural world itself
-import ConservatoryEnvironment from '../components/greenhouse/architecture/ConservatoryEnvironment';
+// Atmosphere — subtle lighting and dust motes
+import Atmosphere from '../components/greenhouse/architecture/Atmosphere';
 
 // Spaces — distinct rooms within the conservatory
 import Entrance from '../components/greenhouse/spaces/Entrance';
@@ -89,7 +89,7 @@ export default function Greenhouse() {
   if (loading) {
     return (
       <main className="greenhouse-page gh-loading-state" data-archive-state="empty">
-        <ConservatoryEnvironment />
+        <Atmosphere />
         <span className="gh-loading-text">Opening the conservatory…</span>
       </main>
     );
@@ -99,7 +99,7 @@ export default function Greenhouse() {
   if (error) {
     return (
       <main className="greenhouse-page gh-loading-state" data-archive-state="empty">
-        <ConservatoryEnvironment />
+        <Atmosphere />
         <span className="gh-loading-text">{error}</span>
       </main>
     );
@@ -116,13 +116,13 @@ export default function Greenhouse() {
 
   return (
     <main className="greenhouse-page" data-archive-state={tier.key}>
-      {/* The conservatory itself — always visible, even with zero specimens */}
-      <ConservatoryEnvironment />
+      {/* Atmosphere — dust motes and slow light beams (fixed position) */}
+      <Atmosphere />
 
       {/* ── Space 1: The Foyer ── */}
       <Entrance totalBlooms={totalBlooms} tier={tier} />
 
-      {/* ── Space 2: The Central Hall ── */}
+      {/* ── Space 2: The Sanctuary Court ── */}
       {totalBlooms > 0 ? (
         <CentralHall specimens={centralSpecimens} onInspect={handleInspect} />
       ) : (
@@ -136,7 +136,7 @@ export default function Greenhouse() {
         </div>
       )}
 
-      {/* ── Space 3: The Archive Wings ── */}
+      {/* ── Space 3: The Archive Wings (Memory Gallery, Archive Corridor) ── */}
       {wings.map((wingSpecimens, idx) => (
         <ArchiveWing key={`wing-${idx}`} index={idx} specimens={wingSpecimens} onInspect={handleInspect} />
       ))}
