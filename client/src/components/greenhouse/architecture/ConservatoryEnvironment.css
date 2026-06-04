@@ -1,8 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
    CONSERVATORY ENVIRONMENT
-   The complete architectural world of the greenhouse.
-   All layers are fixed to the viewport so the architecture
-   persists while specimens scroll through it.
+   
+   THE BUILDING ITSELF.
+   Not a background. Not wallpaper. The room.
+   
+   Color palette: aged brass, greenhouse iron, oxidized copper,
+   warm stone, glass reflections, moss greens, botanical ivory.
    ═══════════════════════════════════════════════════════════════ */
 
 .gh-env {
@@ -12,22 +15,41 @@
   z-index: 1;
   overflow: hidden;
 
-  /* ── Design Tokens ── */
-  --gh-env-iron:  #4a7a63;
-  --gh-env-glass: #d4f0e0;
-  --gh-env-stone: #b8a882;
-  --gh-env-vine:  #1e5e3d;
-  --gh-env-deep:  #2a6b4f;
-  --gh-env-warm:  #ffe8b5;
+  /* ── Material Palette ── */
+  /* Iron — the structural skeleton */
+  --env-iron:       #3d6e55;
+  --env-iron-faint: #3d6e55;
+
+  /* Glass — the transparent roof surface */
+  --env-glass:      #c8e8d4;
+
+  /* Stone — floor, terraces, plinths */
+  --env-stone:       #c4b896;
+  --env-stone-light: #d8cdb0;
+  --env-stone-dark:  #a09070;
+
+  /* Vine — living vegetation */
+  --env-vine: #1a5438;
+
+  /* Foreground — thick column material (darker than iron) */
+  --env-fg: #0c2a1c;
+
+  /* Atmosphere */
+  --env-haze: #1a4030;
+  --env-warm: #ffe8b5;
 }
 
 body[data-theme='dark'] .gh-env {
-  --gh-env-iron:  #5a9a7a;
-  --gh-env-glass: #3a8060;
-  --gh-env-stone: #8a7a5a;
-  --gh-env-vine:  #2a6e4d;
-  --gh-env-deep:  #3a8060;
-  --gh-env-warm:  #ffd080;
+  --env-iron:       #5a9a7a;
+  --env-iron-faint: #4a8a6a;
+  --env-glass:      #2a6048;
+  --env-stone:       #7a6a4a;
+  --env-stone-light: #8a7a5a;
+  --env-stone-dark:  #5a4a3a;
+  --env-vine: #2a6e4d;
+  --env-fg: #060e0a;
+  --env-haze: #0a2018;
+  --env-warm: #ffd080;
 }
 
 
@@ -40,32 +62,29 @@ body[data-theme='dark'] .gh-env {
   height: 100%;
 }
 
-
-/* Layer 5 — Deep Background */
-.gh-env-deep {
+/* Layer 1 — Deep Background: distant wings, tiny cloches */
+.gh-env-L1 {
   z-index: 1;
-  opacity: 0.6;
-  filter: blur(2px);
+  opacity: 0.5;
+  filter: blur(1.5px);
 }
 
-/* Layer 4 — Background Conservatory */
-.gh-env-bg {
+/* Layer 2 — Background Structure: THE ROOM (arches, columns, roof) */
+.gh-env-L2 {
   z-index: 2;
-  opacity: 0.85;
+  /* NO blur, NO reduced opacity — this must read clearly */
 }
 
-/* Layer 3 — Midground Architecture */
-.gh-env-mid {
+/* Layer 3 — Midground Architecture: terraces, paths, alcoves */
+.gh-env-L3 {
   z-index: 3;
-  opacity: 0.9;
 }
 
-/* Layer 1 — Foreground (vines, partial columns) */
-.gh-env-fg {
-  z-index: 5;
-  opacity: 0.95;
-  /* Slight blur on foreground elements for depth-of-field illusion */
-  filter: blur(0.5px);
+/* Layer 6 — Foreground: immersion framing */
+.gh-env-L6 {
+  z-index: 6;
+  /* Slight depth-of-field blur on the closest elements */
+  filter: blur(0.4px);
 }
 
 
@@ -79,64 +98,58 @@ body[data-theme='dark'] .gh-env {
 
 .gh-env-mote {
   position: absolute;
-  left: var(--mote-x);
-  top: var(--mote-y);
-  width: var(--mote-size);
-  height: var(--mote-size);
+  left: var(--mx);
+  top: var(--my);
+  width: var(--ms);
+  height: var(--ms);
   border-radius: 50%;
-  background: var(--gh-env-warm);
+  background: var(--env-warm);
   opacity: 0;
-  animation: gh-mote-drift var(--mote-duration) ease-in-out infinite;
-  animation-delay: var(--mote-delay);
+  animation: env-mote-drift var(--md) ease-in-out infinite;
+  animation-delay: var(--mdelay);
+  will-change: transform, opacity;
 }
 
-@keyframes gh-mote-drift {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0);
-  }
-  15% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 0.15;
-    transform: translate(15px, -20px);
-  }
-  85% {
-    opacity: 0.25;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-10px, 10px);
-  }
+@keyframes env-mote-drift {
+  0%   { opacity: 0;    transform: translate(0, 0); }
+  20%  { opacity: 0.2; }
+  50%  { opacity: 0.12; transform: translate(12px, -18px); }
+  80%  { opacity: 0.2; }
+  100% { opacity: 0;    transform: translate(-8px, 8px); }
 }
 
 
-/* ── Atmospheric Light Shaft ── */
+/* ── Light Shafts ── */
 
-.gh-env-light {
+.gh-env-shaft {
   position: absolute;
   top: 0;
-  left: 35%;
-  width: 30%;
+  left: 38%;
+  width: 24%;
   height: 100%;
   z-index: 4;
   background: linear-gradient(
-    175deg,
-    rgba(255, 244, 220, 0.08) 0%,
-    rgba(255, 244, 220, 0.04) 30%,
-    transparent 60%
+    178deg,
+    rgba(255, 244, 215, 0.07) 0%,
+    rgba(255, 244, 215, 0.03) 35%,
+    transparent 65%
   );
-  clip-path: polygon(40% 0%, 60% 0%, 75% 100%, 25% 100%);
-  pointer-events: none;
+  clip-path: polygon(42% 0%, 58% 0%, 70% 100%, 30% 100%);
 }
 
-body[data-theme='dark'] .gh-env-light {
+.gh-env-shaft-2 {
+  left: 55%;
+  width: 18%;
+  opacity: 0.5;
+  clip-path: polygon(35% 0%, 55% 0%, 72% 100%, 20% 100%);
+}
+
+body[data-theme='dark'] .gh-env-shaft {
   background: linear-gradient(
-    175deg,
-    rgba(180, 220, 200, 0.06) 0%,
-    rgba(180, 220, 200, 0.02) 30%,
-    transparent 60%
+    178deg,
+    rgba(180, 220, 200, 0.05) 0%,
+    rgba(180, 220, 200, 0.02) 35%,
+    transparent 65%
   );
 }
 
@@ -146,15 +159,6 @@ body[data-theme='dark'] .gh-env-light {
 @media (prefers-reduced-motion: reduce) {
   .gh-env-mote {
     animation: none !important;
-    opacity: 0.15;
-  }
-}
-
-
-/* ── Responsive ── */
-
-@media (max-width: 820px) {
-  .gh-env-fg {
-    filter: blur(0.3px);
+    opacity: 0.12;
   }
 }

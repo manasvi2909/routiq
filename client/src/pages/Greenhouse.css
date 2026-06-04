@@ -1,110 +1,119 @@
 /* ═══════════════════════════════════════════════════════════════
-   THE GREENHOUSE (ARCHITECTURE-FIRST)
+   THE GREENHOUSE PAGE
+   
+   Not a page. A destination.
+   The background establishes the atmospheric base;
+   the ConservatoryEnvironment component builds the room on top.
    ═══════════════════════════════════════════════════════════════ */
 
-   .greenhouse-page {
-    position: relative;
-    width: 100vw;
-    min-height: 100vh;
-    background: radial-gradient(circle at center, #154531 0%, #081a12 100%);
-    color: var(--gh-ink);
-    overflow-x: hidden;
-    overflow-y: auto;
-    font-family: var(--font-primary);
-  }
-  
-  body[data-theme='dark'] .greenhouse-page {
-    background: radial-gradient(circle at center, #0a2118 0%, #040d09 100%);
-  }
-  
-  /* ── Loading / Empty States ── */
-  
-  .gh-loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .gh-loading-text {
-    position: relative;
-    z-index: 20;
-    font-family: var(--font-accent);
-    font-size: 1.25rem;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
-    animation: gh-pulse 2s infinite ease-in-out;
-  }
-  
-  @keyframes gh-pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
-  
-  .gh-empty-sanctuary {
-    position: relative;
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    text-align: center;
-    padding: 2rem;
-  }
-  
-  .gh-empty-text {
-    margin-top: 3rem;
-  }
-  
-  .gh-empty-text span {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .gh-empty-text h1 {
-    font-family: var(--font-accent);
-    font-size: 2rem;
-    margin: 1rem 0;
-    color: rgba(255, 255, 255, 0.9);
-  }
-  
-  .gh-empty-text p {
-    color: rgba(255, 255, 255, 0.7);
-    max-width: 400px;
-    margin: 0 auto 2rem;
-    line-height: 1.6;
-  }
-  
-  .gh-empty-link {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    transition: all 0.2s ease;
-  }
-  
-  .gh-empty-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-  
-  /* ── Footer Whisper ── */
-  .gh-whisper {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.3);
-    z-index: 50;
-    pointer-events: none;
-  }
+.greenhouse-page {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: var(--font-primary);
+
+  /* Deep conservatory base — not flat black, not flat green.
+     A warm dark tone that suggests aged greenhouse interior. */
+  background:
+    radial-gradient(ellipse at 50% 30%, #1a3d2e 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 70%, #12281e 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, #15302a 0%, transparent 50%),
+    #0a1a12;
+  color: rgba(230, 225, 210, 0.9);
+}
+
+body[data-theme='dark'] .greenhouse-page {
+  background:
+    radial-gradient(ellipse at 50% 30%, #0e2218 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 70%, #081510 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, #0a1c16 0%, transparent 50%),
+    #040d09;
+}
+
+
+/* ── Loading / Error States ── */
+
+.gh-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-loading-text {
+  position: relative;
+  z-index: 20;
+  font-family: var(--font-accent, Georgia, serif);
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: rgba(230, 225, 210, 0.6);
+  text-transform: uppercase;
+  animation: gh-pulse 2.5s infinite ease-in-out;
+}
+
+@keyframes gh-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+
+/* ── Empty Sanctuary ── */
+
+.gh-empty-sanctuary {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.gh-empty-text {
+  margin-top: 2rem;
+}
+
+.gh-empty-text span {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(230, 225, 210, 0.4);
+}
+
+.gh-empty-text h1 {
+  font-family: var(--font-accent, Georgia, serif);
+  font-size: 1.6rem;
+  margin: 1rem 0;
+  color: rgba(230, 225, 210, 0.85);
+  letter-spacing: 0.05em;
+}
+
+.gh-empty-text p {
+  color: rgba(230, 225, 210, 0.55);
+  max-width: 380px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+  font-size: 0.9rem;
+}
+
+.gh-empty-link {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid rgba(218, 184, 115, 0.3);
+  border-radius: 3px;
+  color: rgba(230, 225, 210, 0.8);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  transition: all 0.25s ease;
+}
+
+.gh-empty-link:hover {
+  background: rgba(218, 184, 115, 0.08);
+  border-color: rgba(218, 184, 115, 0.5);
+  color: rgba(230, 225, 210, 1);
+}
