@@ -8,29 +8,29 @@
 
 :root {
   /* Global Architectural Tokens */
-  --gh-iron:        #3d6e55;
-  --gh-iron-faint:  #2d4e3d;
-  --gh-glass:       #c8e8d4;
+  --gh-iron:        #2a2c2b; /* Deep oxidized iron */
+  --gh-iron-faint:  #3b3e3c;
+  --gh-glass:       #e3edf2; /* Morning sky reflection */
   
-  --gh-stone-base:  #c4b896;
-  --gh-stone-light: #d8cdb0;
-  --gh-stone-dark:  #a09070;
+  --gh-stone-base:  #e6e2d6; /* Pale travertine */
+  --gh-stone-light: #f5f3ed; /* Ivory highlight */
+  --gh-stone-dark:  #c9c5b7; /* Museum stone shadow */
   
   --gh-vine:        #1a5438;
   --gh-warm:        #ffe8b5;
 }
 
 body[data-theme='dark'] {
-  --gh-iron:        #5a9a7a;
-  --gh-iron-faint:  #3a6a5a;
-  --gh-glass:       #2a6048;
+  --gh-iron:        #1e201f;
+  --gh-iron-faint:  #2a2c2b;
+  --gh-glass:       #1a242c;
   
-  --gh-stone-base:  #3a4a3a;
-  --gh-stone-light: #4a5a4a;
-  --gh-stone-dark:  #2a3a2a;
+  --gh-stone-base:  #2f3130; /* Dim cool limestone */
+  --gh-stone-light: #3a3d3c;
+  --gh-stone-dark:  #222423;
   
   --gh-vine:        #2a6e4d;
-  --gh-warm:        #ffd080;
+  --gh-warm:        #b8d0e6; /* Moonlight rather than warm sun */
 }
 
 .greenhouse-page {
@@ -41,19 +41,20 @@ body[data-theme='dark'] {
   overflow-y: auto;
   font-family: var(--font-primary);
 
-  /* Deep conservatory base — the dark interior air */
+  /* Morning Glasshouse — airy, bright, hazy */
   background:
-    radial-gradient(ellipse at 50% 10%, rgba(26, 61, 46, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 50%, rgba(18, 40, 30, 0.5) 0%, transparent 50%),
-    #0a1a12;
-  color: rgba(230, 225, 210, 0.9);
+    radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.8) 0%, transparent 70%),
+    radial-gradient(ellipse at 20% 50%, rgba(245, 240, 230, 0.6) 0%, transparent 60%),
+    #f2f0e9;
+  color: #333;
 }
 
 body[data-theme='dark'] .greenhouse-page {
   background:
-    radial-gradient(ellipse at 50% 10%, rgba(14, 34, 24, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 50%, rgba(8, 21, 16, 0.5) 0%, transparent 50%),
-    #040d09;
+    radial-gradient(ellipse at 50% 10%, rgba(50, 55, 60, 0.4) 0%, transparent 70%),
+    radial-gradient(ellipse at 20% 50%, rgba(30, 35, 40, 0.5) 0%, transparent 60%),
+    #181a1b;
+  color: rgba(230, 225, 210, 0.9);
 }
 
 

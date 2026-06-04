@@ -118,7 +118,7 @@ body[data-theme='dark'] .gh-cloche[data-plane="foreground"] {
     drop-shadow(0 0 14px rgba(255, 230, 177, 0.1));
 }
 
-/* ── Brass Pedestal ── */
+/* ── Stone Dais (Pedestal) ── */
 .gh-cloche-pedestal {
   position: absolute;
   left: 18%;
@@ -127,14 +127,13 @@ body[data-theme='dark'] .gh-cloche[data-plane="foreground"] {
   height: 1.5rem;
   border-radius: 50% 50% 18% 18%;
   background:
-    linear-gradient(180deg,
-      rgba(218, 184, 115, 0.82),
-      rgba(96, 78, 49, 0.48)
-    ),
-    #b99558;
+    /* Thin brass seal ring at the top */
+    linear-gradient(180deg, #d4af37 0%, #a67c00 12%, transparent 12%),
+    /* Carved limestone block */
+    linear-gradient(180deg, var(--gh-stone-light) 12%, var(--gh-stone-base) 60%, var(--gh-stone-dark) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 10px 16px rgba(25, 44, 34, 0.12);
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    0 10px 16px rgba(0, 0, 0, 0.2);
   transition: transform 460ms ease;
 }
 
@@ -238,8 +237,8 @@ body[data-theme='dark'] .gh-cloche:focus-visible .gh-cloche-dome {
 
 body[data-theme='dark'] .gh-cloche-pedestal {
   background:
-    linear-gradient(180deg, rgba(208, 178, 115, 0.7), rgba(80, 64, 40, 0.4)),
-    #d0b273;
+    linear-gradient(180deg, #aa8822 0%, #775511 12%, transparent 12%),
+    linear-gradient(180deg, var(--gh-stone-light) 12%, var(--gh-stone-base) 60%, var(--gh-stone-dark) 100%);
 }
 
 body[data-theme='dark'] .gh-cloche-shadow {
