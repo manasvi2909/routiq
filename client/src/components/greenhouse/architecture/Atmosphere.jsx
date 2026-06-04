@@ -14,6 +14,7 @@ export default function Atmosphere() {
       {/* ── Light Shafts ── */}
       <div className="gh-light-shaft gh-shaft-primary" />
       <div className="gh-light-shaft gh-shaft-secondary" />
+      <div className="gh-light-shaft gh-shaft-tertiary" />
 
       {/* ── Dust Motes ── */}
       <div className="gh-dust-particles">

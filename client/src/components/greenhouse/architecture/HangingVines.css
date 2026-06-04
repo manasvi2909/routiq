@@ -17,6 +17,13 @@ body[data-theme='dark'] .gh-hanging-vines {
   width: 100%;
   height: 100%;
   opacity: 0.8;
+  transform-origin: top center;
+  animation: gh-vine-sway 12s ease-in-out infinite alternate;
+}
+
+@keyframes gh-vine-sway {
+  0% { transform: rotate(-2deg); }
+  100% { transform: rotate(2deg); }
 }
 
 /* Alignment */
