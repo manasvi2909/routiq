@@ -160,7 +160,7 @@ body[data-theme='dark'] .gh-cloche[data-plane="foreground"] {
 .gh-cloche:hover,
 .gh-cloche:focus-visible,
 .gh-cloche.is-inspected {
-  transform: translate(-50%, -56%) scale(calc(var(--cloche-scale, 1) * 1.08));
+  transform: scale(1.06);
   filter: blur(0px) saturate(1.06) !important;
   opacity: 1 !important;
   z-index: 100 !important;
