@@ -1,5 +1,4 @@
 import React from 'react';
-import StonePlinth from '../architecture/StonePlinth';
 import GlassCloche from '../GlassCloche';
 import './Spaces.css';
 
@@ -108,19 +107,17 @@ export default function ArchiveWing({ specimens, onInspect, index }) {
           const isLeft = idx % 2 === 0;
           return (
             <div key={specimen.id} className={`gh-wing-item ${isLeft ? 'gh-wing-left' : 'gh-wing-right'}`}>
-              <StonePlinth>
-                <GlassCloche
-                  specimen={specimen}
-                  placement={{
-                    '--cloche-x': '50%',
-                    '--cloche-y': '50%',
-                    '--cloche-scale': '0.9',
-                  }}
-                  plane="midground"
-                  tier="first-archive"
-                  onInspect={onInspect}
-                />
-              </StonePlinth>
+              <GlassCloche
+                specimen={specimen}
+                placement={{
+                  '--cloche-x': '50%',
+                  '--cloche-y': '50%',
+                  '--cloche-scale': '0.9',
+                }}
+                plane="midground"
+                tier="first-archive"
+                onInspect={onInspect}
+              />
             </div>
           );
         })}

@@ -1,5 +1,4 @@
 import React from 'react';
-import StonePlinth from '../architecture/StonePlinth';
 import GlassCloche from '../GlassCloche';
 import './Spaces.css';
 
@@ -180,15 +179,13 @@ export default function CentralHall({ specimens, onInspect }) {
             
             return (
               <div key={specimen.id} className={`gh-hall-item ${isCenter ? 'gh-hall-center' : `gh-hall-side gh-hall-side-${idx}`}`}>
-                <StonePlinth>
-                  <GlassCloche
-                    specimen={specimen}
-                    placement={placement}
-                    plane={isCenter ? 'foreground' : 'midground'}
-                    tier={isCenter ? 'sanctuary' : 'botanical-archive'}
-                    onInspect={onInspect}
-                  />
-                </StonePlinth>
+                <GlassCloche
+                  specimen={specimen}
+                  placement={placement}
+                  plane={isCenter ? 'foreground' : 'midground'}
+                  tier={isCenter ? 'sanctuary' : 'botanical-archive'}
+                  onInspect={onInspect}
+                />
               </div>
             );
           })}

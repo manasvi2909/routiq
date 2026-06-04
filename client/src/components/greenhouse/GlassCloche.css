@@ -138,16 +138,16 @@ body[data-theme='dark'] .gh-cloche[data-plane="foreground"] {
   transition: transform 460ms ease;
 }
 
-/* ── Ground Shadow ── */
+/* ── Ground Shadow (Anchors directly to SVG floor) ── */
 .gh-cloche-shadow {
   position: absolute;
-  left: 22%;
-  right: 22%;
-  bottom: 10%;
-  height: 1rem;
+  left: 10%;
+  right: 10%;
+  bottom: 5%;
+  height: 1.5rem;
   border-radius: 50%;
-  background: rgba(8, 38, 28, 0.16);
-  filter: blur(7px);
+  background: rgba(0, 0, 0, 0.4);
+  filter: blur(12px);
   transition: transform 460ms ease, opacity 460ms ease;
 }
 
