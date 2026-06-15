@@ -1,21 +1,37 @@
 # RoutiQ
 
-RoutiQ is a high-performance, enterprise-grade behavioral optimization platform constructed as a database-driven ecosystem for tracking personal habits, cognitive fluctuations, and biological reflections. 
+RoutiQ is a habit and behavior tracking platform that helps users monitor habits, log moods, reflect on their progress, and identify behavioral patterns over time.
 
-Stepping away from generalized performance trackers, RoutiQ leverages complex botanical modeling logic, Pearson-correlation behavioral mathematics, and an AI-powered stateful reflection core to drive meaningful sustainable growth.
+The project combines habit tracking, mood analysis, journaling, and AI-assisted reflections in a single application. It was built using React, Node.js, Express, PostgreSQL, and Google Gemini.
+
+## My Contributions
+
+This was a three-person group project focused on building a behavior-tracking platform backed by a PostgreSQL database.
+
+My contributions to the project included:
+
+* Designing the PostgreSQL database schema for users, habits, habit logs, mood entries, and reflection records.
+* Creating relationships between tables using primary and foreign keys to maintain data consistency.
+* Implementing database initialization and setup scripts for local deployment.
+* Structuring the database to support habit tracking, mood logging, journaling, and progress analytics.
+* Designing data models for user preferences, completion history, and reflection storage.
+* Collaborating with the backend team to ensure the database supported API and application requirements.
 
 ---
 
-## 1. Product Capability Index
+# 1. Features
 
-The platform delivers an integrated suite of architectural primitives designed to translate daily behavior into durable assets:
+RoutiQ provides several tools to help users build and maintain positive habits:
 
-*   **Dynamic Habit Structures:** Establishes deep contextual anchors including sequential timing, internal motivations, high-friction deterrents, and specified goal windows.
-*   **Botanical Progression Modeling:** Translates integer-bound dataset completions directly into visual specimen growth stages, supporting collectible asset archiving within the Arboretum.
-*   **Integrated High-Density Analytics:** Executes frequency heatmapping and stress-to-performance correlation parsing at runtime for instantaneous behavioral pattern recognition.
-*   **Omnichannel State Synchronization:** Delivers persistent automated dark-mode rendering and glass-morphism UI optimization across all client contexts.
+* **Habit Tracking:** Create habits, track progress, and monitor completion history.
+* **Growth Visualization:** Represent habit progress through plant-growth inspired visual stages.
+* **Mood Tracking:** Log daily mood scores and notes to identify patterns over time.
+* **Behavior Analytics:** Compare habits, mood trends, and activity data through visual reports.
+* **AI Reflections:** Generate personalized reflections and suggestions using Google Gemini.
 
 ---
+
+# 2. Technical Architecture
 
 ## 2. Technical Architecture
 
@@ -77,9 +93,15 @@ erDiagram
     HABITS ||--o{ LOGS : "documents"
 ```
 
-### 2.2 Architectural Flow & Security Design
 
-Communication cycles between the presentation layer and persisted databases utilize standardized JWT verification and asynchronous dispatch modeling.
+## 2.2 Application Flow
+
+The application follows a standard client-server architecture:
+
+* React frontend for user interaction
+* Express backend for API handling
+* JWT authentication for secure access
+* PostgreSQL for data storage
 
 ```mermaid
 sequenceDiagram
@@ -107,45 +129,57 @@ sequenceDiagram
 
 ---
 
-## 3. Core Module Detail
+# 3. Core Modules
 
-### 3.1 The Oracle Companion Engine
-The Oracle functions as a stateful, local reflection assistant initialized with custom psychology modules. It delivers real-time intervention tactics spanning custom inversion action plans, cue-anchoring tactics, and burnout prevention analytics.
+## 3.1 Oracle Reflection Engine
 
-| System Topic | Vector Directives | Operational Focus |
-| :--- | :--- | :--- |
-| Burnout Thresholds | stress, overwhelmed | Analyzes load variables to trigger recovery warnings. |
-| Volatility Timing | peak, dip, window | Determines optimal throughput windows within the cycle. |
-| Headspace Correlation | mood, emotion | Maps internal states against raw habit completions. |
-| Loop Optimization | loop, craving, reward | Architecting sequential cues for friction minimization. |
-| Friction Engineering | harder, easy | Adjusting variables to reduce starting resistance. |
+The Oracle module provides AI-assisted reflections based on user activity, mood history, and journaling data. It helps users identify patterns, maintain consistency, and reflect on long-term progress.
 
-### 3.2 Statistical Reporting Matrix
-*   **Mastery Bloom:** An SVG functional render translating fractional consistency directly into radial floral path geometry.
-*   **Stress Curve Overlay:** A dual-axis path overlaying average daily completions against internal reported stress integers.
-*   **Qualitative Reflective Aggregation:** Extracts inline unstructured text inputs to feed the unified notes database view.
+| System Topic          | Vector Directives     | Operational Focus                                        |
+| :-------------------- | :-------------------- | :------------------------------------------------------- |
+| Burnout Thresholds    | stress, overwhelmed   | Detects signs of overload and suggests recovery actions. |
+| Volatility Timing     | peak, dip, window     | Identifies productive and low-energy periods.            |
+| Headspace Correlation | mood, emotion         | Relates mood patterns to habit completion data.          |
+| Loop Optimization     | loop, craving, reward | Helps improve consistency through behavioral cues.       |
+| Friction Engineering  | harder, easy          | Suggests ways to reduce barriers to habit completion.    |
 
----
+## 3.2 Analytics Dashboard
 
-## 4. Developer Stack
+The platform includes visual reports that help users understand their progress:
 
-### Presentation & Engine
-*   React 18
-*   Vite Compiler
-*   Node.js runtime
-*   Express API Controller
-*   PostgreSQL
-*   Axios Networking
-
-### Utility & Security
-*   Lucide vector engine
-*   JSON Web Token Auth
-*   BCrypt Salt Verification
-*   Date-FNS chronological manipulation
+* **Mastery Bloom:** Visual representation of consistency and habit growth.
+* **Stress Curve Overlay:** Compares completion trends with self-reported stress levels.
+* **Reflection Summary:** Aggregates journal and reflection entries for review.
 
 ---
 
-## 5. Repository Topography
+# 4. Tech Stack
+
+## Frontend
+
+* React 18
+* Vite
+* Axios
+
+## Backend
+
+* Node.js
+* Express.js
+
+## Database
+
+* PostgreSQL
+
+## Authentication & Utilities
+
+* JWT Authentication
+* bcrypt
+* date-fns
+* Lucide Icons
+
+---
+
+# 5. Project Structure
 
 ```text
 routiq-dbms-project/
@@ -166,59 +200,57 @@ routiq-dbms-project/
 
 ---
 
-## 6. Installation Protocols
+# 6. Setup Instructions
 
 > [!IMPORTANT]
-> **STORAGE OPTIMIZATION NOTICE:**
-> To keep the backup zipped archive ultra-lightweight (saving over 169 MB), all `node_modules` folders have been omitted. Before attempting to run the project locally, you **MUST** restore these dependencies.
+> To reduce repository size, `node_modules` folders are not included. Install dependencies before running the project.
 
-### Prerequisites
-*   Node.js (18+)
-*   PostgreSQL Database Cluster
+## Prerequisites
 
-### 1. Restore & Install Dependencies
-Run the unified installer script from the **root directory** of the project to automatically install dependencies for the Root package, the Express Server, and the React Client:
+* Node.js (18+)
+* PostgreSQL
+
+### Install Dependencies
+
 ```bash
 npm run install-all
 ```
 
+### Create Database
 
-### 2. Database Initialization
-Execute external pool commands to initialize raw clusters:
 ```bash
 createdb habit_tracker
 ```
-Deploy standard database procedures from root:
+
+### Initialize Database
+
 ```bash
 cd server && node -e "require('./database/init').initDatabase().then(() => process.exit(0))"
 ```
 
-### 3. Operational Execution
-Initiate unified dual-threaded local clusters:
+### Run the Application
+
 ```bash
 npm run dev
 ```
-Default standard execution:
-*   Client Endpoint: `http://localhost:3000`
-*   API Controller: `http://localhost:5600`
+
+The application will be available at:
+
+* Frontend: http://localhost:3000
+* Backend API: http://localhost:5600
 
 ---
 
-## 7. Environment Variables Configuration
+# 7. Environment Variables
 
-Manual environment configuration requires a `server/.env` declaration. Create a file named `.env` inside the `server/` directory and populate it with your local credentials:
+Create a `.env` file inside the `server/` directory:
 
 ```env
-# PostgreSQL connection string
 DATABASE_URL=postgresql://[USER]:[PASS]@localhost:5432/habit_tracker
 
-# JWT Signing Secret (used for sessions)
 JWT_SECRET=[YOUR_JWT_SECRET_HERE]
 
-# Express Server Port
 PORT=5600
 
-# Google Gemini API Key (required for The Oracle AI reflection feature)
 GEMINI_API_KEY=[YOUR_GEMINI_API_KEY_HERE]
 ```
-
