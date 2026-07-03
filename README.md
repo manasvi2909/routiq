@@ -42,55 +42,146 @@ The underlying DBMS handles strict relational integrity, supporting cascaded ope
 ```mermaid
 erDiagram
     USERS {
-        SERIAL id PK
-        VARCHAR username "unique, not null"
-        VARCHAR email "unique, not null"
-        VARCHAR password_hash
-        TIMESTAMP created_at
-        TIME reminder_time
-        BOOLEAN reminder_enabled
-        INTEGER plants_fully_grown
-        TEXT avatar "base64 custom profile image"
-        VARCHAR coaching_personality "default: 'analytical'"
+        SERIAL id PK "auto-increment primary key"
+        VARCHAR username "unique, not null, max 50"
+        VARCHAR email "unique, not null, max 100"
+        VARCHAR password_hash "not null, bcrypt hash, max 255"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
+        TIME reminder_time "default: 09:00:00"
+        BOOLEAN reminder_enabled "default: true"
+        INTEGER plants_fully_grown "default: 0, denormalized counter"
+        TEXT avatar "default: null, base64 profile image"
+        VARCHAR coaching_personality "default: analytical, max 30"
         INTEGER friction_threshold "default: 3"
     }
+
     HABITS {
-        SERIAL id PK
-        INTEGER user_id FK
-        VARCHAR title
-        VARCHAR description
-        VARCHAR plant_type
-        INTEGER current_stage
-        TIMESTAMP created_at
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        VARCHAR name "not null, max 100"
+        TEXT description "nullable"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
+        BOOLEAN is_active "default: true"
+        TEXT when_specifically "reflection anchor: when to do it"
+        TEXT what_motivating "reflection anchor: motivation"
+        TEXT what_hindering "reflection anchor: obstacles"
+        TEXT whom_tell "reflection anchor: accountability partner"
+        TEXT who_inspires "reflection anchor: role model"
+        TEXT milestones "reflection anchor: target milestones"
+        TEXT treat_myself "reflection anchor: reward plan"
+        INTEGER consecutive_days "default: 0, denormalized streak"
+        INTEGER total_completions "default: 0, denormalized count"
+        TIMESTAMP last_completed_at "nullable, denormalized"
+        TIME habit_time "nullable, scheduled daily time"
+        TEXT current_goal "nullable, active goal text"
+        TEXT current_reward "nullable, active reward text"
+        INTEGER goal_window_days "default: 1, range 1-30"
+        TIMESTAMP current_goal_started_at "default: CURRENT_TIMESTAMP"
+        TIMESTAMP current_goal_due_at "nullable, computed deadline"
+        BOOLEAN current_goal_completed "default: false"
+        TIMESTAMP goal_reminder_sent_at "nullable, prevents duplicate reminders"
+        INTEGER milestones_achieved "default: 0"
+        INTEGER fully_grown_count "default: 0, total plant cycles"
+        INTEGER growth_stage "default: 0, current plant progress"
+        VARCHAR selected_plant_type "default: fern, max 50"
+        TIMESTAMP last_reward_claimed_at "nullable"
+        BOOLEAN is_inconsistent "default: false, auto-flagged"
+        TEXT continue_reason "nullable, user reflection on inconsistency"
+        TEXT failure_analysis "nullable, user reflection on failure"
     }
-    LOGS {
-        SERIAL id PK
-        INTEGER habit_id FK
-        DATE date "not null"
-        INTEGER completion_status "0 to 3 completion scale"
-        TIMESTAMP created_at
+
+    HABIT_LOGS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER habit_id FK "not null, references habits(id) ON DELETE CASCADE"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        DATE log_date "not null, UNIQUE with habit_id"
+        INTEGER completion_percentage "default: 0, CHECK 0-3"
+        VARCHAR mood "nullable, max 50"
+        INTEGER stress_level "nullable, CHECK 1-5"
+        TEXT notes "nullable, daily reflection"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
     }
-    MOOD {
-        SERIAL id PK
-        INTEGER user_id FK
-        DATE date "not null"
-        INTEGER score "1 to 5 mood scale"
-        TEXT note
-        TIMESTAMP created_at
+
+    MOOD_LOGS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        DATE log_date "not null, UNIQUE with user_id"
+        VARCHAR mood "not null, max 50"
+        INTEGER stress_level "nullable, CHECK 1-5"
+        TEXT notes "nullable, mood reflection"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
     }
+
+    WEEKLY_REPORTS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        DATE week_start_date "not null, UNIQUE with user_id"
+        DATE week_end_date "not null"
+        INTEGER total_habits "default: 0"
+        INTEGER consistent_habits "default: 0"
+        INTEGER inconsistent_habits "default: 0"
+        INTEGER total_completions "default: 0"
+        VARCHAR average_mood "nullable, max 50"
+        DECIMAL average_stress "precision 3 scale 2"
+        JSONB report_data "semi-structured analytics blob"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
+    }
+
+    SUB_TASKS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER habit_id FK "not null, references habits(id) ON DELETE CASCADE"
+        VARCHAR name "not null, max 200"
+        TEXT description "nullable"
+        BOOLEAN is_completed "default: false"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
+        TIMESTAMP completed_at "nullable, set on completion"
+        INTEGER order_index "default: 0, user-defined sort"
+    }
+
+    NOTIFICATIONS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        INTEGER habit_id FK "nullable, references habits(id) ON DELETE CASCADE"
+        TEXT message "not null"
+        VARCHAR notification_type "default: reminder, max 50"
+        BOOLEAN is_read "default: false"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
+    }
+
+    GARDEN_PLANTS {
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "not null, references users(id) ON DELETE CASCADE"
+        INTEGER habit_id FK "nullable, references habits(id) ON DELETE SET NULL"
+        VARCHAR habit_name "nullable, max 100, denormalized archive"
+        VARCHAR plant_type "not null, max 50"
+        INTEGER milestone_number "default: 0"
+        TEXT reward_given "nullable, archived reward text"
+        TIMESTAMP grown_at "default: CURRENT_TIMESTAMP"
+        INTEGER growth_cycle_number "default: 1"
+        INTEGER growth_stage_reached "default: 0"
+    }
+
     ORACLE_MEMORIES {
-        SERIAL id PK
-        INTEGER user_id FK
-        TEXT content "semantic reflections"
-        REAL_array embedding "vector coordinates"
-        VARCHAR category "memory type"
-        TIMESTAMP created_at
+        SERIAL id PK "auto-increment primary key"
+        INTEGER user_id FK "nullable, references users(id) ON DELETE CASCADE"
+        TEXT content "not null, semantic reflection text"
+        REAL_ARRAY embedding "nullable, vector coordinates for cosine similarity"
+        VARCHAR category "nullable, max 50, memory type tag"
+        TIMESTAMP created_at "default: CURRENT_TIMESTAMP"
     }
 
     USERS ||--o{ HABITS : "curates"
-    USERS ||--o{ MOOD : "logs"
+    HABITS ||--o{ HABIT_LOGS : "documents"
+    USERS ||--o{ HABIT_LOGS : "authors"
+    USERS ||--o{ MOOD_LOGS : "logs"
+    USERS ||--o{ WEEKLY_REPORTS : "generates"
+    HABITS ||--o{ SUB_TASKS : "decomposes into"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    HABITS ||--o{ NOTIFICATIONS : "triggers"
+    USERS ||--o{ GARDEN_PLANTS : "cultivates"
+    HABITS ||--o{ GARDEN_PLANTS : "grows"
     USERS ||--o{ ORACLE_MEMORIES : "retains"
-    HABITS ||--o{ LOGS : "documents"
+
 ```
 
 
